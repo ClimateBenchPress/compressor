@@ -1,0 +1,11 @@
+/.venv
+/.ropeproject
+/.pytest_cache
+/.ruff_cache
+/uv.lock
+
+/build
+/site
+
+**/__pycache__
+**/*.egg-info

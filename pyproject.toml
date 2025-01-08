@@ -1,0 +1,10 @@
+[project]
+name = "climatebenchpress.compressor"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["ipykernel~=6.29", "ruff~=0.8"]
