@@ -1,0 +1,10 @@
+name = "SZ3"
+
+[[codec]]
+name = "sz3"
+import = "fcbench.codecs.Sz3"
+kind = "lossy"
+
+[codec.parameters]
+eb_mode = { type = "str", value = "abs" }
+eb_abs = { type = "float", value = 0.01 }

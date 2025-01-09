@@ -6,7 +6,7 @@ from pathlib import Path
 import fcbench
 import xarray as xr
 
-from dask.diagnostics import ProgressBar
+from dask.diagnostics.progress import ProgressBar
 
 
 fcbench.codecs.preload()
@@ -23,27 +23,48 @@ def _convert_to_json_serializable(o):
     return o
 
 
-compressor = [
-    fcbench.codecs.Sz3(eb_mode="abs", eb_abs=0.01),
-]
+datasets = Path("..") / "data-loader" / "datasets"
+compressors = Path("compressors")
+compressed_datasets = Path("compressed-datasets")
 
+for dataset in datasets.iterdir():
+    if dataset.name == ".gitignore":
+        continue
 
-decompressed = Path("decompressed.zarr")
-if not decompressed.exists():
-    ds = xr.open_dataset("../data-loader/data/cmip6/standardized.zarr", chunks=dict())
+    dataset /= "standardized.zarr"
 
-    measurements = []
+    for compressor in compressors.iterdir():
+        compressed_dataset = compressed_datasets / dataset.parent.name / compressor.stem
+        compressed_dataset.mkdir(parents=True, exist_ok=True)
 
-    ds_new = {
-        v: fcbench.compressor.compress_decompress(
-            da, compressor, measurements=measurements
-        )
-        for v, da in ds.items()
-    }
-    ds_new = xr.Dataset(ds_new, coords=ds.coords, attrs=ds.attrs)
+        compressed_dataset_path = compressed_dataset / "decompressed.zarr"
 
-    with open("measurements.json", "w") as f:
-        json.dump(_convert_to_json_serializable(measurements), f)
+        if compressed_dataset_path.exists():
+            continue
 
-    with ProgressBar():
-        ds_new.to_zarr(decompressed, encoding=dict(), compute=False).compute()
+        compressor = fcbench.compressor.Compressor.from_config_file(compressor)
+        compressor = list(compressor.concrete)
+        assert (
+            len(compressor) == 1
+        ), "only non-paramteric compressors are supported for now"
+        compressor = compressor[0].build()
+
+        ds = xr.open_dataset(dataset, chunks=dict())
+
+        measurements = []
+
+        ds_new = {
+            v: fcbench.compressor.compress_decompress(
+                da, compressor, measurements=measurements
+            )
+            for v, da in ds.items()
+        }
+        ds_new = xr.Dataset(ds_new, coords=ds.coords, attrs=ds.attrs)
+
+        with (compressed_dataset / "measurements.json").open("w") as f:
+            json.dump(_convert_to_json_serializable(measurements), f)
+
+        with ProgressBar():
+            ds_new.to_zarr(
+                compressed_dataset_path, encoding=dict(), compute=False
+            ).compute()
