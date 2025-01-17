@@ -3,33 +3,27 @@ from pathlib import Path
 
 import pandas as pd
 
-datasets = Path("..") / "data-loader" / "datasets"
-compressors = Path("compressors")
 compressed_datasets = Path("compressed-datasets")
+metrics_path = Path("metrics")
 
-for dataset in datasets.iterdir():
+for dataset in metrics_path.iterdir():
     if dataset.name == ".gitignore":
         continue
-
-    dataset /= "standardized.zarr"
 
     print(50 * "=")
     print(f"Results on {dataset.parent.name}")
     print(50 * "=")
     data = []
-    for compressor in compressors.iterdir():
-        compressed_dataset = compressed_datasets / dataset.parent.name / compressor.stem
-        compressed_dataset.mkdir(parents=True, exist_ok=True)
+    for compressor in (metrics_path / dataset.name).iterdir():
+        compressor_metrics = metrics_path / dataset.name / compressor.stem
 
-        compressed_dataset_path = compressed_dataset / "decompressed.zarr"
+        metrics = pd.read_csv(compressor_metrics / "metrics.csv")
 
-        metrics_path = compressed_dataset / "metrics.csv"
-        metrics = pd.read_csv(metrics_path)
+        tests = pd.read_csv(compressor_metrics / "tests.csv")
 
-        tests_path = compressed_dataset / "tests.csv"
-        tests = pd.read_csv(tests_path)
-
-        with open(compressed_dataset / "measurements.json") as f:
+        with open(
+            compressed_datasets / dataset.name / compressor.stem / "measurements.json"
+        ) as f:
             measurements = json.load(f)
 
         measurements = pd.DataFrame(

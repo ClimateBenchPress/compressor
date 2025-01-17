@@ -41,7 +41,9 @@ class SpectralError(Metric):
     def __call__(self, x: xr.DataArray, y: xr.DataArray) -> float:
         """
         Compute the mean squared error in the spectral energy between the two inputs.
-        Spectral energy is computed using the radially averaged power spectral density.
+        Spectral energy is computed using the radially averaged power spectral density
+        on the (lon, lat) 2D field and then the error is averaged over the remaining
+        dimensions.
 
         Parameters
         ----------
