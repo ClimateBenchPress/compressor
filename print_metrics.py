@@ -10,9 +10,9 @@ for dataset in metrics_path.iterdir():
     if dataset.name == ".gitignore":
         continue
 
-    print(50 * "=")
-    print(f"Results on {dataset.parent.name}")
-    print(50 * "=")
+    print(100 * "=")
+    print(f"Results on {dataset.name}")
+    print(100 * "=" + "\n")
     data = []
     for compressor in (metrics_path / dataset.name).iterdir():
         compressor_metrics = metrics_path / dataset.name / compressor.stem
