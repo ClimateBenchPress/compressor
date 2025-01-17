@@ -7,7 +7,7 @@ import climatebenchpress.compressor
 
 datasets = Path("..") / "data-loader" / "datasets"
 compressed_datasets = Path("compressed-datasets")
-metrics_path = Path("metrics")
+metrics_dir = Path("metrics")
 
 EVALUATION_METRICS = {
     "MAE": climatebenchpress.compressor.metrics.MAE(),
@@ -42,32 +42,36 @@ for dataset in datasets.iterdir():
             compressed_dataset_path, chunks=dict(), engine="zarr"
         ).compute()
 
-        compressor_metrics = metrics_path / dataset.parent.name / compressor.stem
+        compressor_metrics = metrics_dir / dataset.parent.name / compressor.stem
         compressor_metrics.mkdir(parents=True, exist_ok=True)
 
-        metrics = []
-        for name, metric in EVALUATION_METRICS.items():
-            for v in ds_new:
-                error = metric(ds[v], ds_new[v])
-                metrics.append(
-                    {
-                        "metric": name,
-                        "variable": v,
-                        "error": error,
-                    }
-                )
-        pd.DataFrame(metrics).to_csv(compressor_metrics / "metrics.csv", index=False)
+        metrics_path = compressor_metrics / "metrics.csv"
+        if not metrics_path.exists():
+            metrics = []
+            for name, metric in EVALUATION_METRICS.items():
+                for v in ds_new:
+                    error = metric(ds[v], ds_new[v])
+                    metrics.append(
+                        {
+                            "metric": name,
+                            "variable": v,
+                            "error": error,
+                        }
+                    )
+            pd.DataFrame(metrics).to_csv(metrics_path, index=False)
 
-        tests = []
-        for name, test in PASSFAIL_TESTS.items():
-            for v in ds_new:
-                test_result, test_value = test(ds[v], ds_new[v])
-                tests.append(
-                    {
-                        "test": name,
-                        "variable": v,
-                        "passed": test_result,
-                        "value": test_value,
-                    }
-                )
-        pd.DataFrame(tests).to_csv(compressor_metrics / "tests.csv", index=False)
+        tests_path = compressor_metrics / "tests.csv"
+        if not tests_path.exists():
+            tests = []
+            for name, test in PASSFAIL_TESTS.items():
+                for v in ds_new:
+                    test_result, test_value = test(ds[v], ds_new[v])
+                    tests.append(
+                        {
+                            "test": name,
+                            "variable": v,
+                            "passed": test_result,
+                            "value": test_value,
+                        }
+                    )
+            pd.DataFrame(tests).to_csv(tests_path, index=False)
