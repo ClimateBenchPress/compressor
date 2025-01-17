@@ -14,5 +14,5 @@ class R2(Test):
         result = scipy.stats.linregress(
             x.values[nan_mask].flatten(), y.values[nan_mask].flatten()
         )
-        r2 = result.rvalue**2
+        r2 = float(result.rvalue**2)
         return bool(r2 > self.threshold), r2

@@ -5,11 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "cf-xarray==0.10.0",
+    "cf-xarray~=0.10",
     "dask==2024.12.0",
     "field-compression-benchmark==0.0.15",
-    "pandas~=2.2.3",
-    "tabulate~=0.9.0",
+    "pandas~=2.2",
+    "scipy~=1.15",
+    "tabulate~=0.9",
     "xarray==2024.11.0",
     "zarr==2.18.3",
 ]
@@ -17,6 +18,15 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ipykernel~=6.29",
-    "pre-commit~=4.0.1",
+    "mypy~=1.14",
+    "pandas-stubs~=2.2",
+    "pre-commit~=4.0",
     "ruff~=0.8",
+    "scipy-stubs~=1.15",
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"climatebenchpress.compressor" = ["py.typed"]

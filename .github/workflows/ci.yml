@@ -32,3 +32,25 @@ jobs:
         uses: astral-sh/ruff-action@v3
         with:
           args: "format --diff --check"
+  
+  mypy:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the Repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Setup Python
+        run: uv python install
+
+      - name: Install the package
+        run: uv sync && uv pip install .
+
+      - name: Typecheck the package
+        run: mypy -p climatebenchpress.compressor
+
+      - name: Typecheck the scripts
+        run: mypy *.py

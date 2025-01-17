@@ -3,7 +3,7 @@ import json
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
-import fcbench
+import fcbench  # type: ignore
 import xarray as xr
 
 from dask.diagnostics.progress import ProgressBar
@@ -43,23 +43,26 @@ for dataset in datasets.iterdir():
             continue
 
         compressor = fcbench.compressor.Compressor.from_config_file(compressor)
-        compressor = list(compressor.concrete)
+        compressor = list(compressor.concrete)  # type: ignore
         assert (
-            len(compressor) == 1
+            len(compressor) == 1  # type: ignore
         ), "only non-paramteric compressors are supported for now"
-        compressor = compressor[0].build()
+        compressor = compressor[0].build()  # type: ignore
 
         ds = xr.open_dataset(dataset, chunks=dict())
 
-        measurements = []
+        measurements: list = []
 
-        ds_new = {
-            v: fcbench.compressor.compress_decompress(
-                da, compressor, measurements=measurements
-            )
-            for v, da in ds.items()
-        }
-        ds_new = xr.Dataset(ds_new, coords=ds.coords, attrs=ds.attrs)
+        ds_new = xr.Dataset(
+            {
+                v: fcbench.compressor.compress_decompress(
+                    da, compressor, measurements=measurements
+                )
+                for v, da in ds.items()
+            },
+            coords=ds.coords,
+            attrs=ds.attrs,
+        )
 
         with (compressed_dataset / "measurements.json").open("w") as f:
             json.dump(_convert_to_json_serializable(measurements), f)
