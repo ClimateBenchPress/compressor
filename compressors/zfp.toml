@@ -2,7 +2,7 @@ name = "ZFP"
 
 [[codec]]
 name = "reshape"
-import = "fcpy.codecs.SwizzleReshape"
+import = "fcbench.codecs.SwizzleReshape"
 kind = "binary-lossless"
 
 [codec.parameters]
