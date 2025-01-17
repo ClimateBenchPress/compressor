@@ -6,7 +6,7 @@ on:
       - main
   pull_request:
     branches:
-      - '*'
+      - "*"
 
 jobs:
   check:
@@ -32,7 +32,7 @@ jobs:
         uses: astral-sh/ruff-action@v3
         with:
           args: "format --diff --check"
-  
+
   mypy:
     name: Typecheck
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ jobs:
         run: uv sync && uv pip install .
 
       - name: Typecheck the package
-        run: mypy -p climatebenchpress.compressor
+        run: uv run mypy -p climatebenchpress.compressor
 
       - name: Typecheck the scripts
-        run: mypy *.py
+        run: uv run mypy *.py
