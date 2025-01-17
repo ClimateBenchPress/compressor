@@ -128,7 +128,6 @@ for dataset in datasets.iterdir():
         )
 
         with (compressed_dataset / "measurements.json").open("w") as f:
-            # json.dump(_convert_to_json_serializable(measurements), f)
             json.dump(measurements, f)
 
         with ProgressBar():
