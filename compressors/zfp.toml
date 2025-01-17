@@ -1,0 +1,10 @@
+name = "ZFP"
+
+[[codec]]
+name = "zfp"
+import = "fcbench.codecs.Zfp"
+kind = "lossy"
+
+[codec.parameters]
+tolerance = { type = "float", value = 0.001 }
+mode = { type = "str", value = "fixed-accuracy" }

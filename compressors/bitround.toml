@@ -1,0 +1,17 @@
+name = "BitRound"
+
+[[codec]]
+name = "BitRound"
+import = "fcbench.codecs.BitRound"
+kind = "lossy"
+
+[codec.parameters]
+keepbits = { type = "int", value = 6 }
+
+[[codec]]
+name = "Zlib"
+import = "fcbench.codecs.Zlib"
+kind = "binary-lossless"
+
+[codec.parameters]
+level = { type = "int", value = 9 }
