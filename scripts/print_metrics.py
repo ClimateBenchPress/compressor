@@ -3,8 +3,11 @@ from pathlib import Path
 
 import pandas as pd
 
-compressed_datasets = Path("compressed-datasets")
-metrics_path = Path("metrics")
+
+repo = Path(__file__).parent.parent
+
+compressed_datasets = repo / "compressed-datasets"
+metrics_path = repo / "metrics"
 
 for dataset in metrics_path.iterdir():
     if dataset.name == ".gitignore":

@@ -5,9 +5,12 @@ import xarray as xr
 
 import climatebenchpress.compressor
 
-datasets = Path("..") / "data-loader" / "datasets"
-compressed_datasets = Path("compressed-datasets")
-metrics_path = Path("metrics")
+
+repo = Path(__file__).parent.parent
+
+datasets = repo.parent / "data-loader" / "datasets"
+compressed_datasets = repo / "compressed-datasets"
+metrics_path = repo / "metrics"
 
 EVALUATION_METRICS: dict[str, climatebenchpress.compressor.metrics.abc.Metric] = {
     "MAE": climatebenchpress.compressor.metrics.MAE(),

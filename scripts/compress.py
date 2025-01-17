@@ -23,9 +23,11 @@ def _convert_to_json_serializable(o):
     return o
 
 
-datasets = Path("..") / "data-loader" / "datasets"
-compressors = Path("compressors")
-compressed_datasets = Path("compressed-datasets")
+repo = Path(__file__).parent.parent
+
+datasets = repo.parent / "data-loader" / "datasets"
+compressors = repo / "compressors"
+compressed_datasets = repo / "compressed-datasets"
 
 for dataset in datasets.iterdir():
     if dataset.name == ".gitignore":

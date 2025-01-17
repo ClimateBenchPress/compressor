@@ -53,4 +53,4 @@ jobs:
         run: uv run mypy -p climatebenchpress.compressor
 
       - name: Typecheck the scripts
-        run: uv run mypy *.py
+        run: uv run mypy scripts/
