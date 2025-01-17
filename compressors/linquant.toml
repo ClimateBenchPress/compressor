@@ -1,12 +1,13 @@
-name = "Bit Rounding"
+name = "Linear Quantization"
 
 [[codec]]
-name = "bitround"
-import = "fcbench.codecs.BitRound"
+name = "linearquantize"
+import = "fcbench.codecs.LinearQuantize"
 kind = "lossy"
 
 [codec.parameters]
-keepbits = { type = "int", value = 9 }
+dtype = { type = "str", value = "float32" }
+bits = { type = "int", value = 9 }
 
 [[codec]]
 name = "zlib"
