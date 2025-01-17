@@ -9,12 +9,12 @@ datasets = Path("..") / "data-loader" / "datasets"
 compressed_datasets = Path("compressed-datasets")
 metrics_path = Path("metrics")
 
-EVALUATION_METRICS = {
+EVALUATION_METRICS: dict[str, climatebenchpress.compressor.metrics.abc.Metric] = {
     "MAE": climatebenchpress.compressor.metrics.MAE(),
     "Spectral Error": climatebenchpress.compressor.metrics.SpectralError(),
 }
 
-PASSFAIL_TESTS = {
+PASSFAIL_TESTS: dict[str, climatebenchpress.compressor.tests.abc.Test] = {
     "Spatial Relative Error": climatebenchpress.compressor.tests.SRE(),
     "R^2 Correlation": climatebenchpress.compressor.tests.R2(),
 }

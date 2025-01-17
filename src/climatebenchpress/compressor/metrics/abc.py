@@ -1,13 +1,13 @@
-import numpy as np
+from abc import ABC, abstractmethod
+
 import xarray as xr
 
-from .abc import Metric
 
-
-class MAE(Metric):
+class Metric(ABC):
+    @abstractmethod
     def __call__(self, x: xr.DataArray, y: xr.DataArray) -> float:
         """
-        Compute the mean squared error between two inputs.
+        Compute a metric between two inputs.
 
         Parameters
         ----------
@@ -15,5 +15,11 @@ class MAE(Metric):
             Shape (time, lon, lat, plev, realization)
         y : xr.DataArray
             Shape (time, lon, lat, plev, realization)
+
+        Returns
+        -------
+        metric : float
+            The value of the computed metric
         """
-        return float(np.mean(np.abs(x - y)))
+
+        pass

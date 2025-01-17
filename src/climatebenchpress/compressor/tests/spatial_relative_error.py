@@ -1,7 +1,7 @@
 import numpy as np
 import xarray as xr
 
-from .abstract_test import Test
+from .abc import Test
 
 
 class SRE(Test):

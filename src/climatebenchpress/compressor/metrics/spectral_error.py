@@ -34,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import numpy as np
 import xarray as xr
 
-from .abstract_metric import Metric
+from .abc import Metric
 
 
 class SpectralError(Metric):

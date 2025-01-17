@@ -2,7 +2,7 @@ import numpy as np
 import scipy.stats
 import xarray as xr
 
-from .abstract_test import Test
+from .abc import Test
 
 
 class R2(Test):
