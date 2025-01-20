@@ -12,9 +12,9 @@ class Metric(ABC):
         Parameters
         ----------
         x : xr.DataArray
-            Shape (time, lon, lat, plev, realization)
+            Shape (realization, time, vertical, latitude, longitude)
         y : xr.DataArray
-            Shape (time, lon, lat, plev, realization)
+            Shape (realization, time, vertical, latitude, longitude)
 
         Returns
         -------

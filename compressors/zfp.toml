@@ -6,8 +6,8 @@ import = "fcbench.codecs.SwizzleReshape"
 kind = "binary-lossless"
 
 [codec.parameters]
-# collapse into ((time,), (lon,), (lat,), (level, realization,))
-axes = { type = "json", value = "[[0], [1], [2], [3, 4]]" }
+# collapse into ((realization, time,), (vertical,), (latitude,), (longitude,))
+axes = { type = "json", value = "[[0, 1], [2], [3], [4]]" }
 
 [[codec]]
 name = "zfp"

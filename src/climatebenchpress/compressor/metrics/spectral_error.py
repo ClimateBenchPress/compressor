@@ -49,13 +49,14 @@ class SpectralError(Metric):
         Parameters
         ----------
         x : xr.DataArray
-            Shape: (time, lon, lat, plev, realization)
+            Shape: (realization, time, vertical, latitude, longitude)
         y : xr.DataArray
-            Shape: (time, lon, lat, plev, realization)
+            Shape: (realization, time, vertical, latitude, longitude)
         """
-        num_lon, num_lat = x.shape[1], x.shape[2]
-        x_ = np.transpose(x.values, (0, 3, 4, 1, 2)).reshape(-1, num_lon, num_lat)
-        y_ = np.transpose(y.values, (0, 3, 4, 1, 2)).reshape(-1, num_lon, num_lat)
+        num_lat, num_lon = x.shape[3], x.shape[4]
+        # transpose to (realization, time, vertical), latitude, longitude
+        x_ = x.values.reshape(-1, num_lat, num_lon)
+        y_ = y.values.reshape(-1, num_lat, num_lon)
         # Filter out rows with NaNs
         valid_rows = np.logical_not(
             np.any(np.isnan(x_), axis=(1, 2)) | np.any(np.isnan(y_), axis=(1, 2))
