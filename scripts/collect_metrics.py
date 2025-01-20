@@ -59,9 +59,9 @@ for dataset in compressed_datasets.iterdir():
                     error = metric(ds[v], ds_new[v])
                     metrics.append(
                         {
-                            "metric": name,
-                            "variable": v,
-                            "error": error,
+                            "Metric": name,
+                            "Variable": v,
+                            "Error": error,
                         }
                     )
             pd.DataFrame(metrics).to_csv(metrics_path, index=False)
@@ -74,10 +74,10 @@ for dataset in compressed_datasets.iterdir():
                     test_result, test_value = test(ds[v], ds_new[v])
                     tests.append(
                         {
-                            "test": name,
-                            "variable": v,
-                            "passed": test_result,
-                            "value": test_value,
+                            "Test": name,
+                            "Variable": v,
+                            "Passed": test_result,
+                            "Value": test_value,
                         }
                     )
             pd.DataFrame(tests).to_csv(tests_path, index=False)

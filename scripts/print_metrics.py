@@ -34,7 +34,7 @@ for dataset in metrics_path.iterdir():
             rows.append(
                 {
                     "Compressor": compressor.stem,
-                    "variable": var,
+                    "Variable": var,
                     "Compression Ratio [raw B / enc B]": variable_measurements[0][
                         "decoded_bytes"
                     ]
@@ -49,17 +49,17 @@ for dataset in metrics_path.iterdir():
                 measurements,
                 # Turn each metric into a column. Merge on "variable" to avoid duplicating
                 # the "variable" column.
-                metrics.pivot(index="variable", columns="metric", values="error")
+                metrics.pivot(index="Variable", columns="Metric", values="Error")
                 .reset_index()
                 .merge(
                     tests.pivot(
-                        index="variable", columns="test", values="passed"
+                        index="Variable", columns="Test", values="Passed"
                     ).reset_index(),
-                    on="variable",
+                    on="Variable",
                 ),
-                on="variable",
+                on="Variable",
             )
         )
 
     df = pd.concat(data)
-    print(df.set_index(["Compressor", "variable"]).to_markdown())
+    print(df.set_index(["Compressor", "Variable"]).to_markdown())
