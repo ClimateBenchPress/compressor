@@ -62,4 +62,4 @@ for dataset in metrics_path.iterdir():
         )
 
     df = pd.concat(data)
-    print(df.set_index(["Compressor", "Variable"]).to_markdown())
+    print(df.to_markdown(index=False))
