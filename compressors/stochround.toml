@@ -1,0 +1,27 @@
+name = "Stochastic Rounding"
+
+[[codec]]
+name = "noise"
+import = "fcbench.codecs.UniformNoise"
+kind = "lossy"
+
+[codec.parameters]
+# scale must be half of the desired precision
+scale = { type = "float", value = 0.005 }
+seed = { type = "int", value = 42 }
+
+[[codec]]
+name = "round"
+import = "fcbench.codecs.Round"
+kind = "lossy"
+
+[codec.parameters]
+precision = { type = "float", expr = "noise.scale * 2" }
+
+[[codec]]
+name = "zlib"
+import = "fcbench.codecs.Zlib"
+kind = "binary-lossless"
+
+[codec.parameters]
+level = { type = "int", value = 6 }
