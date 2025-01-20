@@ -1,0 +1,19 @@
+name = "ZFP"
+
+[[codec]]
+name = "reshape"
+import = "fcbench.codecs.SwizzleReshape"
+kind = "binary-lossless"
+
+[codec.parameters]
+# collapse into ((time,), (lon,), (lat,), (level, realization,))
+axes = { type = "json", value = "[[0], [1], [2], [3, 4]]" }
+
+[[codec]]
+name = "zfp"
+import = "fcbench.codecs.Zfp"
+kind = "lossy"
+
+[codec.parameters]
+mode = { type = "str", value = "fixed-accuracy" }
+tolerance = { type = "float", value = 0.01 }
