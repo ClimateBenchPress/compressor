@@ -12,8 +12,8 @@ class MAE(Metric):
         Parameters
         ----------
         x : xr.DataArray
-            Shape (time, lon, lat, plev, realization)
+            Shape (realization, time, vertical, latitude, longitude)
         y : xr.DataArray
-            Shape (time, lon, lat, plev, realization)
+            Shape (realization, time, vertical, latitude, longitude)
         """
         return float(np.mean(np.abs(x - y)))
