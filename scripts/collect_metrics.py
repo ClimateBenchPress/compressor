@@ -22,29 +22,33 @@ PASSFAIL_TESTS: dict[str, climatebenchpress.compressor.tests.abc.Test] = {
 }
 
 
-for dataset in datasets.iterdir():
+for dataset in compressed_datasets.iterdir():
     if dataset.name == ".gitignore":
         continue
 
-    dataset /= "standardized.zarr"
+    for compressor in dataset.iterdir():
+        print(f"Evaluating {compressor.stem} on {dataset.name}...")
 
-    for compressor in (compressed_datasets / dataset.parent.name).iterdir():
-        print(f"Evaluating {compressor.stem} on {dataset.parent.name}...")
-        compressed_dataset = compressed_datasets / dataset.parent.name / compressor.stem
-        compressed_dataset.mkdir(parents=True, exist_ok=True)
-
+        compressed_dataset = compressed_datasets / dataset.name / compressor.stem
         compressed_dataset_path = compressed_dataset / "decompressed.zarr"
+
+        uncompressed_dataset = datasets / dataset.name / "standardized.zarr"
 
         assert (
             compressed_dataset_path.exists()
         ), f"No compressed dataset at {compressed_dataset_path}"
+        assert (
+            uncompressed_dataset.exists()
+        ), f"No uncompressed dataset at {uncompressed_dataset}"
 
-        ds = xr.open_dataset(dataset, chunks=dict(), engine="zarr").compute()
+        ds = xr.open_dataset(
+            uncompressed_dataset, chunks=dict(), engine="zarr"
+        ).compute()
         ds_new = xr.open_dataset(
             compressed_dataset_path, chunks=dict(), engine="zarr"
         ).compute()
 
-        compressor_metrics = metrics_dir / dataset.parent.name / compressor.stem
+        compressor_metrics = metrics_dir / dataset.name / compressor.stem
         compressor_metrics.mkdir(parents=True, exist_ok=True)
 
         metrics_path = compressor_metrics / "metrics.csv"
@@ -55,9 +59,9 @@ for dataset in datasets.iterdir():
                     error = metric(ds[v], ds_new[v])
                     metrics.append(
                         {
-                            "metric": name,
-                            "variable": v,
-                            "error": error,
+                            "Metric": name,
+                            "Variable": v,
+                            "Error": error,
                         }
                     )
             pd.DataFrame(metrics).to_csv(metrics_path, index=False)
@@ -70,10 +74,10 @@ for dataset in datasets.iterdir():
                     test_result, test_value = test(ds[v], ds_new[v])
                     tests.append(
                         {
-                            "test": name,
-                            "variable": v,
-                            "passed": test_result,
-                            "value": test_value,
+                            "Test": name,
+                            "Variable": v,
+                            "Passed": test_result,
+                            "Value": test_value,
                         }
                     )
             pd.DataFrame(tests).to_csv(tests_path, index=False)

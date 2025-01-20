@@ -53,7 +53,7 @@ class SpectralError(Metric):
         y : xr.DataArray
             Shape: (time, lon, lat, plev, realization)
         """
-        num_lon, num_lat = x.sizes["lon"], x.sizes["lat"]
+        num_lon, num_lat = x.shape[1], x.shape[2]
         x_ = np.transpose(x.values, (0, 3, 4, 1, 2)).reshape(-1, num_lon, num_lat)
         y_ = np.transpose(y.values, (0, 3, 4, 1, 2)).reshape(-1, num_lon, num_lat)
         # Filter out rows with NaNs
