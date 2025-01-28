@@ -2,7 +2,7 @@ name = "Stochastic Rounding"
 
 [[codec]]
 name = "noise"
-import = "fcbench.codecs.UniformNoise"
+import = "numcodecs_wasm_uniform_noise.UniformNoise"
 kind = "lossy"
 
 [codec.parameters]
@@ -12,7 +12,7 @@ seed = { type = "int", value = 42 }
 
 [[codec]]
 name = "round"
-import = "fcbench.codecs.Round"
+import = "numcodecs_wasm_round.Round"
 kind = "lossy"
 
 [codec.parameters]
@@ -20,7 +20,7 @@ precision = { type = "float", expr = "noise.scale * 2" }
 
 [[codec]]
 name = "zlib"
-import = "fcbench.codecs.Zlib"
+import = "numcodecs_wasm_zlib.Zlib"
 kind = "binary-lossless"
 
 [codec.parameters]

@@ -2,7 +2,7 @@ name = "Bit Rounding"
 
 [[codec]]
 name = "bitround"
-import = "fcbench.codecs.BitRound"
+import = "numcodecs_wasm_bit_round.BitRound"
 kind = "lossy"
 
 [codec.parameters]
@@ -10,7 +10,7 @@ keepbits = { type = "int", value = 9 }
 
 [[codec]]
 name = "zlib"
-import = "fcbench.codecs.Zlib"
+import = "numcodecs_wasm_zlib.Zlib"
 kind = "binary-lossless"
 
 [codec.parameters]
