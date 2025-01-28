@@ -34,12 +34,12 @@ for dataset in compressed_datasets.iterdir():
 
         uncompressed_dataset = datasets / dataset.name / "standardized.zarr"
 
-        assert (
-            compressed_dataset_path.exists()
-        ), f"No compressed dataset at {compressed_dataset_path}"
-        assert (
-            uncompressed_dataset.exists()
-        ), f"No uncompressed dataset at {uncompressed_dataset}"
+        assert compressed_dataset_path.exists(), (
+            f"No compressed dataset at {compressed_dataset_path}"
+        )
+        assert uncompressed_dataset.exists(), (
+            f"No uncompressed dataset at {uncompressed_dataset}"
+        )
 
         ds = xr.open_dataset(
             uncompressed_dataset, chunks=dict(), engine="zarr"

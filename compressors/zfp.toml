@@ -2,7 +2,7 @@ name = "ZFP"
 
 [[codec]]
 name = "reshape"
-import = "fcbench.codecs.SwizzleReshape"
+import = "numcodecs_wasm_swizzle_reshape.SwizzleReshape"
 kind = "binary-lossless"
 
 [codec.parameters]
@@ -11,7 +11,7 @@ axes = { type = "json", value = "[[0, 1], [2], [3], [4]]" }
 
 [[codec]]
 name = "zfp"
-import = "fcbench.codecs.Zfp"
+import = "numcodecs_wasm_zfp.Zfp"
 kind = "lossy"
 
 [codec.parameters]

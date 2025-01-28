@@ -2,7 +2,7 @@ name = "SZ3"
 
 [[codec]]
 name = "sz3"
-import = "fcbench.codecs.Sz3"
+import = "numcodecs_wasm_sz3.Sz3"
 kind = "lossy"
 
 [codec.parameters]

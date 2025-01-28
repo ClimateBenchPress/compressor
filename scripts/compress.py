@@ -7,8 +7,6 @@ import fcbench  # type: ignore
 import xarray as xr
 from dask.diagnostics.progress import ProgressBar
 
-fcbench.codecs.preload()
-
 
 def _convert_to_json_serializable(o):
     if isinstance(o, Mapping):
@@ -66,9 +64,9 @@ for dataset in datasets.iterdir():
 
         compressor = fcbench.compressor.Compressor.from_config_file(compressor_config)
         compressor = list(compressor.concrete)
-        assert (
-            len(compressor) == 1
-        ), "only non-parametric compressors are supported for now"
+        assert len(compressor) == 1, (
+            "only non-parametric compressors are supported for now"
+        )
         compressor = compressor[0].build()
 
         ds = xr.open_dataset(dataset, chunks=dict(), engine="zarr")

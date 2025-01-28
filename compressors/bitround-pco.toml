@@ -1,4 +1,4 @@
-name = "Bit Rounding"
+name = "Bit Rounding + PCodec"
 
 [[codec]]
 name = "bitround"
@@ -9,9 +9,10 @@ kind = "lossy"
 keepbits = { type = "int", value = 9 }
 
 [[codec]]
-name = "zlib"
-import = "numcodecs_wasm_zlib.Zlib"
+name = "pco"
+import = "numcodecs_wasm_pco.Pco"
 kind = "binary-lossless"
 
 [codec.parameters]
-level = { type = "int", value = 6 }
+level = { type = "int", value = 8 }
+mode_spec = { type = "str", value = "auto" }
