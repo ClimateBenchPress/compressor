@@ -15,11 +15,11 @@ class BitRoundPco(Compressor):
     @staticmethod
     def build() -> Codec:
         return CodecStack(
-            numcodecs_wasm_bit_round.BitRound(keepbits=9),  # type: ignore
+            numcodecs_wasm_bit_round.BitRound(keepbits=9),
             numcodecs_wasm_pco.Pco(
                 level=8,
                 mode="auto",
                 delta="auto",
                 paging="equal-pages-up-to",
-            ),  # type: ignore
+            ),
         )

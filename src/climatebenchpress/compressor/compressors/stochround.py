@@ -18,7 +18,7 @@ class StochRound(Compressor):
         precision = 0.01
 
         return CodecStack(
-            numcodecs_wasm_uniform_noise.UniformNoise(scale=precision / 2, seed=42),  # type: ignore
-            numcodecs_wasm_round.Round(precision=precision),  # type: ignore
-            numcodecs_wasm_zlib.Zlib(level=6),  # type: ignore
+            numcodecs_wasm_uniform_noise.UniformNoise(scale=precision / 2, seed=42),
+            numcodecs_wasm_round.Round(precision=precision),
+            numcodecs_wasm_zlib.Zlib(level=6),
         )

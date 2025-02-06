@@ -15,6 +15,6 @@ class BitRound(Compressor):
     @staticmethod
     def build() -> Codec:
         return CodecStack(
-            numcodecs_wasm_bit_round.BitRound(keepbits=9),  # type: ignore
-            numcodecs_wasm_zlib.Zlib(level=6),  # type: ignore
+            numcodecs_wasm_bit_round.BitRound(keepbits=9),
+            numcodecs_wasm_zlib.Zlib(level=6),
         )

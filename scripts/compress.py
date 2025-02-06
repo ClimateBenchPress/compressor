@@ -16,7 +16,7 @@ from dask.diagnostics.progress import ProgressBar
 
 def compress_decompress(codec: Codec, ds: xr.Dataset) -> tuple[xr.Dataset, dict]:
     if not isinstance(codec, CodecStack):
-        codec = CodecStack(codec)  # type: ignore
+        codec = CodecStack(codec)
 
     variables = dict()
     measurements = dict()

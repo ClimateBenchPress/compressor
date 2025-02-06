@@ -18,6 +18,6 @@ class Zfp(Compressor):
             # collapse into ((realization, time,), (vertical,), (latitude,), (longitude,))
             numcodecs_wasm_swizzle_reshape.SwizzleReshape(
                 axes=[[0, 1], [2], [3], [4]],
-            ),  # type: ignore
-            numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=0.01),  # type: ignore
+            ),
+            numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=0.01),
         )
