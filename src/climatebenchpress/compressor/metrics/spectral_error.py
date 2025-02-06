@@ -31,8 +31,9 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
+__all__ = ["SpectralError"]
+
 import numpy as np
-import numpy.typing
 import xarray as xr
 
 from .abc import Metric

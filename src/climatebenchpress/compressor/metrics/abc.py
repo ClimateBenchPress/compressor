@@ -1,3 +1,5 @@
+__all__ = ["Metric"]
+
 from abc import ABC, abstractmethod
 
 import xarray as xr

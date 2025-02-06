@@ -1,4 +1,4 @@
-from . import abc  # noqa: F401
+from . import abc as abc
 from .r2_correlation import R2
 from .spatial_relative_error import SRE
 
