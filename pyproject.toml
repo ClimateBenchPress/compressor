@@ -6,21 +6,25 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "cf-xarray~=0.10",
-    "dask==2024.12.0",
-    "field-compression-benchmark==0.0.15",
-    "numcodecs-wasm-bit-round==0.2.0.dev0",
-    "numcodecs-wasm-pco==0.1.0.dev0",
-    "numcodecs-wasm-round==0.2.0.dev0",
-    "numcodecs-wasm-swizzle-reshape==0.2.1.dev0",
-    "numcodecs-wasm-sz3==0.3.0.dev0",
-    "numcodecs-wasm-uniform-noise==0.2.0.dev0",
-    "numcodecs-wasm-zfp==0.3.0.dev0",
-    "numcodecs-wasm-zlib==0.2.0.dev0",
+    "dask~=2024.12.0",
+    "numcodecs>=0.13.0,<0.16",
+    "numcodecs-combinators[xarray]~=0.2.4",
+    "numcodecs-observers~=0.1.1",
+    "numcodecs-wasm~=0.1.1",
+    "numcodecs-wasm-bit-round~=0.2.0",
+    "numcodecs-wasm-pco~=0.1.0",
+    "numcodecs-wasm-round~=0.2.0",
+    "numcodecs-wasm-swizzle-reshape~=0.2.1",
+    "numcodecs-wasm-sz3~=0.3.0",
+    "numcodecs-wasm-uniform-noise~=0.2.0",
+    "numcodecs-wasm-zfp~=0.3.0",
+    "numcodecs-wasm-zlib~=0.2.0",
     "pandas~=2.2",
     "scipy~=1.15",
     "tabulate~=0.9",
-    "xarray==2024.11.0",
-    "zarr==2.18.3",
+    "typed-classproperties~=1.1.0",
+    "xarray~=2024.11.0",
+    "zarr~=2.18.0",
 ]
 
 [dependency-groups]
@@ -38,3 +42,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "climatebenchpress.compressor" = ["py.typed"]
+
+[[tool.mypy.overrides]]
+module = ["numcodecs.*"]
+follow_untyped_imports = true

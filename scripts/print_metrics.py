@@ -35,10 +35,22 @@ for dataset in metrics_path.iterdir():
                 {
                     "Compressor": compressor.stem,
                     "Variable": var,
-                    "Compression Ratio [raw B / enc B]": variable_measurements[0][
+                    "Compression Ratio [raw B / enc B]": variable_measurements[
                         "decoded_bytes"
                     ]
-                    / variable_measurements[-1]["encoded_bytes"],
+                    / variable_measurements["encoded_bytes"],
+                    "Encode Instructions [# / raw B]": None
+                    if variable_measurements["encode_instructions"] is None
+                    else (
+                        variable_measurements["encode_instructions"]
+                        / variable_measurements["decoded_bytes"]
+                    ),
+                    "Decode Instructions [# / raw B]": None
+                    if variable_measurements["decode_instructions"] is None
+                    else (
+                        variable_measurements["decode_instructions"]
+                        / variable_measurements["decoded_bytes"]
+                    ),
                 }
             )
         measurements = pd.DataFrame(rows)

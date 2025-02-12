@@ -1,4 +1,4 @@
-from . import cf  # noqa: F401
-from . import metrics, tests
+__all__ = ["compressors", "metrics", "tests"]
 
-__all__ = ["metrics", "tests"]
+from . import cf as cf
+from . import compressors, metrics, tests
