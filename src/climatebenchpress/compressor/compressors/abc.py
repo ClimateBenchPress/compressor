@@ -9,7 +9,7 @@ from typed_classproperties import classproperty
 
 
 class Compressor(ABC):
-    # Abstract interface, must be implemented by sublcasses
+    # Abstract interface, must be implemented by subclasses
     name: str
     description: str
 
