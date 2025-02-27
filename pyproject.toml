@@ -16,6 +16,7 @@ dependencies = [
     "numcodecs-wasm-round~=0.2.0",
     "numcodecs-wasm-swizzle-reshape~=0.2.1",
     "numcodecs-wasm-sz3~=0.3.0",
+    "numcodecs-wasm-tthresh~=0.1.0",
     "numcodecs-wasm-uniform-noise~=0.2.0",
     "numcodecs-wasm-zfp~=0.3.0",
     "numcodecs-wasm-zlib~=0.2.0",
