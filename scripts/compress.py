@@ -5,13 +5,13 @@ from pathlib import Path
 import numcodecs_observers
 import xarray as xr
 from climatebenchpress.compressor.compressors.abc import Compressor
+from dask.diagnostics.progress import ProgressBar
 from numcodecs.abc import Codec
 from numcodecs_combinators.stack import CodecStack
 from numcodecs_observers.bytesize import BytesizeObserver
 from numcodecs_observers.hash import HashableCodec
 from numcodecs_observers.walltime import WalltimeObserver
 from numcodecs_wasm import WasmCodecInstructionCounterObserver
-from dask.diagnostics.progress import ProgressBar
 
 
 def compress_decompress(codec: Codec, ds: xr.Dataset) -> tuple[xr.Dataset, dict]:
@@ -60,6 +60,7 @@ def compress_decompress(codec: Codec, ds: xr.Dataset) -> tuple[xr.Dataset, dict]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
+parser.add_argument("--include-dataset", type=str, nargs="+", default=None)
 args = parser.parse_args()
 
 repo = Path(__file__).parent.parent
@@ -69,6 +70,8 @@ compressed_datasets = repo / "compressed-datasets"
 
 for dataset in datasets.iterdir():
     if dataset.name == ".gitignore" or dataset.name in args.exclude_dataset:
+        continue
+    if args.include_dataset and dataset.name not in args.include_dataset:
         continue
 
     dataset /= "standardized.zarr"
