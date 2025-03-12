@@ -179,6 +179,33 @@ class Era5Plotter(Plotter):
             fig.colorbar(c, ax=ax[i], shrink=0.6)
 
 
+class NextGEMSPlotter(Plotter):
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
+        selector = dict(time=0)
+        error = ds.isel(**selector) - ds_new.isel(**selector)
+
+        # TODO: This function is essentially the same as the Era5Plotter.
+        #       If we have a consistent way of accessing the lon and lat values
+        #       then we can merge the two.
+        #       Also need to account for different cmap
+        lons = ds.isel(**selector).lon.values
+        lats = ds.isel(**selector).lat.values
+        lon_grid, lat_grid = np.meshgrid(lons, lats)
+        xys = self.projection.transform_points(ccrs.PlateCarree(), lon_grid, lat_grid)
+        x, y = xys[..., 0], xys[..., 1]
+        cmap = "Blues"
+        c1 = ax[0].pcolormesh(x, y, ds.isel(**selector).values.squeeze(), cmap=cmap)
+        c2 = ax[1].pcolormesh(
+            x,
+            y,
+            ds_new.isel(**selector).values.squeeze(),
+            cmap=cmap,
+        )
+        c3 = ax[2].pcolormesh(x, y, error.values.squeeze(), cmap="coolwarm")
+        for i, c in enumerate([c1, c2, c3]):
+            fig.colorbar(c, ax=ax[i], shrink=0.6)
+
+
 class CamsPlotter(Plotter):
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         selector = dict(valid_time=0, pressure_level=3)
@@ -211,6 +238,7 @@ PLOTTERS = {
     "cmip6-access-tos-tiny": CmipOceanPlotter,
     "era5-tiny": Era5Plotter,
     "esa-biomass-cci-tiny": EsaBiomassPlotter,
+    "nextgems-icon-tiny": NextGEMSPlotter,
 }
 
 
