@@ -60,35 +60,41 @@ def main():
     all_results.to_csv(metrics_dir / "all_results.csv", index=False)
 
 
-def compute_metrics(compressor_metrics, ds, ds_new):
+def compute_metrics(
+    compressor_metrics: Path, ds: xr.Dataset, ds_new: xr.Dataset
+) -> pd.DataFrame:
     metrics_path = compressor_metrics / "metrics.csv"
     if metrics_path.exists():
         return pd.read_csv(metrics_path)
 
-    metrics = []
+    metric_list = []
     for name, metric in EVALUATION_METRICS.items():
         for v in ds_new:
             error = metric(ds[v], ds_new[v])
-            metrics.append(
+            metric_list.append(
                 {
                     "Metric": name,
                     "Variable": v,
                     "Error": error,
                 }
             )
-    return pd.DataFrame(metrics).to_csv(metrics_path, index=False)
+    metrics = pd.DataFrame(metric_list)
+    metrics.to_csv(metrics_path, index=False)
+    return metrics
 
 
-def compute_tests(compressor_metrics, ds, ds_new):
+def compute_tests(
+    compressor_metrics: Path, ds: xr.Dataset, ds_new: xr.Dataset
+) -> pd.DataFrame:
     tests_path = compressor_metrics / "tests.csv"
     if tests_path.exists():
         return pd.read_csv(tests_path)
 
-    tests = []
+    test_list = []
     for name, test in PASSFAIL_TESTS.items():
         for v in ds_new:
             test_result, test_value = test(ds[v], ds_new[v])
-            tests.append(
+            test_list.append(
                 {
                     "Test": name,
                     "Variable": v,
@@ -96,10 +102,14 @@ def compute_tests(compressor_metrics, ds, ds_new):
                     "Value": test_value,
                 }
             )
-    return pd.DataFrame(tests).to_csv(tests_path, index=False)
+    tests = pd.DataFrame(test_list)
+    tests.to_csv(tests_path, index=False)
+    return tests
 
 
-def load_measurements(compressed_datasets, dataset, compressor):
+def load_measurements(
+    compressed_datasets: Path, dataset: Path, compressor: Path
+) -> pd.DataFrame:
     with open(
         compressed_datasets / dataset.name / compressor.stem / "measurements.json"
     ) as f:
@@ -133,11 +143,12 @@ def load_measurements(compressed_datasets, dataset, compressor):
                 ),
             }
         )
-    measurements = pd.DataFrame(rows)
-    return measurements
+    return pd.DataFrame(rows)
 
 
-def merge_metrics(measurements, metrics, tests):
+def merge_metrics(
+    measurements: pd.DataFrame, metrics: pd.DataFrame, tests: pd.DataFrame
+) -> pd.DataFrame:
     # Turn each metric into a column. Merge on "variable" to avoid duplicating
     # the "variable" column.
     return pd.merge(
