@@ -35,12 +35,12 @@ def main():
             compressed_dataset = compressed_datasets / dataset.name / compressor.stem
             compressed_dataset_path = compressed_dataset / "decompressed.zarr"
             uncompressed_dataset = datasets / dataset.name / "standardized.zarr"
-            assert (
-                compressed_dataset_path.exists()
-            ), f"No compressed dataset at {compressed_dataset_path}"
-            assert (
-                uncompressed_dataset.exists()
-            ), f"No uncompressed dataset at {uncompressed_dataset}"
+            assert compressed_dataset_path.exists(), (
+                f"No compressed dataset at {compressed_dataset_path}"
+            )
+            assert uncompressed_dataset.exists(), (
+                f"No uncompressed dataset at {uncompressed_dataset}"
+            )
 
             ds = xr.open_zarr(uncompressed_dataset, chunks=dict()).compute()
             ds_new = xr.open_zarr(compressed_dataset_path, chunks=dict()).compute()
