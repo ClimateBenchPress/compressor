@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 import cartopy.crs as ccrs
@@ -63,13 +64,32 @@ def plot_variable_error(repo, dataset_name, compressor, var, outfile):
     ds_new = xr.open_dataset(compressed, chunks=dict(), engine="zarr").compute()
     ds, ds_new = ds[var], ds_new[var]
 
-    if dataset_name.startswith("esa-biomass"):
-        fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(20, 7))
-        selector = dict(time=0)
-        ds.isel(**selector).plot(ax=ax[0])
-        ds_new.isel(**selector).plot(ax=ax[1])
-        error = ds.isel(**selector) - ds_new.isel(**selector)
-        error.plot(ax=ax[2])
+    plotter = PLOTTERS.get(dataset_name, None)
+    if plotter:
+        plotter().plot(ds, ds_new, dataset_name, compressor, var, outfile)
+    else:
+        print(f"No plotter found for dataset {dataset_name}")
+
+
+class Plotter(ABC):
+    def __init__(self):
+        self.projection = ccrs.Robinson()
+
+    @abstractmethod
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
+        pass
+
+    def plot(self, ds, ds_new, dataset_name, compressor, var, outfile):
+        fig, ax = plt.subplots(
+            nrows=1,
+            ncols=3,
+            figsize=(20, 7),
+            subplot_kw={"projection": self.projection},
+        )
+        self.plot_fields(fig, ax, ds, ds_new, dataset_name, var)
+        ax[0].coastlines()
+        ax[1].coastlines()
+        ax[2].coastlines()
         ax[0].set_title("Original Dataset")
         ax[1].set_title("Compressed Dataset")
         ax[2].set_title("Error")
@@ -77,16 +97,21 @@ def plot_variable_error(repo, dataset_name, compressor, var, outfile):
         plt.tight_layout()
         plt.savefig(outfile)
         plt.close()
-    else:
-        plot_global_variable(dataset_name, compressor, var, outfile, ds, ds_new)
 
 
-def plot_global_variable(dataset_name, compressor, var, outfile, ds, ds_new):
-    projection = ccrs.Robinson()
-    fig, ax = plt.subplots(
-        nrows=1, ncols=3, figsize=(20, 7), subplot_kw={"projection": projection}
-    )
-    if dataset_name.startswith("cmip6") and var == "tos":
+class CmipAtmosPlotter(Plotter):
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
+        selector = dict(time=0, plev=3)
+        ds.isel(**selector).plot(ax=ax[0], transform=ccrs.PlateCarree())
+        ds_new.isel(**selector).plot(
+            ax=ax[1], transform=ccrs.PlateCarree(), robust=True
+        )
+        error = ds.isel(**selector) - ds_new.isel(**selector)
+        error.plot(ax=ax[2], transform=ccrs.PlateCarree())
+
+
+class CmipOceanPlotter(Plotter):
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         pcm0 = ax[0].pcolormesh(
             ds.longitude.values,
             ds.latitude.values,
@@ -123,21 +148,10 @@ def plot_global_variable(dataset_name, compressor, var, outfile, ds, ds_new):
         fig.colorbar(
             pcm2, ax=ax[2], orientation="vertical", fraction=0.046, pad=0.04
         ).set_label("degC")
-    elif dataset_name.startswith("cmip6") and var == "ta":
-        selector = dict(time=0, plev=3)
-        ds.isel(**selector).plot(ax=ax[0], transform=ccrs.PlateCarree())
-        ds_new.isel(**selector).plot(
-            ax=ax[1], transform=ccrs.PlateCarree(), robust=True
-        )
-        error = ds.isel(**selector) - ds_new.isel(**selector)
-        error.plot(ax=ax[2], transform=ccrs.PlateCarree())
-    elif dataset_name.startswith("cams"):
-        selector = dict(valid_time=0, pressure_level=3)
-        ds.isel(**selector).plot(ax=ax[0], transform=ccrs.PlateCarree())
-        ds_new.isel(**selector).plot(ax=ax[1], transform=ccrs.PlateCarree())
-        error = ds.isel(**selector) - ds_new.isel(**selector)
-        error.plot(ax=ax[2], transform=ccrs.PlateCarree())
-    elif dataset_name.startswith("era5"):
+
+
+class Era5Plotter(Plotter):
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         selector = dict(time=0)
         error = ds.isel(**selector) - ds_new.isel(**selector)
 
@@ -148,7 +162,7 @@ def plot_global_variable(dataset_name, compressor, var, outfile, ds, ds_new):
         lons = ds.isel(**selector).longitude.values
         lats = ds.isel(**selector).latitude.values
         lon_grid, lat_grid = np.meshgrid(lons, lats)
-        xys = projection.transform_points(ccrs.PlateCarree(), lon_grid, lat_grid)
+        xys = self.projection.transform_points(ccrs.PlateCarree(), lon_grid, lat_grid)
         x, y = xys[..., 0], xys[..., 1]
         # Wind variable plots coolwarm because they lie around 0 and change in sign
         # signifies change in wind direction.
@@ -164,16 +178,40 @@ def plot_global_variable(dataset_name, compressor, var, outfile, ds, ds_new):
         for i, c in enumerate([c1, c2, c3]):
             fig.colorbar(c, ax=ax[i], shrink=0.6)
 
-    ax[0].coastlines()
-    ax[1].coastlines()
-    ax[2].coastlines()
-    ax[0].set_title("Original Dataset")
-    ax[1].set_title("Compressed Dataset")
-    ax[2].set_title("Error")
-    fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
-    plt.tight_layout()
-    plt.savefig(outfile)
-    plt.close()
+
+class CamsPlotter(Plotter):
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
+        selector = dict(valid_time=0, pressure_level=3)
+        ds.isel(**selector).plot(ax=ax[0], transform=ccrs.PlateCarree())
+        ds_new.isel(**selector).plot(ax=ax[1], transform=ccrs.PlateCarree())
+        error = ds.isel(**selector) - ds_new.isel(**selector)
+        error.plot(ax=ax[2], transform=ccrs.PlateCarree())
+
+
+class EsaBiomassPlotter(Plotter):
+    def plot(self, ds, ds_new, dataset_name, compressor, var, outfile):
+        fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(20, 7))
+        selector = dict(time=0)
+        ds.isel(**selector).plot(ax=ax[0])
+        ds_new.isel(**selector).plot(ax=ax[1])
+        error = ds.isel(**selector) - ds_new.isel(**selector)
+        error.plot(ax=ax[2])
+        ax[0].set_title("Original Dataset")
+        ax[1].set_title("Compressed Dataset")
+        ax[2].set_title("Error")
+        fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
+        plt.tight_layout()
+        plt.savefig(outfile)
+        plt.close()
+
+
+PLOTTERS = {
+    "cams-nitrogen-dioxide-tiny": CamsPlotter,
+    "cmip6-access-ta-tiny": CmipAtmosPlotter,
+    "cmip6-access-tos-tiny": CmipOceanPlotter,
+    "era5-tiny": Era5Plotter,
+    "esa-biomass-cci-tiny": EsaBiomassPlotter,
+}
 
 
 def plot_metrics(
