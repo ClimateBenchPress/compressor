@@ -16,20 +16,22 @@ from numcodecs_wasm import WasmCodecInstructionCounterObserver
 REPO = Path(__file__).parent.parent
 
 
-def main(exclude_dataset, include_dataset, exclude_compressor):
+def main(exclude_dataset, include_dataset, exclude_compressor, include_compressor):
     datasets = REPO.parent / "data-loader" / "datasets"
     compressed_datasets = REPO / "compressed-datasets"
 
     for dataset in datasets.iterdir():
         if dataset.name == ".gitignore" or dataset.name in exclude_dataset:
             continue
-        if args.include_dataset and dataset.name not in include_dataset:
+        if include_dataset and dataset.name not in include_dataset:
             continue
 
         dataset /= "standardized.zarr"
 
         for compressor in Compressor.registry.values():
             if compressor.name in exclude_compressor:
+                continue
+            if include_compressor and compressor.name not in include_compressor:
                 continue
 
             compressed_dataset = (
@@ -107,5 +109,6 @@ if __name__ == "__main__":
     parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
     parser.add_argument("--include-dataset", type=str, nargs="+", default=None)
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
+    parser.add_argument("--include-compressor", type=str, nargs="+", default=None)
     args = parser.parse_args()
     main(**vars(args))
