@@ -1,77 +1,16 @@
-import json
 from pathlib import Path
 
 import pandas as pd
 
-repo = Path(__file__).parent.parent
+REPO = Path(__file__).parent.parent
 
-compressed_datasets = repo / "compressed-datasets"
-metrics_path = repo / "metrics"
-
-for dataset in metrics_path.iterdir():
-    if dataset.name == ".gitignore":
-        continue
-
+all_results = pd.read_csv(REPO / "metrics" / "all_results.csv")
+for dataset in all_results["Dataset"].unique():
     print("\n" + 100 * "=")
-    print(f"Results on {dataset.name}")
+    print(f"Results on {dataset}")
     print(100 * "=" + "\n")
-    data = []
-    for compressor in (metrics_path / dataset.name).iterdir():
-        compressor_metrics = metrics_path / dataset.name / compressor.stem
-
-        metrics = pd.read_csv(compressor_metrics / "metrics.csv")
-
-        tests = pd.read_csv(compressor_metrics / "tests.csv")
-
-        with open(
-            compressed_datasets / dataset.name / compressor.stem / "measurements.json"
-        ) as f:
-            measurements = json.load(f)
-
-        num_variables = len(measurements.keys())
-        rows = []
-        for var, variable_measurements in measurements.items():
-            rows.append(
-                {
-                    "Compressor": compressor.stem,
-                    "Variable": var,
-                    "Compression Ratio [raw B / enc B]": variable_measurements[
-                        "decoded_bytes"
-                    ]
-                    / variable_measurements["encoded_bytes"],
-                    "Encode Instructions [# / raw B]": None
-                    if variable_measurements["encode_instructions"] is None
-                    else (
-                        variable_measurements["encode_instructions"]
-                        / variable_measurements["decoded_bytes"]
-                    ),
-                    "Decode Instructions [# / raw B]": None
-                    if variable_measurements["decode_instructions"] is None
-                    else (
-                        variable_measurements["decode_instructions"]
-                        / variable_measurements["decoded_bytes"]
-                    ),
-                }
-            )
-        measurements = pd.DataFrame(rows)
-
-        # Merge DataFrames column-wise
-        data.append(
-            pd.merge(
-                measurements,
-                # Turn each metric into a column. Merge on "variable" to avoid duplicating
-                # the "variable" column.
-                metrics.pivot(index="Variable", columns="Metric", values="Error")
-                .reset_index()
-                .merge(
-                    tests.pivot(
-                        index="Variable", columns="Test", values="Passed"
-                    ).reset_index(),
-                    on="Variable",
-                ),
-                on="Variable",
-            )
-        )
-
-    df = pd.concat(data)
-    print(df.to_markdown(index=False))
+    print(
+        all_results[all_results["Dataset"] == dataset]
+        .drop(columns=["Dataset"])
+        .to_markdown(index=False)
+    )
