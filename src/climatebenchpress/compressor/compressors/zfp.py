@@ -2,7 +2,6 @@ __all__ = ["Zfp"]
 
 import numcodecs_wasm_zfp
 from numcodecs.abc import Codec
-from numcodecs_combinators.stack import CodecStack
 
 from .abc import Compressor
 
