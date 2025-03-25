@@ -11,5 +11,12 @@ class Sz3(Compressor):
     description = "SZ3"
 
     @staticmethod
-    def build() -> Codec:
-        return numcodecs_wasm_sz3.Sz3(eb_mode="abs", eb_abs=0.01)
+    def build(data_min, data_max, abs_error=None, rel_error=None) -> Codec:
+        assert (abs_error is None) != (rel_error is None), (
+            "Cannot specify both abs_error and rel_error."
+        )
+
+        if abs_error is not None:
+            return numcodecs_wasm_sz3.Sz3(eb_mode="abs", eb_abs=abs_error)
+        else:
+            return numcodecs_wasm_sz3.Sz3(eb_mode="rel", eb_rel=rel_error)

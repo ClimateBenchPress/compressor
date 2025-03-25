@@ -15,7 +15,7 @@ class Compressor(ABC):
 
     @staticmethod
     @abstractmethod
-    def build() -> Codec:
+    def build(data_min, data_max, abs_error=None, rel_error=None) -> Codec:
         pass
 
     # Class interface
