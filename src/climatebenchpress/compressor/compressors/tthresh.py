@@ -11,7 +11,9 @@ class Tthresh(Compressor):
     description = "tthresh"
 
     @staticmethod
-    def build(data_min, data_max, abs_error=None, rel_error=None) -> Codec:
+    def build(
+        dtype, data_abs_min, data_abs_max, abs_error=None, rel_error=None
+    ) -> Codec:
         assert (abs_error is None) != (rel_error is None), (
             "Cannot specify both abs_error and rel_error."
         )

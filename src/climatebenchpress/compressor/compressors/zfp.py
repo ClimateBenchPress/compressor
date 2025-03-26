@@ -11,7 +11,9 @@ class Zfp(Compressor):
     description = "ZFP"
 
     @staticmethod
-    def build(data_min, data_max, abs_error=None, rel_error=None) -> Codec:
+    def build(
+        dtype, data_abs_min, data_abs_max, abs_error=None, rel_error=None
+    ) -> Codec:
         assert (abs_error is None) != (rel_error is None), (
             "Cannot specify both abs_error and rel_error."
         )
@@ -20,5 +22,5 @@ class Zfp(Compressor):
             # In general, rel_error = abs_error / abs(data). This transformation
             # gives us the absolute error bound that ensures the relative error bound is
             # not exceeded for this dataset.
-            abs_error = rel_error * data_min
+            abs_error = rel_error * data_abs_min
         return numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=abs_error)

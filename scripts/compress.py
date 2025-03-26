@@ -97,7 +97,7 @@ def compress_decompress(
 
     for v in ds:
         data_min, data_max = ds_stats[v]["min"], ds_stats[v]["max"]
-        codec = compressor.build(data_min, data_max, abs_error, rel_error)
+        codec = compressor.build(ds[v].dtype, data_min, data_max, abs_error, rel_error)
         if not isinstance(codec, CodecStack):
             codec = CodecStack(codec)
 

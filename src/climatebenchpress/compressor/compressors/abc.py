@@ -15,7 +15,28 @@ class Compressor(ABC):
 
     @staticmethod
     @abstractmethod
-    def build(data_min, data_max, abs_error=None, rel_error=None) -> Codec:
+    def build(
+        dtype, data_abs_min, data_abs_max, abs_error=None, rel_error=None
+    ) -> Codec:
+        """
+        Initialize a Codec instance for this particular compressor. Note that
+        only one of `abs_error` or `rel_error` should be specified. The remaining
+        arguments are passed to the function in order to be able to transform
+        an absolute error bound to a relative error bound, and vice versa, if necessary.
+
+        Parameters
+        ----------
+        dtype : numpy.dtype
+            Data type of the input data.
+        data_abs_min : float
+            Minimum absolute value of the input data.
+        data_abs_max : float
+            Maximum absolute value of the input data.
+        abs_error : float, optional
+            Absolute error bound.
+        rel_error : float, optional
+            Relative error bound.
+        """
         pass
 
     # Class interface
