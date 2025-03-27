@@ -21,11 +21,13 @@ class Jpeg2000(Compressor):
 
         return CodecStack(
             numcodecs_wasm_fixed_offset_scale.FixedOffsetScale(
-                offset=0, scale=precision,
+                offset=0,
+                scale=precision,
             ),
             numcodecs_wasm_round.Round(precision=1),
             numcodecs.astype.AsType(
-                encode_dtype="int32", decode_dtype="float32",
+                encode_dtype="int32",
+                decode_dtype="float32",
             ),
             numcodecs_wasm_jpeg2000.Jpeg2000(mode="rate", rate=rate),
         )
