@@ -16,7 +16,7 @@ class Compressor(ABC):
     @staticmethod
     @abstractmethod
     def build(
-        dtype, data_abs_min, data_abs_max, abs_error=None, rel_error=None
+        dtype, data_abs_min, data_abs_max, *, abs_error=None, rel_error=None
     ) -> Codec:
         """
         Initialize a Codec instance for this particular compressor. Note that
