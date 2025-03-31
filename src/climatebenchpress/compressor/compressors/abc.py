@@ -77,9 +77,9 @@ class Compressor(ABC):
         dtype : numpy.dtype
             Data type of the input data.
         data_abs_min : dict[str, float]
-            Minimum absolute value of the input data.
+            Dict mapping from variable name to minimum absolute value for the variable.
         data_abs_max : dict[str, float]
-            Maximum absolute value of the input data.
+            Dict mapping from variable name to maximum absolute value for the variable.
         error_bounds: list[ErrorBound]
             List of error bounds to use for the compressor.
 
