@@ -169,6 +169,8 @@ def convert_rel_error_to_abs_error(
     # In general, rel_error = abs_error / abs(data). This transformation
     # gives us the relative error bound that ensures the absolute error bound is
     # not exceeded for this dataset.
+    assert old_error.rel_error is not None, "Expected relative error to be set."
+
     new_name = f"{name}-conservative-abs"
     abs_min_val = min(data_abs_min.values())
     error_bound = ErrorBound(abs_error=old_error.rel_error / abs_min_val)
@@ -178,9 +180,9 @@ def convert_rel_error_to_abs_error(
 def convert_abs_error_to_rel_error(
     name: str, data_abs_max: dict[str, float], old_error: ErrorBound
 ) -> list[tuple[str, ErrorBound]]:
-    # In general, rel_error = abs_error / abs(data). This transformation
-    # gives us the relative error bound that ensures the absolute error bound is
-    # not exceeded for this dataset.
+    # Same reasoning for error bound transformation as in `convert_rel_error_to_abs_error`.
+    assert old_error.abs_error is not None, "Expected absolute error to be set."
+
     new_name = f"{name}-conservative-rel"
     abs_max_val = max(data_abs_max.values())
     error_bound = ErrorBound(rel_error=old_error.abs_error / abs_max_val)
