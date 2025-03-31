@@ -11,38 +11,46 @@ REPO = Path(__file__).parent.parent
 
 
 def main():
-    metrics_path = REPO / "metrics"
-    plots_path = REPO / "plots"
+    metrics_path = REPO / "test-metrics"
+    plots_path = REPO / "test-plots"
 
     all_results = pd.read_csv(metrics_path / "all_results.csv")
     for dataset in all_results["Dataset"].unique():
         df = all_results[all_results["Dataset"] == dataset]
         dataset_plots_path = plots_path / dataset
+        dataset_plots_path.mkdir(parents=True, exist_ok=True)
 
         # For each variable and compressor, plot the input, output, and error fields.
         variables = df["Variable"].unique()
-        compressors = df["Compressor"].unique()
         for var in variables:
-            for comp in compressors:
-                print(f"Plotting {var} error for {comp}...")
-                plot_variable_error(
-                    REPO,
-                    dataset,
-                    comp,
-                    var,
-                    dataset_plots_path / f"{var}_{comp}.png",
-                )
+            error_bounds = df[df["Variable"] == var]["Error Bound"].unique()
+            for err_bound in error_bounds:
+                compressors = df[
+                    (df["Variable"] == var) & (df["Error Bound"] == err_bound)
+                ]["Compressor"].unique()
+
+                err_bound_path = dataset_plots_path / err_bound
+                err_bound_path.mkdir(parents=True, exist_ok=True)
+                for comp in compressors:
+                    print(f"Plotting {var} error for {comp}...")
+                    plot_variable_error(
+                        REPO,
+                        dataset,
+                        err_bound,
+                        comp,
+                        var,
+                        err_bound_path / f"{var}_{comp}.png",
+                    )
 
         plot_rd_curve(
             df,
-            compressors,
             dataset_plots_path / "compression_ratio_vs_psnr.png",
         )
 
-    plot_metrics(plots_path, all_results)
+    # plot_metrics(plots_path, all_results)
 
 
-def plot_variable_error(repo, dataset_name, compressor, var, outfile):
+def plot_variable_error(repo, dataset_name, error_bound, compressor, var, outfile):
     if outfile.exists():
         # These plots can be quite expensive to generate, so we skip if they already exist.
         return
@@ -51,8 +59,9 @@ def plot_variable_error(repo, dataset_name, compressor, var, outfile):
         repo
         / ".."
         / "compressor"
-        / "compressed-datasets"
+        / "test-compressed-datasets"
         / dataset_name
+        / error_bound
         / compressor
         / "decompressed.zarr"
     )
@@ -296,15 +305,22 @@ def plot_metrics(
         plt.close()
 
 
-def plot_rd_curve(df, compressors, outfile):
+def plot_rd_curve(df, outfile):
     plt.figure(figsize=(10, 6))
+    compressors = df["Compressor"].unique()
     for comp in compressors:
         compressor_data = df[df["Compressor"] == comp]
-        plt.scatter(
-            compressor_data["Compression Ratio [raw B / enc B]"],
-            compressor_data["PSNR"],
+        sorting_ixs = np.argsort(compressor_data["Compression Ratio [raw B / enc B]"])
+        compr_ratio = [
+            compressor_data["Compression Ratio [raw B / enc B]"].iloc[i]
+            for i in sorting_ixs
+        ]
+        psnr = [compressor_data["PSNR"].iloc[i] for i in sorting_ixs]
+        plt.plot(
+            compr_ratio,
+            psnr,
             label=comp,
-            s=100,
+            # s=100,
         )
 
     plt.title("Compression Ratio vs PSNR")
