@@ -14,6 +14,21 @@ MANTISSA_BITS = {
 
 
 def compute_keepbits(dtype: np.dtype, rel_error: float) -> int:
+    """
+    Computes the number of mantissa bits to keep in order to satisfy a relative error bound.
+
+    Parameters
+    ----------
+    dtype : numpy.dtype
+        Data type of the input array.
+    rel_error : float
+        Relative error bound.
+
+    Returns
+    -------
+    int
+        Number of mantissa bits to keep.
+    """
     # - log2(rel_error) specifies the number of mantissa bits needed to satisfy
     # the rel_error bound (https://en.wikipedia.org/wiki/Machine_epsilon).
     # We need to round up to the nearest integer to ensure the error bound is not
