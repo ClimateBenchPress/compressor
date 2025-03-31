@@ -2,7 +2,6 @@ import argparse
 import json
 from pathlib import Path
 
-import dask
 import numcodecs_observers
 import xarray as xr
 from climatebenchpress.compressor.compressors.abc import Compressor
@@ -81,9 +80,7 @@ def compress_decompress(codec: Codec, ds: xr.Dataset) -> tuple[xr.Dataset, dict]
                 timing,
             ],
         ) as codec_:
-            # FIXME: allow compressing chunks in parallel
-            with dask.config.set(scheduler="synchronous"):
-                variables[v] = codec_.encode_decode_data_array(ds[v]).compute()
+            variables[v] = codec_.encode_decode_data_array(ds[v]).compute()
 
         measurements[v] = {
             "encoded_bytes": sum(
