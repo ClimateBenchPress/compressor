@@ -1,11 +1,42 @@
-__all__ = ["Compressor"]
+__all__ = ["Compressor", "NamedCodec", "ErrorBound"]
 
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
+from dataclasses import dataclass
 from types import MappingProxyType
+from typing import Optional
 
+import numpy as np
 from numcodecs.abc import Codec
 from typed_classproperties import classproperty
+
+
+@dataclass
+class NamedCodec:
+    name: str
+    codec: Codec
+
+
+@dataclass
+class ErrorBound:
+    abs_error: Optional[float] = None
+    rel_error: Optional[float] = None
+
+    def __post_init__(self):
+        if self.abs_error is not None and self.rel_error is not None:
+            raise ValueError(
+                "Only one of 'abs_error' or 'rel_error' can be specified, not both."
+            )
+        if self.abs_error is None and self.rel_error is None:
+            raise ValueError(
+                "At least one of 'abs_error' or 'rel_error' must be specified."
+            )
+
+        self.name = (
+            f"abs_error={self.abs_error}"
+            if self.abs_error is not None
+            else f"rel_error={self.rel_error}"
+        )
 
 
 class Compressor(ABC):
@@ -16,8 +47,11 @@ class Compressor(ABC):
     @staticmethod
     @abstractmethod
     def build(
-        dtype, data_abs_min, data_abs_max, *, abs_error=None, rel_error=None
-    ) -> Codec:
+        dtype: np.dtype,
+        data_abs_min: dict[str, float],
+        data_abs_max: dict[str, float],
+        error_bounds: list[ErrorBound],
+    ) -> dict[str, list[NamedCodec]]:
         """
         Initialize a Codec instance for this particular compressor. Note that
         only one of `abs_error` or `rel_error` should be specified. The remaining
@@ -28,14 +62,12 @@ class Compressor(ABC):
         ----------
         dtype : numpy.dtype
             Data type of the input data.
-        data_abs_min : float
+        data_abs_min : dict[str, float]
             Minimum absolute value of the input data.
-        data_abs_max : float
+        data_abs_max : dict[str, float]
             Maximum absolute value of the input data.
-        abs_error : float, optional
-            Absolute error bound.
-        rel_error : float, optional
-            Relative error bound.
+        error_bounds: list[ErrorBound]
+            List of error bounds to use for the compressor.
         """
         pass
 

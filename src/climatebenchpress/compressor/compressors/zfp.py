@@ -1,9 +1,9 @@
 __all__ = ["Zfp"]
 
 import numcodecs_wasm_zfp
-from numcodecs.abc import Codec
 
-from .abc import Compressor
+from .abc import Compressor, NamedCodec
+from .utils import convert_rel_error_to_abs_error
 
 
 class Zfp(Compressor):
@@ -12,15 +12,20 @@ class Zfp(Compressor):
 
     @staticmethod
     def build(
-        dtype, data_abs_min, data_abs_max, abs_error=None, rel_error=None
-    ) -> Codec:
-        assert (abs_error is None) != (rel_error is None), (
-            "Cannot specify both abs_error and rel_error."
-        )
+        dtype, data_abs_min, data_abs_max, error_bounds
+    ) -> dict[str, list[NamedCodec]]:
+        codecs = {Zfp.name: []}
+        bounds = list(zip([Zfp.name] * len(error_bounds), error_bounds))
+        for name, eb in bounds:
+            if eb.abs_error is None:
+                bounds += convert_rel_error_to_abs_error(
+                    name, data_abs_max, eb.abs_error
+                )
+                continue
 
-        if abs_error is None:
-            # In general, rel_error = abs_error / abs(data). This transformation
-            # gives us the absolute error bound that ensures the relative error bound is
-            # not exceeded for this dataset.
-            abs_error = rel_error * data_abs_min
-        return numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=abs_error)
+            codec = numcodecs_wasm_zfp.Zfp(
+                mode="fixed-accuracy", tolerance=eb.abs_error
+            )
+            codecs[Zfp.name].append(NamedCodec(name=eb.name, codec=codec))
+
+        return codecs
