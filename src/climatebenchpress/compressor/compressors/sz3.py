@@ -2,7 +2,7 @@ __all__ = ["Sz3"]
 
 import numcodecs_wasm_sz3
 
-from .abc import Compressor, NamedCodec
+from .abc import Compressor
 
 
 class Sz3(Compressor):
@@ -10,15 +10,9 @@ class Sz3(Compressor):
     description = "SZ3"
 
     @staticmethod
-    def build(
-        dtype, data_abs_min, data_abs_max, error_bounds
-    ) -> dict[str, list[NamedCodec]]:
-        codecs = {Sz3.name: []}
-        for eb in error_bounds:
-            if eb.abs_error is not None:
-                codec = numcodecs_wasm_sz3.Sz3(eb_mode="abs", eb_abs=eb.abs_error)
-            else:
-                codec = numcodecs_wasm_sz3.Sz3(eb_mode="rel", eb_rel=eb.rel_error)
-            codecs[Sz3.name].append(NamedCodec(name=eb.name, codec=codec))
+    def abs_bound_codec(dtype, error_bound):
+        return numcodecs_wasm_sz3.Sz3(eb_mode="abs", eb_abs=error_bound)
 
-        return codecs
+    @staticmethod
+    def rel_bound_codec(dtype, error_bound):
+        return numcodecs_wasm_sz3.Sz3(eb_mode="rel", eb_rel=error_bound)
