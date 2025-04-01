@@ -78,6 +78,8 @@ def main(exclude_dataset, include_dataset, exclude_compressor, include_compresso
                         print(
                             f"Error compressing {dataset.parent.name} with {compressor.name}: {e}"
                         )
+                        with (compressed_dataset / "error.out").open("w") as error_file:
+                            error_file.write(str(e))
                         print("Skipping...")
                         continue
 
@@ -140,6 +142,11 @@ def compress_decompress(
 def get_error_bounds(
     datasets_error_bounds: Path, dataset_name: str
 ) -> list[ErrorBound]:
+    if not datasets_error_bounds.exists():
+        raise FileNotFoundError(
+            f"Expected error bounds to be defined in {datasets_error_bounds}. Run `scripts/create_error_bounds.py` to create them."
+        )
+
     dataset_error_bounds = datasets_error_bounds / dataset_name
     with open(dataset_error_bounds / "error_bounds.json") as f:
         error_bounds = json.load(f)
