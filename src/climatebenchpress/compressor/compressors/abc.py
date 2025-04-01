@@ -173,7 +173,7 @@ def convert_rel_error_to_abs_error(
 
     new_name = f"{name}-conservative-abs"
     abs_min_val = min(data_abs_min.values())
-    error_bound = ErrorBound(abs_error=old_error.rel_error / abs_min_val)
+    error_bound = ErrorBound(abs_error=old_error.rel_error * abs_min_val)
     return [(new_name, error_bound)]
 
 
