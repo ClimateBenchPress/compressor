@@ -65,7 +65,7 @@ class Compressor(ABC):
     ) -> dict[str, list[NamedCodec]]:
         """
         Constructs a dictionary of codecs based on the provided error bounds.
-        The dictionary has a separate entry for compressor variant. Compressor
+        The dictionary has a separate entry for each compressor variant. Compressor
         variants are created when transforming between absolute and relative
         error bounds (each variant accounts for a different way to transform the
         error bound). The dictionary values are lists of `NamedCodec` instances
