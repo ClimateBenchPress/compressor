@@ -11,9 +11,9 @@ import numpy as np
 from numcodecs.abc import Codec
 from typed_classproperties import classproperty
 
-ErrorBoundName = str
-VariableName = str
-VariantName = str
+type ErrorBoundName = str
+type VariableName = str
+type VariantName = str
 
 
 @dataclass
@@ -100,17 +100,23 @@ class Compressor(ABC):
             and values are lists of `NamedCodec` instances configured with the specified error bounds.
         """
         codecs: dict[VariantName, list[NamedCodec]] = defaultdict(list)
-        bounds = [VariantInfo(cls.name, eb) for eb in error_bounds]
+        transformed_bounds: list[VariantInfo] = []
 
-        for variant_info in bounds:
-            variant_name, eb_per_var = variant_info.name, variant_info.error_bounds
+        # Loop over all the error bounds and ensure that they are compatible with the
+        # compressor. If the error bound is not compatible, transform it into a new
+        # error bound that is compatible.
+        for eb_per_var in error_bounds:
             new_bounds = cls._get_variant_bounds(
-                data_abs_min, data_abs_max, variant_name, eb_per_var
+                data_abs_min, data_abs_max, cls.name, eb_per_var
             )
             if new_bounds is not None:
-                bounds += new_bounds
-                continue
+                transformed_bounds += new_bounds
+            else:
+                transformed_bounds.append(VariantInfo(cls.name, eb_per_var))
 
+        # For each error bound, create a new codec.
+        for variant_info in transformed_bounds:
+            variant_name, eb_per_var = variant_info.name, variant_info.error_bounds
             new_codecs: dict[VariableName, Codec] = dict()
             for var, eb in eb_per_var.items():
                 if eb.abs_error is not None and cls.has_abs_error_impl:
@@ -118,7 +124,12 @@ class Compressor(ABC):
                 elif eb.rel_error is not None and cls.has_rel_error_impl:
                     new_codecs[var] = cls.rel_bound_codec(dtypes[var], eb.rel_error)
                 else:
-                    raise ValueError("This shouldn't happen.")
+                    # This should never happen as we have already transformed the error bounds.
+                    # If this happens, it means there is a bug in the implementation.
+                    # We raise an error here to avoid silent failures.
+                    raise ValueError(
+                        "Error bound is not compatible with the compressor."
+                    )
 
             error_bound_name = "_".join(
                 f"{var}-{eb.name}" for var, eb in eb_per_var.items()
@@ -159,20 +170,25 @@ class Compressor(ABC):
                 variant_name, data_abs_min[var], data_abs_max[var], error_bound
             )
             if new_bounds is not None:
-                for i, (var_name, bound) in enumerate(converted_bounds):
-                    # This assertions checks code correctness rather than
+                # Update the already created new variant bounds with the transformed
+                # error bounds for the current variable. Before this update, the
+                # error_bounds `new_bounds` will not have any entries for `var`.
+                for i, (new_variant_name, bound) in enumerate(converted_bounds):
+                    # These assertions checks code correctness rather than
                     # input validity. All the error bounds that need to be transformed
                     # should lead to the same number and type of new bounds.
                     # If this assertion fails, it means there is a bug in the implementation.
-                    assert new_bounds[i].name == var_name, (
-                        f"Cannot assign bound of variant '{var_name}' to bound of variant '{new_bounds[i].name}'"
+                    assert new_bounds[i].name == new_variant_name, (
+                        f"Cannot assign bound of variant '{new_variant_name}' to bound of variant '{new_bounds[i].name}'"
                     )
-
+                    assert var not in new_bounds[i].error_bounds
                     new_bounds[i].error_bounds[var] = bound
             else:
+                # Create new variant bounds and initialize them with the transformed error
+                # bounds for the current variable.
                 new_bounds = [
-                    VariantInfo(name=var_name, error_bounds={var: eb})
-                    for var_name, eb in converted_bounds
+                    VariantInfo(name=variant_name, error_bounds={var: eb})
+                    for variant_name, eb in converted_bounds
                 ]
 
         if new_bounds is None:

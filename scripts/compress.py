@@ -24,7 +24,7 @@ REPO = Path(__file__).parent.parent
 
 def main(exclude_dataset, include_dataset, exclude_compressor, include_compressor):
     datasets = REPO.parent / "data-loader" / "datasets"
-    compressed_datasets = REPO / "test-compressed-datasets"
+    compressed_datasets = REPO / "compressed-datasets"
     datasets_error_bounds = REPO / "datasets-error-bounds"
 
     for dataset in datasets.iterdir():

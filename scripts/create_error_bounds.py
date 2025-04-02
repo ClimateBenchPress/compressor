@@ -5,11 +5,6 @@ import xarray as xr
 
 REPO = Path(__file__).parent.parent
 
-ERROR_BOUNDS = [
-    {"abs_error": 0.01, "rel_error": None},
-    {"abs_error": 0.1, "rel_error": None},
-]
-
 
 def main():
     datasets = REPO.parent / "data-loader" / "datasets"
