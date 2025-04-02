@@ -1,6 +1,7 @@
 import argparse
 import json
 from pathlib import Path
+from typing import Hashable
 
 import numcodecs_observers
 import xarray as xr
@@ -33,12 +34,12 @@ def main(exclude_dataset, include_dataset, exclude_compressor, include_compresso
 
         dataset /= "standardized.zarr"
         ds = xr.open_dataset(dataset, chunks=dict(), engine="zarr")
-        ds_abs_mins, ds_abs_maxs = dict(), dict()
+        ds_dtypes, ds_abs_mins, ds_abs_maxs = dict(), dict(), dict()
         for v in ds:
             abs_vals = xr.ufuncs.abs(ds[v])
             ds_abs_mins[v] = abs_vals.min().values.item()
             ds_abs_maxs[v] = abs_vals.max().values.item()
-            ds_dtype = ds[v].dtype  # NOTE: Assumes all variables have the same dtype
+            ds_dtypes[v] = ds[v].dtype
 
         error_bounds = get_error_bounds(datasets_error_bounds, dataset.parent.name)
         for compressor in Compressor.registry.values():
@@ -48,7 +49,7 @@ def main(exclude_dataset, include_dataset, exclude_compressor, include_compresso
                 continue
 
             compressor_variants: dict[str, list[NamedCodec]] = compressor.build(
-                ds_dtype, ds_abs_mins, ds_abs_maxs, error_bounds
+                ds_dtypes, ds_abs_mins, ds_abs_maxs, error_bounds
             )
 
             for compr_name, named_codecs in compressor_variants.items():
@@ -72,7 +73,7 @@ def main(exclude_dataset, include_dataset, exclude_compressor, include_compresso
 
                     try:
                         ds_new, measurements = compress_decompress(
-                            named_codec.codec, ds
+                            named_codec.codecs, ds
                         )
                     except Exception as e:
                         print(
@@ -93,19 +94,20 @@ def main(exclude_dataset, include_dataset, exclude_compressor, include_compresso
 
 
 def compress_decompress(
-    codec: Codec,
+    codecs: dict[Hashable, Codec],
     ds: xr.Dataset,
 ) -> tuple[xr.Dataset, dict]:
     variables = dict()
     measurements = dict()
 
-    if not isinstance(codec, CodecStack):
-        codec = CodecStack(codec)
-
     for v in ds:
         nbytes = BytesizeObserver()
         timing = WalltimeObserver()
         instructions = WasmCodecInstructionCounterObserver()
+
+        codec = codecs[v]
+        if not isinstance(codec, CodecStack):
+            codec = CodecStack(codec)
 
         with numcodecs_observers.observe(
             codec,
@@ -141,7 +143,7 @@ def compress_decompress(
 
 def get_error_bounds(
     datasets_error_bounds: Path, dataset_name: str
-) -> list[ErrorBound]:
+) -> list[dict[str, ErrorBound]]:
     if not datasets_error_bounds.exists():
         raise FileNotFoundError(
             f"Expected error bounds to be defined in {datasets_error_bounds}. Run `scripts/create_error_bounds.py` to create them."
@@ -150,7 +152,10 @@ def get_error_bounds(
     dataset_error_bounds = datasets_error_bounds / dataset_name
     with open(dataset_error_bounds / "error_bounds.json") as f:
         error_bounds = json.load(f)
-    return [ErrorBound(**eb) for eb in error_bounds]
+    return [
+        {var_name: ErrorBound(**eb) for var_name, eb in eb_per_var.items()}
+        for eb_per_var in error_bounds
+    ]
 
 
 if __name__ == "__main__":
