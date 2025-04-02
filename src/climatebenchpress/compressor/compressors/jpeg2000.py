@@ -18,7 +18,7 @@ class Jpeg2000(Compressor):
     @staticmethod
     def abs_bound_codec(dtype, error_bound):
         precision = 0.01
-        max_pixel_val = 2**25  # maximum pixel value for our integer encoding.
+        max_pixel_val = 2**25 - 1  # maximum pixel value for our integer encoding.
 
         # Here we use the formula for the PSNR (https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio)
         # to convert between the absolute error and the PSNR value.
