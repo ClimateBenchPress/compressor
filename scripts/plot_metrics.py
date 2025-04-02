@@ -9,6 +9,16 @@ import xarray as xr
 
 REPO = Path(__file__).parent.parent
 
+COMPRESSOR2COLOR = {
+    "jpeg2000": "blue",
+    "zfp": "green",
+    "sz3": "red",
+    "bitround-pco-conservative-rel": "purple",
+    "bitround-conservative-rel": "orange",
+    "stochround": "brown",
+    "tthresh": "pink",
+}
+
 
 def main():
     metrics_path = REPO / "test-metrics"
@@ -42,10 +52,15 @@ def main():
                         err_bound_path / f"{var}_{comp}.png",
                     )
 
-        plot_rd_curve(
-            df,
-            dataset_plots_path / "compression_ratio_vs_psnr.png",
-        )
+        for dist_metric in ["PSNR", "Spectral Error", "MAE"]:
+            metric_name = dist_metric.lower().replace(" ", "_")
+            if df[dist_metric].isnull().all():
+                continue
+            plot_rd_curve(
+                df,
+                dataset_plots_path / f"compression_ratio_{metric_name}.png",
+                distortion_metric=dist_metric,
+            )
 
     # plot_metrics(plots_path, all_results)
 
@@ -305,7 +320,7 @@ def plot_metrics(
         plt.close()
 
 
-def plot_rd_curve(df, outfile):
+def plot_rd_curve(df, outfile, distortion_metric="PSNR"):
     plt.figure(figsize=(10, 6))
     compressors = df["Compressor"].unique()
     for comp in compressors:
@@ -315,17 +330,22 @@ def plot_rd_curve(df, outfile):
             compressor_data["Compression Ratio [raw B / enc B]"].iloc[i]
             for i in sorting_ixs
         ]
-        psnr = [compressor_data["PSNR"].iloc[i] for i in sorting_ixs]
+        psnr = [compressor_data[distortion_metric].iloc[i] for i in sorting_ixs]
         plt.plot(
             compr_ratio,
             psnr,
             label=comp,
-            # s=100,
+            marker="x",
+            color=COMPRESSOR2COLOR[comp],
         )
 
-    plt.title("Compression Ratio vs PSNR")
+    plt.title(f"Compression Ratio vs {distortion_metric}")
     plt.xlabel("Compression Ratio [raw B / enc B]")
-    plt.ylabel("PSNR")
+    plt.xscale("log")
+    if distortion_metric != "PSNR":
+        # PSNR is already on log scale.
+        plt.yscale("log")
+    plt.ylabel(distortion_metric)
     plt.legend(title="Compressor")
     plt.grid(True)
     plt.tight_layout()
