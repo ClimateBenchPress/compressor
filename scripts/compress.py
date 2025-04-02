@@ -1,5 +1,6 @@
 import argparse
 import json
+import traceback
 from pathlib import Path
 from typing import Hashable
 
@@ -23,7 +24,7 @@ REPO = Path(__file__).parent.parent
 
 def main(exclude_dataset, include_dataset, exclude_compressor, include_compressor):
     datasets = REPO.parent / "data-loader" / "datasets"
-    compressed_datasets = REPO / "compressed-datasets"
+    compressed_datasets = REPO / "test-compressed-datasets"
     datasets_error_bounds = REPO / "datasets-error-bounds"
 
     for dataset in datasets.iterdir():
@@ -80,7 +81,7 @@ def main(exclude_dataset, include_dataset, exclude_compressor, include_compresso
                             f"Error compressing {dataset.parent.name} with {compressor.name}: {e}"
                         )
                         with (compressed_dataset / "error.out").open("w") as error_file:
-                            error_file.write(str(e))
+                            error_file.write(traceback.format_exc())
                         print("Skipping...")
                         continue
 
