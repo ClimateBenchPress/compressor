@@ -21,8 +21,8 @@ PASSFAIL_TESTS: dict[str, climatebenchpress.compressor.tests.abc.Test] = {
 
 def main():
     datasets = REPO.parent / "data-loader" / "datasets"
-    compressed_datasets = REPO / "test-compressed-datasets"
-    metrics_dir = REPO / "test-metrics"
+    compressed_datasets = REPO / "compressed-datasets"
+    metrics_dir = REPO / "metrics"
 
     all_results = []
     for dataset in compressed_datasets.iterdir():
