@@ -168,6 +168,8 @@ class Compressor(ABC):
                 variant_name, data_abs_min[var], data_abs_max[var], error_bound
             )
             if variant_names == {cls.name}:
+                # This is the first time we are transforming the error bounds,
+                # therefore we need to update the names of the generated variants.
                 variant_names = set(converted_bounds[var].keys())
             else:
                 # For all the variables if we are converting the error bounds
@@ -187,14 +189,11 @@ class Compressor(ABC):
             return [VariantInfo(variant_name, error_bounds)]
 
         # converted_bounds contains entries for all variables for which we needed
-        # to transform the error bounds. To create the codec we now create a list
-        # in which each entry contains the error bounds for all variables.
-        # Essentially, we transform the data structure from
-        # dict[VariableName, dict[VariantName, ErrorBound]]
-        # to
-        # dict[VariantName, dict[VariableName, ErrorBound]]
-        # while also adding the original error bounds for the variables that
-        # were not transformed.
+        # to transform the error bounds. We now transform the dictionary
+        # dict[VariableName, dict[VariantName, ErrorBound]] into a list in which
+        # each entry represents one way to transform the error bound (i.e. one
+        # *variant* of the error bound). Additionally, each variant needs to contain
+        # information about the error bounds for all variables.
         variable_names = set(error_bounds.keys())
         result: list[VariantInfo] = []
         for variant in variant_names:
