@@ -106,13 +106,9 @@ class Compressor(ABC):
         # compressor. If the error bound is not compatible, transform it into a new
         # error bound that is compatible.
         for eb_per_var in error_bounds:
-            new_bounds = cls._get_variant_bounds(
+            transformed_bounds += cls._get_variant_bounds(
                 data_abs_min, data_abs_max, cls.name, eb_per_var
             )
-            if new_bounds is not None:
-                transformed_bounds += new_bounds
-            else:
-                transformed_bounds.append(VariantInfo(cls.name, eb_per_var))
 
         # For each error bound, create a new codec.
         for variant_info in transformed_bounds:
@@ -147,13 +143,14 @@ class Compressor(ABC):
         data_abs_max: dict[VariableName, float],
         variant_name: VariantName,
         error_bounds: dict[VariableName, ErrorBound],
-    ) -> Optional[list[VariantInfo]]:
+    ) -> list[VariantInfo]:
         """
         Check whether the supplied `error_bounds` are compatible with the current
         compressor. If they are not compatible return a list of new transformed
         error bounds.
         """
-        new_bounds: Optional[list[VariantInfo]] = None
+        converted_bounds: dict[VariableName, dict[VariantName, ErrorBound]] = dict()
+        variant_names = {cls.name}
         for var, error_bound in error_bounds.items():
             abs_bound_codec = (
                 error_bound.abs_error is not None and cls.has_abs_error_impl
@@ -166,45 +163,42 @@ class Compressor(ABC):
                 # is needed.
                 continue
 
-            converted_bounds = convert_error_bound(
+            converted_bounds[var] = convert_error_bound(
                 variant_name, data_abs_min[var], data_abs_max[var], error_bound
             )
-            if new_bounds is not None:
-                # Update the already created new variant bounds with the transformed
-                # error bounds for the current variable. Before this update, the
-                # error_bounds `new_bounds` will not have any entries for `var`.
-                for i, (new_variant_name, bound) in enumerate(converted_bounds):
-                    # These assertions checks code correctness rather than
-                    # input validity. All the error bounds that need to be transformed
-                    # should lead to the same number and type of new bounds.
-                    # If this assertion fails, it means there is a bug in the implementation.
-                    assert new_bounds[i].name == new_variant_name, (
-                        f"Cannot assign bound of variant '{new_variant_name}' to bound of variant '{new_bounds[i].name}'"
-                    )
-                    assert var not in new_bounds[i].error_bounds
-                    new_bounds[i].error_bounds[var] = bound
+            if variant_names == {cls.name}:
+                variant_names = set(converted_bounds[var].keys())
             else:
-                # Create new variant bounds and initialize them with the transformed error
-                # bounds for the current variable.
-                new_bounds = [
-                    VariantInfo(name=variant_name, error_bounds={var: eb})
-                    for variant_name, eb in converted_bounds
-                ]
+                assert variant_names == set(converted_bounds[var].keys()), (
+                    "Error bounds for different variables must have the same variant names."
+                )
 
-        if new_bounds is None:
+        if len(converted_bounds) == 0:
             # The error bounds for all variables are compatible with the codec.
-            return new_bounds
+            # Just return the original error bounds.
+            return [VariantInfo(variant_name, error_bounds)]
 
-        # For the variables which didn't need their error bounds transformed,
-        # we need to copy the untransformed error bounds into the `new_bounds`.
-        all_vars = set(error_bounds.keys())
-        for i in range(len(new_bounds)):
-            updated_vars = set(new_bounds[i].error_bounds.keys())
-            missing_vars = all_vars - updated_vars
-            for var in missing_vars:
-                new_bounds[i].error_bounds[var] = error_bounds[var]
+        # converted_bounds contains entries for all variables for which we needed
+        # to transform the error bounds. To create the codec we now create a list
+        # in which each entry contains the error bounds for all variables.
+        # Essentially, we transform the data structure from
+        # dict[VariableName, dict[VariantName, ErrorBound]]
+        # to
+        # dict[VariantName, dict[VariableName, ErrorBound]]
+        # while also adding the original error bounds for the variables that
+        # were not transformed.
+        variable_names = set(error_bounds.keys())
+        result: list[VariantInfo] = []
+        for variant in variant_names:
+            eb_per_variable: dict[VariableName, ErrorBound] = dict()
+            for variable in variable_names:
+                if variable in converted_bounds:
+                    eb_per_variable[variable] = converted_bounds[variable][variant]
+                else:
+                    eb_per_variable[variable] = error_bounds[variable]
+            result.append(VariantInfo(name=variant, error_bounds=eb_per_variable))
 
-        return new_bounds
+        return result
 
     # Class interface
     @classproperty
@@ -249,7 +243,7 @@ def convert_error_bound(
     data_abs_min: float,
     data_abs_max: float,
     error_bound: ErrorBound,
-) -> list[tuple[VariantName, ErrorBound]]:
+) -> dict[VariantName, ErrorBound]:
     if error_bound.abs_error is not None:
         new_ebs = convert_abs_error_to_rel_error(name, data_abs_max, error_bound)
     else:
@@ -257,15 +251,15 @@ def convert_error_bound(
 
     # Keep the old name for all the new error bounds. This ensures we can group
     # together all transformed error bounds that came from the same original bound.
-    for n, eb in new_ebs:
-        eb.name = error_bound.name
+    for n in new_ebs.keys():
+        new_ebs[n].name = error_bound.name
 
     return new_ebs
 
 
 def convert_rel_error_to_abs_error(
     name: str, data_abs_min: float, old_error: ErrorBound
-) -> list[tuple[str, ErrorBound]]:
+) -> dict[VariantName, ErrorBound]:
     # In general, rel_error = abs_error / abs(data). This transformation
     # gives us the relative error bound that ensures the absolute error bound is
     # not exceeded for this dataset.
@@ -273,15 +267,15 @@ def convert_rel_error_to_abs_error(
 
     new_name = f"{name}-conservative-abs"
     error_bound = ErrorBound(abs_error=old_error.rel_error * data_abs_min)
-    return [(new_name, error_bound)]
+    return {new_name: error_bound}
 
 
 def convert_abs_error_to_rel_error(
     name: str, data_abs_max: float, old_error: ErrorBound
-) -> list[tuple[str, ErrorBound]]:
+) -> dict[VariantName, ErrorBound]:
     # Same reasoning for error bound transformation as in `convert_rel_error_to_abs_error`.
     assert old_error.abs_error is not None, "Expected absolute error to be set."
 
     new_name = f"{name}-conservative-rel"
     error_bound = ErrorBound(rel_error=old_error.abs_error / data_abs_max)
-    return [(new_name, error_bound)]
+    return {new_name: error_bound}
