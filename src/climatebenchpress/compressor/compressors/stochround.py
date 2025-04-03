@@ -3,7 +3,6 @@ __all__ = ["StochRound"]
 import numcodecs_wasm_round
 import numcodecs_wasm_uniform_noise
 import numcodecs_wasm_zlib
-from numcodecs.abc import Codec
 from numcodecs_combinators.stack import CodecStack
 
 from .abc import Compressor
@@ -14,9 +13,8 @@ class StochRound(Compressor):
     description = "Stochastic Rounding"
 
     @staticmethod
-    def build() -> Codec:
-        precision = 0.01
-
+    def abs_bound_codec(dtype, error_bound):
+        precision = error_bound
         return CodecStack(
             numcodecs_wasm_uniform_noise.UniformNoise(scale=precision / 2, seed=42),
             numcodecs_wasm_round.Round(precision=precision),

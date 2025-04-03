@@ -1,7 +1,6 @@
 __all__ = ["Zfp"]
 
 import numcodecs_wasm_zfp
-from numcodecs.abc import Codec
 
 from .abc import Compressor
 
@@ -10,6 +9,14 @@ class Zfp(Compressor):
     name = "zfp"
     description = "ZFP"
 
+    # NOTE:
+    # ZFP mechanism for strictly supporting relative error bounds is to
+    # truncate the floating point bit representation and then use ZFP's lossless
+    # mode for compression. This is essentially equivalent to the BitRound
+    # compressors we are already implementing (with a difference what the lossless
+    # compression algorithm is).
+    # See https://zfp.readthedocs.io/en/release1.0.1/faq.html#q-relerr for more details.
+
     @staticmethod
-    def build() -> Codec:
-        return numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=0.01)
+    def abs_bound_codec(dtype, error_bound):
+        return numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=error_bound)

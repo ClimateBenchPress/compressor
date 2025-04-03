@@ -2,10 +2,10 @@ __all__ = ["BitRound"]
 
 import numcodecs_wasm_bit_round
 import numcodecs_wasm_zlib
-from numcodecs.abc import Codec
 from numcodecs_combinators.stack import CodecStack
 
 from .abc import Compressor
+from .utils import compute_keepbits
 
 
 class BitRound(Compressor):
@@ -13,8 +13,9 @@ class BitRound(Compressor):
     description = "Bit Rounding"
 
     @staticmethod
-    def build() -> Codec:
+    def rel_bound_codec(dtype, error_bound):
+        keepbits = compute_keepbits(dtype, error_bound)
         return CodecStack(
-            numcodecs_wasm_bit_round.BitRound(keepbits=9),
+            numcodecs_wasm_bit_round.BitRound(keepbits=keepbits),
             numcodecs_wasm_zlib.Zlib(level=6),
         )

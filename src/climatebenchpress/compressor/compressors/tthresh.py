@@ -1,7 +1,6 @@
 __all__ = ["Tthresh"]
 
 import numcodecs_wasm_tthresh
-from numcodecs.abc import Codec
 
 from .abc import Compressor
 
@@ -11,5 +10,9 @@ class Tthresh(Compressor):
     description = "tthresh"
 
     @staticmethod
-    def build() -> Codec:
-        return numcodecs_wasm_tthresh.Tthresh(eb_mode="rmse", eb_rmse=0.0001)
+    def abs_bound_codec(dtype, error_bound):
+        return numcodecs_wasm_tthresh.Tthresh(eb_mode="rmse", eb_rmse=error_bound)
+
+    @staticmethod
+    def rel_bound_codec(dtype, error_bound):
+        return numcodecs_wasm_tthresh.Tthresh(eb_mode="eps", eb_rmse=error_bound)
