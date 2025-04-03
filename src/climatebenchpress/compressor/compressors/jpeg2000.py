@@ -17,6 +17,9 @@ class Jpeg2000(Compressor):
 
     @staticmethod
     def abs_bound_codec(dtype, error_bound):
+        # Currently, the input is transformed into the range
+        # round(min_pixel_val/ error_bound) <= x <= round(max_pixel_val / error_bound)
+        # This means any values outside this range will incur a larger error.
         precision = error_bound
         max_pixel_val = 2**25 - 1  # maximum pixel value for our integer encoding.
 
