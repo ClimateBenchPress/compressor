@@ -33,6 +33,16 @@ def main():
         # For each variable and compressor, plot the input, output, and error fields.
         variables = df["Variable"].unique()
         for var in variables:
+            for dist_metric in ["PSNR", "MAE"]:
+                metric_name = dist_metric.lower().replace(" ", "_")
+                if df[df["Variable"] == var][dist_metric].isnull().all():
+                    continue
+                plot_rd_curve(
+                    df[df["Variable"] == var],
+                    dataset_plots_path / f"{var}_compression_ratio_{metric_name}.png",
+                    distortion_metric=dist_metric,
+                )
+
             error_bounds = df[df["Variable"] == var]["Error Bound"].unique()
             for err_bound in error_bounds:
                 compressors = df[
@@ -51,16 +61,6 @@ def main():
                         var,
                         err_bound_path / f"{var}_{comp}.png",
                     )
-
-        for dist_metric in ["PSNR", "Spectral Error", "MAE"]:
-            metric_name = dist_metric.lower().replace(" ", "_")
-            if df[dist_metric].isnull().all():
-                continue
-            plot_rd_curve(
-                df,
-                dataset_plots_path / f"compression_ratio_{metric_name}.png",
-                distortion_metric=dist_metric,
-            )
 
     # plot_metrics(plots_path, all_results)
 
@@ -240,8 +240,7 @@ class CamsPlotter(Plotter):
 
 
 class EsaBiomassPlotter(Plotter):
-    def plot(self, ds, ds_new, dataset_name, compressor, var, outfile):
-        fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(20, 7))
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         selector = dict(time=0)
         ds.isel(**selector).plot(ax=ax[0])
         ds_new.isel(**selector).plot(ax=ax[1])
@@ -250,10 +249,6 @@ class EsaBiomassPlotter(Plotter):
         ax[0].set_title("Original Dataset")
         ax[1].set_title("Compressed Dataset")
         ax[2].set_title("Error")
-        fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
-        plt.tight_layout()
-        plt.savefig(outfile)
-        plt.close()
 
 
 PLOTTERS = {
