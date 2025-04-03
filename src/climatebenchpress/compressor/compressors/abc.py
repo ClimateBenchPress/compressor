@@ -127,8 +127,9 @@ class Compressor(ABC):
                         "Error bound is not compatible with the compressor."
                     )
 
+            # Sort the error bounds by variable name to ensure consistent ordering.
             error_bound_name = "_".join(
-                f"{var}-{eb.name}" for var, eb in eb_per_var.items()
+                f"{var}-{eb.name}" for var, eb in sorted(eb_per_var.items())
             )
             codecs[variant_name].append(
                 NamedCodec(name=error_bound_name, codecs=new_codecs)
@@ -169,6 +170,13 @@ class Compressor(ABC):
             if variant_names == {cls.name}:
                 variant_names = set(converted_bounds[var].keys())
             else:
+                # For all the variables if we are converting the error bounds
+                # they should lead to the same number of variants.
+                # If this is not the case, we are somehow using different mechanisms
+                # to transform the same type of error bound which should be avoided.
+                # This holds true as long as we have only two types of error bounds
+                # (absolute and relative). If we add more types of error bounds then
+                # this property no longer holds.
                 assert variant_names == set(converted_bounds[var].keys()), (
                     "Error bounds for different variables must have the same variant names."
                 )
