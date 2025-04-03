@@ -1,4 +1,4 @@
-__all__ = ["Compressor", "NamedCodec", "ErrorBound"]
+__all__ = ["Compressor", "NamedPerVariableCodec", "ErrorBound"]
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
@@ -17,7 +17,7 @@ type VariantName = str
 
 
 @dataclass
-class NamedCodec:
+class NamedPerVariableCodec:
     name: ErrorBoundName
     codecs: dict[VariableName, Codec]
 
@@ -45,7 +45,7 @@ class ErrorBound:
 
 
 @dataclass
-class VariantInfo:
+class VariantErrorBoundPerVariable:
     name: VariantName
     error_bounds: dict[VariableName, ErrorBound]
 
@@ -72,13 +72,13 @@ class Compressor(ABC):
         data_abs_min: dict[VariableName, float],
         data_abs_max: dict[VariableName, float],
         error_bounds: list[dict[VariableName, ErrorBound]],
-    ) -> dict[VariantName, list[NamedCodec]]:
+    ) -> dict[VariantName, list[NamedPerVariableCodec]]:
         """
         Constructs a dictionary of codecs based on the provided error bounds.
         The dictionary has a separate entry for each compressor variant. Compressor
         variants are created when transforming between absolute and relative
         error bounds (each variant accounts for a different way to transform the
-        error bound). The dictionary values are lists of `NamedCodec` instances
+        error bound). The dictionary values are lists of `NamedPerVariableCodec` instances
         where each element in the list corresponds to a different value for the
         error bound.
 
@@ -95,12 +95,12 @@ class Compressor(ABC):
 
         Returns
         -------
-        dict[VariantName, list[NamedCodec]]
+        dict[VariantName, list[NamedPerVariableCodec]]
             A dictionary where keys are codec variant names (for separate error bound conversions)
-            and values are lists of `NamedCodec` instances configured with the specified error bounds.
+            and values are lists of `NamedPerVariableCodec` instances configured with the specified error bounds.
         """
-        codecs: dict[VariantName, list[NamedCodec]] = defaultdict(list)
-        transformed_bounds: list[VariantInfo] = []
+        codecs: dict[VariantName, list[NamedPerVariableCodec]] = defaultdict(list)
+        transformed_bounds: list[VariantErrorBoundPerVariable] = []
 
         # Loop over all the error bounds and ensure that they are compatible with the
         # compressor. If the error bound is not compatible, transform it into a new
@@ -132,10 +132,47 @@ class Compressor(ABC):
                 f"{var}-{eb.name}" for var, eb in sorted(eb_per_var.items())
             )
             codecs[variant_name].append(
-                NamedCodec(name=error_bound_name, codecs=new_codecs)
+                NamedPerVariableCodec(name=error_bound_name, codecs=new_codecs)
             )
 
         return codecs
+
+    # Class interface
+    @classproperty
+    def registry(cls) -> Mapping:
+        return MappingProxyType(Compressor._registry)
+
+    # Implementation details
+    _registry: dict[str, type["Compressor"]] = dict()
+
+    @classproperty
+    def has_abs_error_impl(cls) -> bool:
+        return "abs_bound_codec" in cls.__dict__
+
+    @classproperty
+    def has_rel_error_impl(cls) -> bool:
+        return "rel_bound_codec" in cls.__dict__
+
+    @classmethod
+    def __init_subclass__(cls: type["Compressor"]) -> None:
+        name = getattr(cls, "name", None)
+
+        if name is None:
+            raise TypeError(f"Compressor {cls} must have a name")
+
+        if not (cls.has_abs_error_impl or cls.has_rel_error_impl):
+            raise TypeError(
+                f"Compressor {cls} must implement at least one of `abs_bound_codec` and `rel_bound_codec`."
+            )
+
+        if name in Compressor._registry:
+            raise TypeError(
+                f"duplicate Compressor name {name} for {cls} vs {Compressor._registry[name]}"
+            )
+
+        Compressor._registry[name] = cls
+
+        return super().__init_subclass__()
 
     @classmethod
     def _get_variant_bounds(
@@ -144,7 +181,7 @@ class Compressor(ABC):
         data_abs_max: dict[VariableName, float],
         variant_name: VariantName,
         error_bounds: dict[VariableName, ErrorBound],
-    ) -> list[VariantInfo]:
+    ) -> list[VariantErrorBoundPerVariable]:
         """
         Check whether the supplied `error_bounds` are compatible with the current
         compressor. If they are not compatible return a list of new transformed
@@ -186,7 +223,7 @@ class Compressor(ABC):
         if len(converted_bounds) == 0:
             # The error bounds for all variables are compatible with the codec.
             # Just return the original error bounds.
-            return [VariantInfo(variant_name, error_bounds)]
+            return [VariantErrorBoundPerVariable(variant_name, error_bounds)]
 
         # converted_bounds contains entries for all variables for which we needed
         # to transform the error bounds. We now transform the dictionary
@@ -195,7 +232,7 @@ class Compressor(ABC):
         # *variant* of the error bound). Additionally, each variant needs to contain
         # information about the error bounds for all variables.
         variable_names = set(error_bounds.keys())
-        result: list[VariantInfo] = []
+        result: list[VariantErrorBoundPerVariable] = []
         for variant in variant_names:
             eb_per_variable: dict[VariableName, ErrorBound] = dict()
             for variable in variable_names:
@@ -203,46 +240,11 @@ class Compressor(ABC):
                     eb_per_variable[variable] = converted_bounds[variable][variant]
                 else:
                     eb_per_variable[variable] = error_bounds[variable]
-            result.append(VariantInfo(name=variant, error_bounds=eb_per_variable))
+            result.append(
+                VariantErrorBoundPerVariable(name=variant, error_bounds=eb_per_variable)
+            )
 
         return result
-
-    # Class interface
-    @classproperty
-    def registry(cls) -> Mapping:
-        return MappingProxyType(Compressor._registry)
-
-    # Implementation details
-    _registry: dict[str, type["Compressor"]] = dict()
-
-    @classproperty
-    def has_abs_error_impl(cls) -> bool:
-        return "abs_bound_codec" in cls.__dict__
-
-    @classproperty
-    def has_rel_error_impl(cls) -> bool:
-        return "rel_bound_codec" in cls.__dict__
-
-    @classmethod
-    def __init_subclass__(cls: type["Compressor"]) -> None:
-        name = getattr(cls, "name", None)
-
-        if name is None:
-            raise TypeError(f"Compressor {cls} must have a name")
-
-        if not (cls.has_abs_error_impl or cls.has_rel_error_impl):
-            raise TypeError(
-                f"Compressor {cls} must implement at least one of `abs_bound_codec` and `rel_bound_codec`."
-            )
-
-        if name in Compressor._registry:
-            raise TypeError(
-                f"duplicate Compressor name {name} for {cls} vs {Compressor._registry[name]}"
-            )
-
-        Compressor._registry[name] = cls
-
-        return super().__init_subclass__()
 
 
 def convert_error_bound(

@@ -9,7 +9,7 @@ import xarray as xr
 from climatebenchpress.compressor.compressors.abc import (
     Compressor,
     ErrorBound,
-    NamedCodec,
+    NamedPerVariableCodec,
 )
 from dask.diagnostics.progress import ProgressBar
 from numcodecs.abc import Codec
@@ -49,8 +49,8 @@ def main(exclude_dataset, include_dataset, exclude_compressor, include_compresso
             if include_compressor and compressor.name not in include_compressor:
                 continue
 
-            compressor_variants: dict[str, list[NamedCodec]] = compressor.build(
-                ds_dtypes, ds_abs_mins, ds_abs_maxs, error_bounds
+            compressor_variants: dict[str, list[NamedPerVariableCodec]] = (
+                compressor.build(ds_dtypes, ds_abs_mins, ds_abs_maxs, error_bounds)
             )
 
             for compr_name, named_codecs in compressor_variants.items():
