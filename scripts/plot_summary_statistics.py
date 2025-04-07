@@ -75,22 +75,26 @@ def calculate_ranks(data):
     best_compressor = avg_ranks.iloc[0]["Compressor"]
 
     normalized = data.copy()
-    normalized["Normalized_CR"] = normalized.apply(
-        lambda x: x["Compression Ratio [raw B / enc B]"]
-        / data[
+    normalize_vars = [
+        ("Compression Ratio [raw B / enc B]", "Normalized_CR"),
+        ("MAE", "Normalized_MAE"),
+        ("Spatial Relative Error (Value)", "Normalized_SRE"),
+    ]
+    normalized["Spatial Relative Error (Value)"] = normalized[
+        "Spatial Relative Error (Value)"
+    ].replace(0.0, 1e-12)
+
+    def get_normalizer(row):
+        return normalized[
             (data["Compressor"] == best_compressor)
-            & (data["Variable"] == x["Variable"])
-        ]["Compression Ratio [raw B / enc B]"].item(),
-        axis=1,
-    )
-    normalized["Normalized_MAE"] = normalized.apply(
-        lambda x: x["MAE"]
-        / data[
-            (data["Compressor"] == best_compressor)
-            & (data["Variable"] == x["Variable"])
-        ]["MAE"].item(),
-        axis=1,
-    )
+            & (data["Variable"] == row["Variable"])
+        ][col].item()
+
+    for col, new_col in normalize_vars:
+        normalized[new_col] = normalized.apply(
+            lambda x: x[col] / get_normalizer(x),
+            axis=1,
+        )
 
     return normalized, avg_ranks
 
@@ -98,6 +102,8 @@ def calculate_ranks(data):
 def plot_compression_data(data, outfile):
     # Calculate ranks
     data, avg_ranks = calculate_ranks(data)
+    # Invert so that lower is better
+    data["Normalized_CR"] = 1 / data["Normalized_CR"]
 
     # Get ordered list of compressors by average rank
     ordered_compressors = avg_ranks["Compressor"].tolist()
@@ -107,55 +113,40 @@ def plot_compression_data(data, outfile):
     # Variables for plotting
     variables = data["Variable"].unique()
     colors = plt.cm.tab10(np.linspace(0, 1, len(variables)))
-    markers = ["o", "^", "s", "D", "d", "*", "P", "H"]
+    markers = ["o", "^", "s", "D", "d", "*", "P", "v"]
 
-    offset = 0.2
-    # Plot compression ratios with circles
-    # comp_ratio_marker = "o"
-    comp_ratio_color = colors[0]
-    for i, variable in enumerate(variables):
-        var_data = data[data["Variable"] == variable]
-        for j, comp in enumerate(ordered_compressors):
-            comp_data = var_data[var_data["Compressor"] == comp]
-            if not comp_data.empty:
-                plt.scatter(
-                    j - offset,
-                    # Plot inverse so that lower is better
-                    1 / comp_data["Normalized_CR"].iloc[0],
-                    marker=markers[i],
-                    s=100,
-                    color=comp_ratio_color,
-                    alpha=0.7,
-                )
+    metrics_to_plot = [
+        ("Normalized_CR", 0.3, colors[0]),
+        ("Normalized_MAE", 0.0, colors[1]),
+        ("Normalized_SRE", -0.3, colors[2]),
+    ]
 
-    # Plot MAE values with triangles
-    # mae_marker = "^"
-    mae_color = colors[1]
-    for i, variable in enumerate(variables):
-        var_data = data[data["Variable"] == variable]
-        for j, comp in enumerate(ordered_compressors):
-            comp_data = var_data[var_data["Compressor"] == comp]
-            if not comp_data.empty:
-                plt.scatter(
-                    j + offset,
-                    comp_data["Normalized_MAE"].iloc[0],
-                    marker=markers[i],
-                    s=100,
-                    color=mae_color,
-                    alpha=0.7,
-                )
-            if j != len(variables) - 1:
-                # Draw a vertical line at the end of each variable group
-                plt.axvline(
-                    x=j + 0.5,
-                    color="black",
-                    alpha=0.5,
-                    linewidth=0.5,
-                )
+    for metric_name, offset, color in metrics_to_plot:
+        for i, variable in enumerate(variables):
+            var_data = data[data["Variable"] == variable]
+            for j, comp in enumerate(ordered_compressors):
+                comp_data = var_data[var_data["Compressor"] == comp]
+                if not comp_data.empty:
+                    plt.scatter(
+                        j - offset,
+                        comp_data[metric_name].iloc[0],
+                        marker=markers[i],
+                        s=100,
+                        color=color,
+                        alpha=0.7,
+                    )
+                if j != len(variables) - 1:
+                    # Draw a vertical line at the end of each variable group
+                    plt.axvline(
+                        x=j + 0.5,
+                        color="black",
+                        alpha=0.5,
+                        linewidth=0.5,
+                    )
 
     # Configure plot
     plt.xlabel("Compressors (ordered by average rank)")
-    plt.ylabel("Value")
+    plt.ylabel("Normalised Value")
     plt.yscale("log")
     plt.title("Compression Ratio and MAE by Compressor")
     plt.xticks(
@@ -163,9 +154,9 @@ def plot_compression_data(data, outfile):
     )
     plt.grid(axis="y", linestyle="--", alpha=0.7)
     plt.xlim(-0.5, len(ordered_compressors) - 0.5)
+    plt.ylim(1e-3, 1e2)
 
     # Create custom legends
-    # 1. Legend for variables (colors)
     variable_handles = [
         plt.Line2D(
             [0],
@@ -187,13 +178,12 @@ def plot_compression_data(data, outfile):
     )
     plt.gca().add_artist(variable_legend)
 
-    # 2. Legend for metrics (markers)
     metric_handles = [
         plt.Line2D(
             [0],
             [0],
             marker="o",
-            color=comp_ratio_color,
+            color=colors[0],
             linestyle="None",
             markersize=10,
             label="Compression Ratio",
@@ -202,7 +192,7 @@ def plot_compression_data(data, outfile):
             [0],
             [0],
             marker="o",
-            color=mae_color,
+            color=colors[1],
             linestyle="None",
             markersize=10,
             label="MAE",

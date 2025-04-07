@@ -159,16 +159,23 @@ def load_measurements(compressed_dataset: Path, compressor: Path) -> pd.DataFram
 def merge_metrics(
     measurements: pd.DataFrame, metrics: pd.DataFrame, tests: pd.DataFrame
 ) -> pd.DataFrame:
-    # Turn each metric into a column. Merge on "variable" to avoid duplicating
+    # Turn each metric/test into a column. Merge on "variable" to avoid duplicating
     # the "variable" column.
+    test_per_variable = tests.pivot(
+        index="Variable", columns="Test", values=["Passed", "Value"]
+    )
+    test_per_variable.columns = list(
+        [
+            f"{metric_name} ({passed_or_val})"
+            for passed_or_val, metric_name in test_per_variable.columns
+        ]
+    )
     return pd.merge(
         measurements,
         metrics.pivot(index="Variable", columns="Metric", values="Error")
         .reset_index()
         .merge(
-            tests.pivot(
-                index="Variable", columns="Test", values="Passed"
-            ).reset_index(),
+            test_per_variable.reset_index(),
             on="Variable",
         ),
         on="Variable",
