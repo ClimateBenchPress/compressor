@@ -22,18 +22,13 @@ PASSFAIL_TESTS: dict[str, climatebenchpress.compressor.tests.abc.Test] = {
 
 def main():
     datasets = REPO.parent / "data-loader" / "datasets"
-    compressed_datasets = REPO / "test-compressed-datasets"
-    metrics_dir = REPO / "test-metrics"
+    compressed_datasets = REPO / "compressed-datasets"
+    metrics_dir = REPO / "metrics"
 
     all_results = []
     for dataset in compressed_datasets.iterdir():
         if dataset.name == ".gitignore":
             continue
-
-        # if dataset.name.startswith("esa-biomass-cci") or dataset.name.startswith(
-        #     "era5"
-        # ):
-        #     continue
 
         for error_bound in dataset.iterdir():
             for compressor in error_bound.iterdir():

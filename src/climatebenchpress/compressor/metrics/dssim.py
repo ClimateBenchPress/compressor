@@ -16,8 +16,14 @@ class DSSIM(Metric):
 
         Here we assume that the input data has shape (realization, time, vertical, latitude, longitude).
         The dSSIM metric is defined for 2D fields, so we compute the dSSIM for each vertical slice
-        and then take the minimum value over all vertical slices (this follows the convention in [1]).
-        The final dSSIM value is the average over the realization and time dimensions.
+        and then take the minimum value over all vertical slices (this follows the official implementation
+        of [1]). The final dSSIM value is the average over the realization and time dimensions.
+
+        NOTE: This implementation can return values > 1.0 in the case that one of the inputs
+          has large regions with NaNs and the other input does not. This is because the
+          `astropy.convolution.convolve` function linearly interpolates the NaN values.
+          The interpolation of NaN is an explicit design decision made in [1]. In practice,
+          this metric should not be used for data with large regions of NaNs.
 
         References:
         [1] A. H. Baker, A. Pinard and D. M. Hammerling, "On a Structural Similarity
