@@ -10,9 +10,10 @@ from .abc import Metric
 class DSSIM(Metric):
     def __call__(self, x: xr.DataArray, y: xr.DataArray) -> float:
         """
-        Implementation of the data-SSIM (dSSIM) metric presented in [1]. This is an
+        Implementation of the data-SSIM (dSSIM) metric presented in [1], This is an
         extension of the standard structural similarity index (SSIM) to floating
-        point data.
+        point data. The implementation is adapted from the official implementation [2]
+        to be able to handle our data format.
 
         Here we assume that the input data has shape (realization, time, vertical, latitude, longitude).
         The dSSIM metric is defined for 2D fields, so we compute the dSSIM for each vertical slice
@@ -29,6 +30,7 @@ class DSSIM(Metric):
         [1] A. H. Baker, A. Pinard and D. M. Hammerling, "On a Structural Similarity
             Index Approach for Floating-Point Data," in IEEE Transactions on Visualization
             and Computer Graphics
+        [2] https://github.com/NCAR/ldcpy/blob/6c5bcb8149ec7876a4f53b0e784e9c528f6f14cb/ldcpy/calcs.py#L2516
 
         Parameters
         ----------
@@ -37,11 +39,13 @@ class DSSIM(Metric):
         y : xr.DataArray
             Shape (realization, time, vertical, latitude, longitude)
         """
-        _, _, num_vert, num_lat, num_lon = x.shape
+        num_real, num_time, num_vert, num_lat, num_lon = x.shape
+        # We want to average over the realization and time dimensions so we collapse
+        # the two dimensions into one.
         x_ = x.values.reshape(-1, num_vert, num_lat, num_lon)
         y_ = y.values.reshape(-1, num_vert, num_lat, num_lon)
-        dssims = np.zeros(x_.shape[0])
-        for i in range(x_.shape[0]):
+        dssims = np.zeros(num_real * num_time)
+        for i in range(num_real * num_time):
             vertical_dssims = np.zeros(num_vert)
             for j in range(num_vert):
                 vertical_dssims[j] = _dssim(x_[i, j], y_[i, j])
@@ -53,7 +57,7 @@ def _dssim(
     a1: np.ndarray,
     a2: np.ndarray,
     eps: float = 1e-8,
-    kernel_size: tuple[int, int] = (11, 11),
+    kernel_size: int = 11,
 ) -> float:
     """
     Implementation adapted from the official dSSIM implementation at
@@ -69,12 +73,17 @@ def _dssim(
         Shape: (latitude, longitude)
     y : np.ndarray
         Shape: (latitude, longitude)
+    kernel_size : int
+        The size of the Gaussian kernel for the convolution operation in SSIM. Has to be
+        an odd number. The default is 11.
 
     Returns
     -------
     float
         The data-SSIM value between the two input arrays.
     """
+    assert kernel_size % 2 == 1, "kernel_size must be an odd number."
+
     # re-scale  to [0,1] - if not constant
     smin = min(np.nanmin(a1), np.nanmin(a2))
     smax = max(np.nanmax(a1), np.nanmax(a2))
@@ -95,10 +104,7 @@ def _dssim(
     sc_a2 = np.round(sc_a2 * 255) / 255
 
     # gaussian filter
-    kernel = Gaussian2DKernel(
-        x_stddev=1.5, x_size=kernel_size[0], y_size=kernel_size[1]
-    )
-    k = 5
+    kernel = Gaussian2DKernel(x_stddev=1.5, x_size=kernel_size, y_size=kernel_size)
     filter_args = {"boundary": "fill", "preserve_nan": True}
 
     a1_mu = convolve(sc_a1, kernel, **filter_args)
@@ -128,6 +134,8 @@ def _dssim(
     ssim_2 = ssim_t2 / ssim_b2
     ssim_mat = ssim_1 * ssim_2
 
-    # cropping (the border region)
+    # Cropping the border region of the 2D field where the convolution kernel is not
+    # fully overlapping with the 2D input field.
+    k = (kernel_size - 1) // 2
     ssim_mat = ssim_mat[k : ssim_mat.shape[0] - k, k : ssim_mat.shape[1] - k]
     return np.nanmean(ssim_mat)
