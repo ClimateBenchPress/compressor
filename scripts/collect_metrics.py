@@ -29,32 +29,41 @@ def main():
         if dataset.name == ".gitignore":
             continue
 
-        for compressor in dataset.iterdir():
-            print(f"Evaluating {compressor.stem} on {dataset.name}...")
+        for error_bound in dataset.iterdir():
+            for compressor in error_bound.iterdir():
+                print(f"Evaluating {compressor.stem} on {dataset.name}...")
 
-            compressed_dataset = compressed_datasets / dataset.name / compressor.stem
-            compressed_dataset_path = compressed_dataset / "decompressed.zarr"
-            uncompressed_dataset = datasets / dataset.name / "standardized.zarr"
-            assert compressed_dataset_path.exists(), (
-                f"No compressed dataset at {compressed_dataset_path}"
-            )
-            assert uncompressed_dataset.exists(), (
-                f"No uncompressed dataset at {uncompressed_dataset}"
-            )
+                compressed_dataset = (
+                    compressed_datasets
+                    / dataset.name
+                    / error_bound.name
+                    / compressor.stem
+                )
+                compressed_dataset_path = compressed_dataset / "decompressed.zarr"
+                uncompressed_dataset = datasets / dataset.name / "standardized.zarr"
+                if not compressed_dataset_path.exists():
+                    print(f"No compressed dataset at {compressed_dataset_path}")
+                    continue
+                if not uncompressed_dataset.exists():
+                    print(f"No uncompressed dataset at {uncompressed_dataset}")
+                    continue
 
-            ds = xr.open_zarr(uncompressed_dataset, chunks=dict()).compute()
-            ds_new = xr.open_zarr(compressed_dataset_path, chunks=dict()).compute()
+                ds = xr.open_zarr(uncompressed_dataset, chunks=dict()).compute()
+                ds_new = xr.open_zarr(compressed_dataset_path, chunks=dict()).compute()
 
-            compressor_metrics = metrics_dir / dataset.name / compressor.stem
-            compressor_metrics.mkdir(parents=True, exist_ok=True)
+                compressor_metrics = (
+                    metrics_dir / dataset.name / error_bound.name / compressor.stem
+                )
+                compressor_metrics.mkdir(parents=True, exist_ok=True)
 
-            metrics = compute_metrics(compressor_metrics, ds, ds_new)
-            tests = compute_tests(compressor_metrics, ds, ds_new)
-            measurements = load_measurements(compressed_datasets, dataset, compressor)
+                metrics = compute_metrics(compressor_metrics, ds, ds_new)
+                tests = compute_tests(compressor_metrics, ds, ds_new)
+                measurements = load_measurements(compressed_dataset, compressor)
 
-            df = merge_metrics(measurements, metrics, tests)
-            df["Dataset"] = dataset.name
-            all_results.append(df)
+                df = merge_metrics(measurements, metrics, tests)
+                df["Dataset"] = dataset.name
+                df["Error Bound"] = error_bound.name
+                all_results.append(df)
 
     all_results = pd.concat(all_results)
     all_results.to_csv(metrics_dir / "all_results.csv", index=False)
@@ -107,12 +116,8 @@ def compute_tests(
     return tests
 
 
-def load_measurements(
-    compressed_datasets: Path, dataset: Path, compressor: Path
-) -> pd.DataFrame:
-    with open(
-        compressed_datasets / dataset.name / compressor.stem / "measurements.json"
-    ) as f:
+def load_measurements(compressed_dataset: Path, compressor: Path) -> pd.DataFrame:
+    with open(compressed_dataset / "measurements.json") as f:
         measurements = json.load(f)
 
     rows = []
@@ -149,16 +154,23 @@ def load_measurements(
 def merge_metrics(
     measurements: pd.DataFrame, metrics: pd.DataFrame, tests: pd.DataFrame
 ) -> pd.DataFrame:
-    # Turn each metric into a column. Merge on "variable" to avoid duplicating
+    # Turn each metric/test into a column. Merge on "variable" to avoid duplicating
     # the "variable" column.
+    test_per_variable = tests.pivot(
+        index="Variable", columns="Test", values=["Passed", "Value"]
+    )
+    test_per_variable.columns = list(
+        [
+            f"{metric_name} ({passed_or_val})"
+            for passed_or_val, metric_name in test_per_variable.columns
+        ]
+    )
     return pd.merge(
         measurements,
         metrics.pivot(index="Variable", columns="Metric", values="Error")
         .reset_index()
         .merge(
-            tests.pivot(
-                index="Variable", columns="Test", values="Passed"
-            ).reset_index(),
+            test_per_variable.reset_index(),
             on="Variable",
         ),
         on="Variable",
