@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 import cartopy.crs as ccrs
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -217,12 +218,27 @@ class NextGEMSPlotter(Plotter):
         lon_grid, lat_grid = np.meshgrid(lons, lats)
         xys = self.projection.transform_points(ccrs.PlateCarree(), lon_grid, lat_grid)
         x, y = xys[..., 0], xys[..., 1]
+
         cmap = "Blues"
-        c1 = ax[0].pcolormesh(x, y, ds.isel(**selector).values.squeeze(), cmap=cmap)
+        max_val = max(
+            ds.isel(**selector).max().values.item(),
+            ds_new.isel(**selector).max().values.item(),
+        )
+        color_norm = mcolors.LogNorm(vmin=1e-12, vmax=max_val) if var == "pr" else None
+        # Avoid zero values for log transformation for precipitation
+        offset = 1e-12 if var == "pr" else 0
+        c1 = ax[0].pcolormesh(
+            x,
+            y,
+            ds.isel(**selector).values.squeeze() + offset,
+            norm=color_norm,
+            cmap=cmap,
+        )
         c2 = ax[1].pcolormesh(
             x,
             y,
-            ds_new.isel(**selector).values.squeeze(),
+            ds_new.isel(**selector).values.squeeze() + offset,
+            norm=color_norm,
             cmap=cmap,
         )
         c3 = ax[2].pcolormesh(x, y, error.values.squeeze(), cmap="coolwarm")
