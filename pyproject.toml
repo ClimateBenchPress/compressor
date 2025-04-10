@@ -30,6 +30,7 @@ dependencies = [
     "typed-classproperties~=1.1.0",
     "xarray~=2024.11.0",
     "zarr~=2.18.0",
+    "seaborn>=0.13.2",
 ]
 
 [dependency-groups]

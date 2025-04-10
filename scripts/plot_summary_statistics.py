@@ -4,6 +4,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 COMPRESSOR2COLOR = {
     "jpeg2000": "blue",
@@ -408,6 +409,40 @@ def plot_rd_curve(
     plt.close()
 
 
+def plot_bound_violations(df, bound_names, outfile):
+    fig, axs = plt.subplots(1, 3, figsize=(len(bound_names) * 6, 6), sharey=True)
+
+    for i, bound_name in enumerate(bound_names):
+        df_bound = df[df["Error Bound"] == bound_name]
+        pass_fail = df_bound.pivot(
+            index="Compressor", columns="Variable", values="Satisfies Bound (Passed)"
+        )
+        pass_fail = pass_fail.astype(np.float32)
+        fraction_fail = df_bound.pivot(
+            index="Compressor", columns="Variable", values="Satisfies Bound (Value)"
+        )
+        annotations = fraction_fail.map(
+            lambda x: "{:.2f}".format(x * 100) if x * 100 >= 0.01 else "<0.01"
+        )
+        annotations[fraction_fail == 0.0] = ""
+        sns.heatmap(
+            pass_fail,
+            cbar=False,
+            cmap="vlag_r",
+            annot=annotations,
+            fmt="s",
+            linewidths=0.5,
+            ax=axs[i],
+        )
+        axs[i].set_title(f"Bound: {bound_name}")
+        if i != 0:
+            axs[i].set_ylabel("")
+
+    fig.tight_layout()
+    fig.savefig(outfile, dpi=300)
+    plt.close()
+
+
 def main(csv_file):
     plots_path = REPO / "test-plots"
 
@@ -415,6 +450,11 @@ def main(csv_file):
     bound_names = ["low", "mid", "high"]
     df = rename_error_bounds(df, bound_names)
     normalized_df = normalize(df, bound_normalize="mid")
+
+    plot_bound_violations(
+        normalized_df, bound_names, plots_path / "bound_violations.png"
+    )
+
     for metric in ["Normalized_MAE", "Normalized_DSSIM", "Normalized_SRE"]:
         plot_rd_curve(
             normalized_df,
