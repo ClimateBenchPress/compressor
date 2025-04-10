@@ -1,9 +1,11 @@
 import json
+import re
 from pathlib import Path
 
-import climatebenchpress.compressor
 import pandas as pd
 import xarray as xr
+
+import climatebenchpress.compressor
 
 REPO = Path(__file__).parent.parent
 
@@ -31,6 +33,8 @@ def main():
             continue
 
         for error_bound in dataset.iterdir():
+            variable2error_bound = parse_error_bounds(error_bound.name)
+
             for compressor in error_bound.iterdir():
                 print(f"Evaluating {compressor.stem} on {dataset.name}...")
 
@@ -58,7 +62,9 @@ def main():
                 compressor_metrics.mkdir(parents=True, exist_ok=True)
 
                 metrics = compute_metrics(compressor_metrics, ds, ds_new)
-                tests = compute_tests(compressor_metrics, ds, ds_new)
+                tests = compute_tests(
+                    compressor_metrics, variable2error_bound, ds, ds_new
+                )
                 measurements = load_measurements(compressed_dataset, compressor)
 
                 df = merge_metrics(measurements, metrics, tests)
@@ -68,6 +74,46 @@ def main():
 
     all_results = pd.concat(all_results)
     all_results.to_csv(metrics_dir / "all_results.csv", index=False)
+
+
+def parse_error_bounds(error_bound_str: str) -> dict[str, tuple[str, float]]:
+    """
+    The error bound string is of the form
+    "{variable_name1}-{error_type1}={error_bound1}_{variable_name2}-{error_type2}={error_bound2}".
+    More than 2 variables are possible.
+    Each variable name can itself contain an underscore.
+    The error type is either "abs_error" or "rel_error".
+    The error bound is a floating point number represented either in decimal or scientific notation.
+
+    This function parses the string and returns a dictionary of the form
+    {
+        "variable_name1": (error_type1, error_bound1),
+        "variable_name2": (error_type2, error_bound2),
+    }
+
+    For example, the string
+    "pr-abs_error=3.108691982924938e-05_rlut-abs_error=0.2788982238769531"
+    would be parsed as
+    {
+        "pr": ("abs_error", 3.108691982924938e-05),
+        "rlut": ("abs_error", 0.2788982238769531),
+    }
+    """
+    pattern = re.compile(
+        r"(?:_?)"  # Underscore at the beginning separating the different variables.
+        r"(?P<variable>[\w]+)"  # Variable name can any alphanumeric character.
+        r"-(?P<error_type>abs_error|rel_error)="  # Error type is either "abs_error" or "rel_error".
+        r"(?P<error_bound>\d+(\.\d+)?([eE][+-]?\d+)?)"  # Error bound is a floating point number.
+    )
+    result = {}
+    for match in pattern.finditer(error_bound_str):
+        result[match["variable"]] = (match["error_type"], float(match["error_bound"]))
+
+    assert len(result) > 0, (
+        f"Error bound string {error_bound_str} does not match expected format"
+    )
+
+    return result
 
 
 def compute_metrics(
@@ -94,7 +140,10 @@ def compute_metrics(
 
 
 def compute_tests(
-    compressor_metrics: Path, ds: xr.Dataset, ds_new: xr.Dataset
+    compressor_metrics: Path,
+    variable2bound: dict[str, tuple[str, float]],
+    ds: xr.Dataset,
+    ds_new: xr.Dataset,
 ) -> pd.DataFrame:
     tests_path = compressor_metrics / "tests.csv"
     if tests_path.exists():
@@ -112,6 +161,22 @@ def compute_tests(
                     "Value": test_value,
                 }
             )
+
+    for v in ds_new:
+        error_type, bound = variable2bound[v]
+        test = climatebenchpress.compressor.tests.ErrorBound(
+            error_type=error_type, threshold=bound
+        )
+        test_result, test_value = test(ds[v], ds_new[v])
+        test_list.append(
+            {
+                "Test": "Satisfies Bound",
+                "Variable": v,
+                "Passed": test_result,
+                "Value": test_value,
+            }
+        )
+
     tests = pd.DataFrame(test_list)
     tests.to_csv(tests_path, index=False)
     return tests
