@@ -18,7 +18,7 @@ class ErrorBound(Test):
         relative_error = abs_error / x
 
         error_to_check = abs_error if self.error_type == "abs_error" else relative_error
-        satisfied = error_to_check < self.threshold
+        satisfied = error_to_check <= self.threshold
 
         # The comparison does not work for NaN values, as `np.nan < threshold` is False.
         # This check ensures that if x contains a NaN then y must also contain a NaN at
