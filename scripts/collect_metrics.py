@@ -163,7 +163,7 @@ def compute_tests(
             )
 
     for v in ds_new:
-        error_type, bound = variable2bound[v]
+        error_type, bound = variable2bound[str(v)]
         test = climatebenchpress.compressor.tests.ErrorBound(
             error_type=error_type, threshold=bound
         )
