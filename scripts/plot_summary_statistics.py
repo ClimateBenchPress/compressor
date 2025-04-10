@@ -5,59 +5,94 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+COMPRESSOR2COLOR = {
+    "jpeg2000": "blue",
+    "zfp": "green",
+    "sz3": "red",
+    "bitround-pco-conservative-rel": "purple",
+    "bitround-conservative-rel": "orange",
+    "stochround": "brown",
+    "tthresh": "pink",
+}
+
 REPO = Path(__file__).parent.parent
 
 
-def split_by_error_bounds(df):
-    """
-    Split the dataframe into three dataframes based on error bounds.
-    For each variable, categorize its error bounds as low, medium, or high.
-
-    Args:
-        df: Pandas DataFrame with 'Variable' and 'Error Bound' columns
-
-    Returns:
-        List of three DataFrames [low_bounds_df, medium_bounds_df, high_bounds_df]
-    """
+def rename_error_bounds(df, bound_names):
     # Get unique variables
     variables = df["Variable"].unique()
 
     # Initialize empty dataframes for each error bound category
-    low_bounds_df = pd.DataFrame(columns=df.columns)
-    medium_bounds_df = pd.DataFrame(columns=df.columns)
-    high_bounds_df = pd.DataFrame(columns=df.columns)
-    result_dfs = [
-        low_bounds_df,
-        medium_bounds_df,
-        high_bounds_df,
-    ]
+    # low_bounds_df = pd.DataFrame(columns=df.columns)
+    # medium_bounds_df = pd.DataFrame(columns=df.columns)
+    # high_bounds_df = pd.DataFrame(columns=df.columns)
+    # result_dfs = [
+    #     low_bounds_df,
+    #     medium_bounds_df,
+    #     high_bounds_df,
+    # ]
 
     # Process each variable
     for variable in variables:
-        var_data = df[df["Variable"] == variable]
+        var_selector = df["Variable"] == variable
+        var_data = df[var_selector]
 
         error_bounds = sorted(
             var_data["Error Bound"].unique(),
             key=lambda x: float(x.split("=")[1].split("_")[0]),
         )
 
-        assert len(error_bounds) == 3
+        assert len(error_bounds) == len(bound_names)
         for i in range(len(error_bounds)):
-            result_dfs[i] = pd.concat(
-                [result_dfs[i], var_data[var_data["Error Bound"] == error_bounds[i]]]
-            )
+            bound_selector = var_data["Error Bound"] == error_bounds[i]
+            df.loc[bound_selector & var_selector, "Error Bound"] = bound_names[i]
 
-    return result_dfs
+    return df
 
 
-def normalize_by_best_compressor(data, column_name, best_compressor):
-    return data.apply(
-        lambda x: x[column_name]
-        / data[
+def normalize(data, bound_normalize="mid"):
+    # Group by Variable and rank compressors within each variable
+    ranked = data.copy()
+    ranked = ranked[ranked["Error Bound"] == bound_normalize]
+    ranked["CompRatio_Rank"] = ranked.groupby("Variable")[
+        "Compression Ratio [raw B / enc B]"
+    ].rank(ascending=False)
+
+    # Calculate average rank for each compressor across all variables
+    avg_ranks = ranked.groupby("Compressor")["CompRatio_Rank"].mean().reset_index()
+    avg_ranks.columns = ["Compressor", "Average_Rank"]
+    avg_ranks = avg_ranks.sort_values("Average_Rank")
+
+    best_compressor = avg_ranks.iloc[0]["Compressor"]
+
+    normalized = data.copy()
+    normalize_vars = [
+        ("Compression Ratio [raw B / enc B]", "Normalized_CR"),
+        ("MAE", "Normalized_MAE"),
+        ("Spatial Relative Error (Value)", "Normalized_SRE"),
+        ("DSSIM", "Normalized_DSSIM"),
+    ]
+    # Avoid division by zero
+    normalized["Spatial Relative Error (Value)"] = normalized[
+        "Spatial Relative Error (Value)"
+    ].replace(0.0, 1e-12)
+    # Avoid negative values. By default, DSSIM is in the range [-1, 1].
+    normalized["DSSIM"] = normalized["DSSIM"] + 1.0
+
+    def get_normalizer(row):
+        return normalized[
             (data["Compressor"] == best_compressor)
-            & (data["Variable"] == x["Variable"])
-        ][column_name].item(),
-    )
+            & (data["Variable"] == row["Variable"])
+            & (data["Error Bound"] == bound_normalize)
+        ][col].item()
+
+    for col, new_col in normalize_vars:
+        normalized[new_col] = normalized.apply(
+            lambda x: x[col] / get_normalizer(x),
+            axis=1,
+        )
+
+    return normalized
 
 
 def calculate_ranks(data):
@@ -113,7 +148,7 @@ def plot_compression_data(data, outfile):
     # Variables for plotting
     variables = data["Variable"].unique()
     colors = plt.cm.tab10(np.linspace(0, 1, len(variables)))
-    markers = ["o", "^", "s", "D", "d", "*", "P", "v"]
+    markers = ["o", "^", "s", "D", "d", "*", "P", "v", ">"]
 
     metrics_to_plot = [
         ("Normalized_CR", 0.3, colors[0]),
@@ -329,16 +364,68 @@ def plot_variables(data, outfile):
     plt.close()
 
 
+def plot_rd_curve(
+    normalized_df,
+    outfile,
+    compression_metric="Compression Ratio [raw B / enc B]",
+    distortion_metric="PSNR",
+    agg="median",
+    bound_names=["low", "mid", "high"],
+):
+    plt.figure(figsize=(10, 6))
+    compressors = normalized_df["Compressor"].unique()
+    agg_distortion = normalized_df.groupby(["Error Bound", "Compressor"])[
+        [compression_metric, distortion_metric]
+    ].agg(agg)
+    for comp in compressors:
+        compr_ratio = [
+            agg_distortion.loc[(bound, comp), compression_metric]
+            for bound in bound_names
+        ]
+        psnr = [
+            agg_distortion.loc[(bound, comp), distortion_metric]
+            for bound in bound_names
+        ]
+        plt.plot(
+            compr_ratio,
+            psnr,
+            label=comp,
+            marker="x",
+            color=COMPRESSOR2COLOR[comp],
+        )
+
+    plt.title(f"{compression_metric} vs {distortion_metric}")
+    plt.xlabel(compression_metric)
+    plt.xscale("log")
+    if "PSNR" not in distortion_metric:
+        # PSNR is already on log scale.
+        plt.yscale("log")
+    plt.ylabel(distortion_metric)
+    plt.legend(title="Compressor")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(outfile)
+    plt.close()
+
+
 def main(csv_file):
     plots_path = REPO / "test-plots"
 
     df = pd.read_csv(csv_file)
-    # List of dataframes with each dataframe containing all entries with the same
-    # error bound level.
-    error_bound_dfs = split_by_error_bounds(df)
     bound_names = ["low", "mid", "high"]
+    df = rename_error_bounds(df, bound_names)
+    normalized_df = normalize(df, bound_normalize="mid")
+    for metric in ["Normalized_MAE", "Normalized_DSSIM", "Normalized_SRE"]:
+        plot_rd_curve(
+            normalized_df,
+            plots_path / f"rd_curve_{metric.lower()}.png",
+            compression_metric="Normalized_CR",
+            distortion_metric=metric,
+            agg="median",
+        )
 
-    for name, error_df in zip(bound_names, error_bound_dfs):
+    for name in bound_names:
+        error_df = df[df["Error Bound"] == name]
         plot_compression_data(
             error_df, plots_path / f"metrics_per_compressor_{name}_bounds.png"
         )
