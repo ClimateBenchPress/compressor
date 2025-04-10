@@ -1,15 +1,17 @@
 import json
 from pathlib import Path
 
-import climatebenchpress.compressor
 import pandas as pd
 import xarray as xr
+
+import climatebenchpress.compressor
 
 REPO = Path(__file__).parent.parent
 
 EVALUATION_METRICS: dict[str, climatebenchpress.compressor.metrics.abc.Metric] = {
     "MAE": climatebenchpress.compressor.metrics.MAE(),
     "Spectral Error": climatebenchpress.compressor.metrics.SpectralError(),
+    "DSSIM": climatebenchpress.compressor.metrics.DSSIM(),
     "PSNR": climatebenchpress.compressor.metrics.PSNR(),
 }
 
@@ -27,11 +29,6 @@ def main():
     all_results = []
     for dataset in compressed_datasets.iterdir():
         if dataset.name == ".gitignore":
-            continue
-
-        if dataset.name.startswith("esa-biomass-cci") or dataset.name.startswith(
-            "era5"
-        ):
             continue
 
         for error_bound in dataset.iterdir():
@@ -164,12 +161,12 @@ def merge_metrics(
     test_per_variable = tests.pivot(
         index="Variable", columns="Test", values=["Passed", "Value"]
     )
-    test_per_variable.columns = list(
-        [
-            f"{metric_name} ({passed_or_val})"
-            for passed_or_val, metric_name in test_per_variable.columns
-        ]
-    )
+    # mypy cannot infer that test_per_variable.columns is a MultiIndex and therefore
+    # gives spurious errors for this assignment.
+    test_per_variable.columns = [  # type: ignore
+        f"{metric_name} ({passed_or_val})"  # type: ignore
+        for passed_or_val, metric_name in test_per_variable.columns  # type: ignore
+    ]
     return pd.merge(
         measurements,
         metrics.pivot(index="Variable", columns="Metric", values="Error")
