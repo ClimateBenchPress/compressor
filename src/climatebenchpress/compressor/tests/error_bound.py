@@ -15,7 +15,7 @@ class ErrorBound(Test):
 
     def __call__(self, x: xr.DataArray, y: xr.DataArray) -> tuple[bool, float]:
         abs_error = np.abs(x - y)
-        relative_error = abs_error / x
+        relative_error = abs_error / abs(x)
 
         error_to_check = abs_error if self.error_type == "abs_error" else relative_error
         satisfied = error_to_check <= self.threshold
