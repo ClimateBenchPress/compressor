@@ -14,6 +14,10 @@ class ErrorBound(Test):
         self.error_type = error_type
 
     def __call__(self, x: xr.DataArray, y: xr.DataArray) -> tuple[bool, float]:
+        # Check that two arrays are both floats
+        assert x.dtype.kind == "f", f"Expected x to be float, got {x.dtype}"
+        assert y.dtype.kind == "f", f"Expected y to be float, got {y.dtype}"
+
         abs_error = np.abs(x - y)
         relative_error = abs_error / x
 
@@ -26,6 +30,11 @@ class ErrorBound(Test):
         # Note, it is an error to have a NaN in y and not in x which will be caught.
         x_and_y_nan = np.logical_and(np.isnan(x), np.isnan(y))
         satisfied = np.logical_or(satisfied, x_and_y_nan)
+
+        # Similarly, np.inf - np.inf is NaN but should pass the test.
+        # The x == y condition ensures that their sign is the same.
+        x_and_y_inf = np.logical_and(np.isinf(x), np.isinf(y), x == y)
+        satisfied = np.logical_or(satisfied, x_and_y_inf)
 
         # Proportion of entries that exceed the threshold.
         exceed_thresh = np.sum(~satisfied) / x.size
