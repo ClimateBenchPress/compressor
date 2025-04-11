@@ -11,6 +11,7 @@ REPO = Path(__file__).parent.parent
 
 EVALUATION_METRICS: dict[str, climatebenchpress.compressor.metrics.abc.Metric] = {
     "MAE": climatebenchpress.compressor.metrics.MAE(),
+    "Max Absolute Error": climatebenchpress.compressor.metrics.MaxAbsError(),
     "Spectral Error": climatebenchpress.compressor.metrics.SpectralError(),
     "DSSIM": climatebenchpress.compressor.metrics.DSSIM(),
     "PSNR": climatebenchpress.compressor.metrics.PSNR(),
