@@ -107,7 +107,14 @@ def parse_error_bounds(error_bound_str: str) -> dict[str, tuple[str, float]]:
     )
     result = {}
     for match in pattern.finditer(error_bound_str):
-        result[match["variable"]] = (match["error_type"], float(match["error_bound"]))
+        try:
+            error_bound = float(match["error_bound"])
+        except ValueError:
+            raise ValueError(
+                f"Error bound '{match['error_bound']}' from '{error_bound_str}' is not a valid float"
+            )
+
+        result[match["variable"]] = (match["error_type"], error_bound)
 
     assert len(result) > 0, (
         f"Error bound string {error_bound_str} does not match expected format"
