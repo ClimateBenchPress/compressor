@@ -19,7 +19,7 @@ class ErrorBound(Test):
         assert y.dtype.kind == "f", f"Expected y to be float, got {y.dtype}"
 
         abs_error = np.abs(x - y)
-        relative_error = abs_error / x
+        relative_error = abs_error / abs(x)
 
         error_to_check = abs_error if self.error_type == "abs_error" else relative_error
         satisfied = error_to_check <= self.threshold
