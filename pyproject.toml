@@ -31,6 +31,7 @@ dependencies = [
     "xarray~=2024.11.0",
     "zarr~=2.18.0",
     "seaborn>=0.13.2",
+    "paretoset>=1.2.4",
 ]
 
 [dependency-groups]
