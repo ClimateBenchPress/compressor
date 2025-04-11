@@ -72,6 +72,7 @@ def normalize(data, bound_normalize="mid"):
         ("MAE", "Normalized_MAE"),
         ("Spatial Relative Error (Value)", "Normalized_SRE"),
         ("DSSIM", "Normalized_DSSIM"),
+        ("Max Absolute Error", "Normalized_MaxAbsError"),
     ]
     # Avoid division by zero
     normalized["Spatial Relative Error (Value)"] = normalized[
@@ -115,6 +116,7 @@ def calculate_ranks(data):
         ("Compression Ratio [raw B / enc B]", "Normalized_CR"),
         ("MAE", "Normalized_MAE"),
         ("Spatial Relative Error (Value)", "Normalized_SRE"),
+        ("Max Absolute Error", "Normalized_MaxAbsError"),
     ]
     normalized["Spatial Relative Error (Value)"] = normalized[
         "Spatial Relative Error (Value)"
@@ -455,7 +457,7 @@ def main(csv_file):
         normalized_df, bound_names, plots_path / "bound_violations.png"
     )
 
-    for metric in ["Normalized_MAE", "Normalized_DSSIM", "Normalized_SRE"]:
+    for metric in ["Normalized_MAE", "Normalized_DSSIM", "Normalized_MaxAbsError"]:
         plot_rd_curve(
             normalized_df,
             plots_path / f"rd_curve_{metric.lower()}.png",
