@@ -28,13 +28,13 @@ class ErrorBound(Test):
         # This check ensures that if x contains a NaN then y must also contain a NaN at
         # the same location.
         # Note, it is an error to have a NaN in y and not in x which will be caught.
-        x_and_y_nan = np.logical_and(np.isnan(x), np.isnan(y))
-        satisfied = np.logical_or(satisfied, x_and_y_nan)
+        x_and_y_nan = np.isnan(x) & np.isnan(y)
+        satisfied = satisfied | x_and_y_nan
 
         # Similarly, np.inf - np.inf is NaN but should pass the test.
         # The x == y condition ensures that their sign is the same.
-        x_and_y_inf = np.logical_and(np.isinf(x), np.isinf(y), x == y)
-        satisfied = np.logical_or(satisfied, x_and_y_inf)
+        x_and_y_inf = np.isinf(x) & np.isinf(y) & x == y
+        satisfied = satisfied | x_and_y_inf
 
         # Proportion of entries that exceed the threshold.
         exceed_thresh = np.sum(~satisfied) / x.size
