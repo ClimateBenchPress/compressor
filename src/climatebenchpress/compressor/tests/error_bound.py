@@ -33,7 +33,7 @@ class ErrorBound(Test):
 
         # Similarly, np.inf - np.inf is NaN but should pass the test.
         # The x == y condition ensures that their sign is the same.
-        x_and_y_inf = np.isinf(x) & np.isinf(y) & x == y
+        x_and_y_inf = np.isinf(x) & np.isinf(y) & (x == y)
         satisfied = satisfied | x_and_y_inf
 
         # Proportion of entries that exceed the threshold.
