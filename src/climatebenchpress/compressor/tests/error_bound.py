@@ -18,11 +18,13 @@ class ErrorBound(Test):
         assert x.dtype.kind == "f", f"Expected x to be float, got {x.dtype}"
         assert y.dtype.kind == "f", f"Expected y to be float, got {y.dtype}"
 
-        abs_error = np.abs(x - y)
-        relative_error = abs_error / abs(x)
-
-        error_to_check = abs_error if self.error_type == "abs_error" else relative_error
-        satisfied = error_to_check <= self.threshold
+        if self.error_type == "abs_error":
+            # absolute error: |x-y| <= threshold
+            satisfied = np.abs(x - y) <= self.threshold
+        else:
+            # relative error: |x-y| / |x| <= threshold
+            #   to avoid dividing by zero, multiply both sides by |x|
+            satisfied = np.abs(x - y) <= np.abs(x) * self.threshold
 
         # The comparison does not work for NaN values, as `np.nan < threshold` is False.
         # This check ensures that if x contains a NaN then y must also contain a NaN at
