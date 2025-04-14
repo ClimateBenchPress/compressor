@@ -18,4 +18,4 @@ class MAE(Metric):
         y : xr.DataArray
             Shape (realization, time, vertical, latitude, longitude)
         """
-        return float(np.mean(np.abs(x - y)))
+        return float(np.abs(x - y).mean(skipna=True))

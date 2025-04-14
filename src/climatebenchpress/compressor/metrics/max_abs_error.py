@@ -18,4 +18,4 @@ class MaxAbsError(Metric):
         y : xr.DataArray
             Shape (realization, time, vertical, latitude, longitude)
         """
-        return float(np.max(np.abs(x - y)))
+        return float(np.abs(x - y).max(skipna=True))
