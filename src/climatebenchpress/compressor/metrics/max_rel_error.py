@@ -18,5 +18,6 @@ class MaxRelError(Metric):
         y : xr.DataArray
             Shape (realization, time, vertical, latitude, longitude)
         """
-        rel_error = np.abs(x - y) / np.abs(x)
+        # Avoid dividing by zero when x is zero and y is also zero.
+        rel_error = xr.where((x == 0) & (x == y), 0.0, np.abs(x - y) / np.abs(x))
         return float(rel_error.max(skipna=True))
