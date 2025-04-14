@@ -1,6 +1,5 @@
 __all__ = ["MaxAbsError"]
 
-import numpy as np
 import xarray as xr
 
 from .abc import Metric
@@ -18,4 +17,6 @@ class MaxAbsError(Metric):
         y : xr.DataArray
             Shape (realization, time, vertical, latitude, longitude)
         """
-        return float(np.abs(x - y).max(skipna=True))
+        # If we don't use xr.ufuncs, mypy cannot infer that the result is a DataArray
+        abs_error = xr.ufuncs.abs(x - y)
+        return float(abs_error.max(skipna=True))
