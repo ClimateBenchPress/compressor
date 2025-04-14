@@ -24,7 +24,8 @@ class PSNR(Metric):
         y : xr.DataArray
             Shape (realization, time, vertical, latitude, longitude)
         """
-        mse = np.mean((x - y) ** 2, axis=(-3, -2, -1))
-        max_pixel = np.max(x)
+        # Average over the vertical, latitude, and longitude dimensions
+        mse = ((x - y) ** 2).mean(skipna=True, dim=x.dims[-3:])
+        max_pixel = x.max(skipna=True)
         psnr = 20 * np.log10(max_pixel) - 10 * np.log10(mse)
-        return float(np.mean(psnr))
+        return float(psnr.mean(skipna=True))

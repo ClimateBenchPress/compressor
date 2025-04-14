@@ -1,14 +1,15 @@
-__all__ = ["MAE"]
+__all__ = ["MaxRelError"]
 
+import numpy as np
 import xarray as xr
 
 from .abc import Metric
 
 
-class MAE(Metric):
+class MaxRelError(Metric):
     def __call__(self, x: xr.DataArray, y: xr.DataArray) -> float:
         """
-        Compute the mean absolute error between two inputs.
+        Compute the maximum relative error between two inputs.
 
         Parameters
         ----------
@@ -17,6 +18,6 @@ class MAE(Metric):
         y : xr.DataArray
             Shape (realization, time, vertical, latitude, longitude)
         """
-        # If we don't use xr.ufuncs, mypy cannot infer that the result is a DataArray
-        abs_error = xr.ufuncs.abs(x - y)
-        return float(abs_error.mean(skipna=True))
+        # Avoid dividing by zero when x is zero and y is also zero.
+        rel_error = xr.where((x == 0) & (x == y), 0.0, np.abs(x - y) / np.abs(x))
+        return float(rel_error.max(skipna=True))

@@ -1,14 +1,14 @@
-__all__ = ["MAE"]
+__all__ = ["MaxAbsError"]
 
 import xarray as xr
 
 from .abc import Metric
 
 
-class MAE(Metric):
+class MaxAbsError(Metric):
     def __call__(self, x: xr.DataArray, y: xr.DataArray) -> float:
         """
-        Compute the mean absolute error between two inputs.
+        Compute the maximum absolute error between two inputs.
 
         Parameters
         ----------
@@ -19,4 +19,4 @@ class MAE(Metric):
         """
         # If we don't use xr.ufuncs, mypy cannot infer that the result is a DataArray
         abs_error = xr.ufuncs.abs(x - y)
-        return float(abs_error.mean(skipna=True))
+        return float(abs_error.max(skipna=True))
