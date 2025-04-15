@@ -1,12 +1,12 @@
+__all__ = ["print_metrics"]
+
 from pathlib import Path
 
 import pandas as pd
 
-REPO = Path(__file__).parent.parent
 
-
-def main():
-    all_results = pd.read_csv(REPO / "metrics" / "all_results.csv")
+def print_metrics(basepath: Path = Path()):
+    all_results = pd.read_csv(basepath / "metrics" / "all_results.csv")
     for dataset in all_results["Dataset"].unique():
         print("\n" + 100 * "=")
         print(f"Results on {dataset}")
@@ -19,4 +19,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    print_metrics(basepath=Path())
