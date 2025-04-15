@@ -1,3 +1,5 @@
+__all__ = ["collect_metrics"]
+
 import json
 import re
 from pathlib import Path
@@ -6,8 +8,6 @@ import pandas as pd
 import xarray as xr
 
 import climatebenchpress.compressor
-
-REPO = Path(__file__).parent.parent
 
 EVALUATION_METRICS: dict[str, climatebenchpress.compressor.metrics.abc.Metric] = {
     "MAE": climatebenchpress.compressor.metrics.MAE(),
@@ -24,10 +24,13 @@ PASSFAIL_TESTS: dict[str, climatebenchpress.compressor.tests.abc.Test] = {
 }
 
 
-def main():
-    datasets = REPO.parent / "data-loader" / "datasets"
-    compressed_datasets = REPO / "compressed-datasets"
-    metrics_dir = REPO / "metrics"
+def collect_metrics(
+    basepath: Path = Path(),
+    data_loader_base_path: None | Path = None,
+):
+    datasets = (data_loader_base_path or basepath) / "datasets"
+    compressed_datasets = basepath / "compressed-datasets"
+    metrics_dir = basepath / "metrics"
 
     all_results = []
     for dataset in compressed_datasets.iterdir():
@@ -74,8 +77,8 @@ def main():
                 df["Error Bound"] = error_bound.name
                 all_results.append(df)
 
-    all_results = pd.concat(all_results)
-    all_results.to_csv(metrics_dir / "all_results.csv", index=False)
+    all_results_df = pd.concat(all_results)
+    all_results_df.to_csv(metrics_dir / "all_results.csv", index=False)
 
 
 def parse_error_bounds(error_bound_str: str) -> dict[str, tuple[str, float]]:
@@ -192,7 +195,7 @@ def compute_tests(
 
 
 def load_measurements(compressed_dataset: Path, compressor: Path) -> pd.DataFrame:
-    with open(compressed_dataset / "measurements.json") as f:
+    with (compressed_dataset / "measurements.json").open() as f:
         measurements = json.load(f)
 
     rows = []
@@ -253,4 +256,7 @@ def merge_metrics(
 
 
 if __name__ == "__main__":
-    main()
+    collect_metrics(
+        basepath=Path(),
+        data_loader_base_path=Path() / ".." / "data-loader",
+    )

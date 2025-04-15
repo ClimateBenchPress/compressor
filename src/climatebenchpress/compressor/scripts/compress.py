@@ -1,17 +1,13 @@
+__all__ = ["compress"]
+
 import argparse
 import json
 import traceback
+from collections.abc import Container
 from pathlib import Path
-from typing import Hashable
 
 import numcodecs_observers
 import xarray as xr
-from climatebenchpress.compressor.compressors.abc import (
-    Compressor,
-    ErrorBound,
-    NamedPerVariableCodec,
-)
-from dask.diagnostics.progress import ProgressBar
 from numcodecs.abc import Codec
 from numcodecs_combinators.stack import CodecStack
 from numcodecs_observers.bytesize import BytesizeObserver
@@ -19,13 +15,26 @@ from numcodecs_observers.hash import HashableCodec
 from numcodecs_observers.walltime import WalltimeObserver
 from numcodecs_wasm import WasmCodecInstructionCounterObserver
 
-REPO = Path(__file__).parent.parent
+from ..compressors.abc import (
+    Compressor,
+    ErrorBound,
+    NamedPerVariableCodec,
+)
+from ..monitor import progress_bar
 
 
-def main(exclude_dataset, include_dataset, exclude_compressor, include_compressor):
-    datasets = REPO.parent / "data-loader" / "datasets"
-    compressed_datasets = REPO / "compressed-datasets"
-    datasets_error_bounds = REPO / "datasets-error-bounds"
+def compress(
+    basepath: Path = Path(),
+    exclude_dataset: Container[str] = tuple(),
+    include_dataset: None | Container[str] = None,
+    exclude_compressor: Container[str] = tuple(),
+    include_compressor: None | Container[str] = None,
+    data_loader_base_path: None | Path = None,
+    progress: bool = True,
+):
+    datasets = (data_loader_base_path or basepath) / "datasets"
+    compressed_datasets = basepath / "compressed-datasets"
+    datasets_error_bounds = basepath / "datasets-error-bounds"
 
     for dataset in datasets.iterdir():
         if dataset.name == ".gitignore" or dataset.name in exclude_dataset:
@@ -34,6 +43,11 @@ def main(exclude_dataset, include_dataset, exclude_compressor, include_compresso
             continue
 
         dataset /= "standardized.zarr"
+
+        if not dataset.exists():
+            print(f"No input dataset at {dataset}")
+            continue
+
         ds = xr.open_dataset(dataset, chunks=dict(), engine="zarr")
         ds_dtypes, ds_abs_mins, ds_abs_maxs = dict(), dict(), dict()
         for v in ds:
@@ -88,14 +102,14 @@ def main(exclude_dataset, include_dataset, exclude_compressor, include_compresso
                     with (compressed_dataset / "measurements.json").open("w") as f:
                         json.dump(measurements, f)
 
-                    with ProgressBar():
+                    with progress_bar(progress):
                         ds_new.to_zarr(
                             compressed_dataset_path, encoding=dict(), compute=False
                         ).compute()
 
 
 def compress_decompress(
-    codecs: dict[Hashable, Codec],
+    codecs: dict[str, Codec],
     ds: xr.Dataset,
 ) -> tuple[xr.Dataset, dict]:
     variables = dict()
@@ -106,7 +120,7 @@ def compress_decompress(
         timing = WalltimeObserver()
         instructions = WasmCodecInstructionCounterObserver()
 
-        codec = codecs[v]
+        codec = codecs[v]  # type: ignore
         if not isinstance(codec, CodecStack):
             codec = CodecStack(codec)
 
@@ -151,7 +165,7 @@ def get_error_bounds(
         )
 
     dataset_error_bounds = datasets_error_bounds / dataset_name
-    with open(dataset_error_bounds / "error_bounds.json") as f:
+    with (dataset_error_bounds / "error_bounds.json").open() as f:
         error_bounds = json.load(f)
     return [
         {var_name: ErrorBound(**eb) for var_name, eb in eb_per_var.items()}
@@ -166,4 +180,13 @@ if __name__ == "__main__":
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
     parser.add_argument("--include-compressor", type=str, nargs="+", default=None)
     args = parser.parse_args()
-    main(**vars(args))
+
+    compress(
+        basepath=Path(),
+        exclude_dataset=args.exclude_dataset,
+        include_dataset=args.include_dataset,
+        exclude_compressor=args.exclude_compressor,
+        include_compressor=args.include_compressor,
+        data_loader_base_path=Path() / ".." / "data-loader",
+        progress=True,
+    )
