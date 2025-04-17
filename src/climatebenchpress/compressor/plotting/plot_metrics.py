@@ -8,14 +8,14 @@ import xarray as xr
 
 from .variable_plotters import PLOTTERS
 
-COMPRESSOR2COLOR = {
-    "jpeg2000": "#EE7733",
-    "zfp": "#EE3377",
-    "sz3": "#CC3311",
-    "bitround-pco-conservative-rel": "#0077BB",
-    "bitround-conservative-rel": "#33BBEE",
-    "stochround": "#009988",
-    "tthresh": "#BBBBBB",
+COMPRESSOR2LINEINFO = {
+    "jpeg2000": ("#EE7733", "-"),
+    "zfp": ("#EE3377", "--"),
+    "sz3": ("#CC3311", "-."),
+    "bitround-pco-conservative-rel": ("#0077BB", ":"),
+    "bitround-conservative-rel": ("#33BBEE", "-"),
+    "stochround": ("#009988", "--"),
+    "tthresh": ("#BBBBBB", "-."),
 }
 
 COMPRESSOR2LEGEND_NAME = {
@@ -46,13 +46,13 @@ def plot_metrics(
     normalized_df = normalize(df, bound_normalize="mid")
 
     plot_bound_violations(
-        normalized_df, bound_names, plots_path / "bound_violations.png"
+        normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
 
     for metric in ["Normalized_MAE", "Normalized_DSSIM", "Normalized_MaxAbsError"]:
         plot_aggregated_rd_curve(
             normalized_df,
-            plots_path / f"rd_curve_{metric.lower()}.png",
+            plots_path / f"rd_curve_{metric.lower()}.pdf",
             compression_metric="Normalized_CR",
             distortion_metric=metric,
             agg="median",
@@ -151,7 +151,7 @@ def plot_per_variable_metrics(
                     continue
                 plot_variable_rd_curve(
                     df[df["Variable"] == var],
-                    dataset_plots_path / f"{var}_compression_ratio_{metric_name}.png",
+                    dataset_plots_path / f"{var}_compression_ratio_{metric_name}.pdf",
                     distortion_metric=dist_metric,
                 )
 
@@ -221,12 +221,14 @@ def plot_variable_rd_curve(df, outfile, distortion_metric):
             for i in sorting_ixs
         ]
         distortion = [compressor_data[distortion_metric].iloc[i] for i in sorting_ixs]
+        color, linestyle = COMPRESSOR2LINEINFO[comp]
         plt.plot(
             compr_ratio,
             distortion,
             label=COMPRESSOR2LEGEND_NAME[comp],
             marker="s",
-            color=COMPRESSOR2COLOR[comp],
+            color=color,
+            linestyle=linestyle,
             linewidth=4,
             markersize=8,
         )
@@ -288,12 +290,14 @@ def plot_aggregated_rd_curve(
             agg_distortion.loc[(bound, comp), distortion_metric]
             for bound in bound_names
         ]
+        color, linestyle = COMPRESSOR2LINEINFO[comp]
         plt.plot(
             compr_ratio,
             distortion,
             label=COMPRESSOR2LEGEND_NAME[comp],
             marker="s",
-            color=COMPRESSOR2COLOR[comp],
+            color=color,
+            linestyle=linestyle,
             linewidth=4,
             markersize=8,
         )
@@ -336,8 +340,8 @@ def plot_aggregated_rd_curve(
             fontsize=10,
             title_fontsize=12,
         )
-        plt.xlabel("Normalized Compression Ratio", fontsize=14)
-        plt.ylabel("Normalized Mean Absolute Error", fontsize=14)
+        plt.xlabel("Median Compression Ratio Relative to SZ3", fontsize=14)
+        plt.ylabel("Median Mean Absolute Error Relative to SZ3", fontsize=14)
         # Add an arrow pointing into the lower right corner
         plt.annotate(
             "",

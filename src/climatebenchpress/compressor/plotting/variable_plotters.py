@@ -7,6 +7,8 @@ import numpy as np
 
 
 class Plotter(ABC):
+    datasets: list[str]
+
     def __init__(self):
         self.projection = ccrs.Robinson()
 
@@ -35,6 +37,8 @@ class Plotter(ABC):
 
 
 class CmipAtmosPlotter(Plotter):
+    datasets = ["cmip6-access-ta-tiny", "cmip6-access-ta"]
+
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         selector = dict(time=0, plev=3)
         ds.isel(**selector).plot(ax=ax[0], transform=ccrs.PlateCarree())
@@ -46,6 +50,8 @@ class CmipAtmosPlotter(Plotter):
 
 
 class CmipOceanPlotter(Plotter):
+    datasets = ["cmip6-access-tos-tiny", "cmip6-access-tos"]
+
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         pcm0 = ax[0].pcolormesh(
             ds.longitude.values,
@@ -86,6 +92,8 @@ class CmipOceanPlotter(Plotter):
 
 
 class Era5Plotter(Plotter):
+    datasets = ["era5-tiny", "era5"]
+
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         selector = dict(time=0)
         error = ds.isel(**selector) - ds_new.isel(**selector)
@@ -115,6 +123,8 @@ class Era5Plotter(Plotter):
 
 
 class NextGEMSPlotter(Plotter):
+    datasets = ["nextgems-icon-tiny", "nextgems-icon"]
+
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         selector = dict(time=0)
         error = ds.isel(**selector) - ds_new.isel(**selector)
@@ -153,6 +163,8 @@ class NextGEMSPlotter(Plotter):
 
 
 class CamsPlotter(Plotter):
+    datasets = ["cams-nitrogen-dioxide-tiny", "cams-nitrogen-dioxide"]
+
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         selector = dict(valid_time=0, pressure_level=3)
         in_min = ds.isel(**selector).min().values.item()
@@ -179,6 +191,8 @@ class CamsPlotter(Plotter):
 
 
 class EsaBiomassPlotter(Plotter):
+    datasets = ["esa-biomass-cci-tiny", "esa-biomass-cci"]
+
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         selector = dict(time=0)
         ds.isel(**selector).plot(ax=ax[0])
@@ -190,11 +204,16 @@ class EsaBiomassPlotter(Plotter):
         ax[2].set_title("Error")
 
 
-PLOTTERS = {
-    "cams-nitrogen-dioxide-tiny": CamsPlotter,
-    "cmip6-access-ta-tiny": CmipAtmosPlotter,
-    "cmip6-access-tos-tiny": CmipOceanPlotter,
-    "era5-tiny": Era5Plotter,
-    "esa-biomass-cci-tiny": EsaBiomassPlotter,
-    "nextgems-icon-tiny": NextGEMSPlotter,
-}
+plotter_clss: list[type[Plotter]] = [
+    CamsPlotter,
+    CmipAtmosPlotter,
+    CmipOceanPlotter,
+    Era5Plotter,
+    EsaBiomassPlotter,
+    NextGEMSPlotter,
+]
+PLOTTERS: dict[str, type[Plotter]] = dict()
+for plotter_cls in plotter_clss:
+    for dataset in plotter_cls.datasets:
+        assert dataset not in PLOTTERS, f"Duplicate dataset found: {dataset}"
+        PLOTTERS[dataset] = plotter_cls
