@@ -31,8 +31,8 @@ class Plotter(ABC):
         ax[1].set_title("Compressed Dataset")
         ax[2].set_title("Error")
         fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
-        plt.tight_layout()
-        plt.savefig(outfile)
+        fig.tight_layout()
+        fig.savefig(outfile, dpi=300)
         plt.close()
 
 
@@ -46,7 +46,7 @@ class CmipAtmosPlotter(Plotter):
             ax=ax[1], transform=ccrs.PlateCarree(), robust=True
         )
         error = ds.isel(**selector) - ds_new.isel(**selector)
-        error.plot(ax=ax[2], transform=ccrs.PlateCarree())
+        error.plot(ax=ax[2], transform=ccrs.PlateCarree(), rasterized=True)
 
 
 class CmipOceanPlotter(Plotter):
@@ -60,6 +60,7 @@ class CmipOceanPlotter(Plotter):
             transform=ccrs.PlateCarree(),
             shading="auto",
             cmap="coolwarm",
+            rasterized=True,
         )
         fig.colorbar(
             pcm0, ax=ax[0], orientation="vertical", fraction=0.046, pad=0.04
@@ -72,6 +73,7 @@ class CmipOceanPlotter(Plotter):
             transform=ccrs.PlateCarree(),
             shading="auto",
             cmap="coolwarm",
+            rasterized=True,
         )
         fig.colorbar(
             pcm1, ax=ax[1], orientation="vertical", fraction=0.046, pad=0.04
@@ -85,6 +87,7 @@ class CmipOceanPlotter(Plotter):
             transform=ccrs.PlateCarree(),
             shading="auto",
             cmap="coolwarm",
+            rasterized=True,
         )
         fig.colorbar(
             pcm2, ax=ax[2], orientation="vertical", fraction=0.046, pad=0.04
@@ -116,6 +119,7 @@ class Era5Plotter(Plotter):
             y,
             ds_new.isel(**selector).values.squeeze(),
             cmap=cmap,
+            rasterized=True,
         )
         c3 = ax[2].pcolormesh(x, y, error.values.squeeze(), cmap="coolwarm")
         for i, c in enumerate([c1, c2, c3]):
@@ -149,6 +153,7 @@ class NextGEMSPlotter(Plotter):
             ds.isel(**selector).values.squeeze() + offset,
             norm=color_norm,
             cmap=cmap,
+            rasterized=True,
         )
         c2 = ax[1].pcolormesh(
             x,
@@ -156,6 +161,7 @@ class NextGEMSPlotter(Plotter):
             ds_new.isel(**selector).values.squeeze() + offset,
             norm=color_norm,
             cmap=cmap,
+            rasterized=True,
         )
         c3 = ax[2].pcolormesh(x, y, error.values.squeeze(), cmap="coolwarm")
         for i, c in enumerate([c1, c2, c3]):
@@ -179,12 +185,14 @@ class CamsPlotter(Plotter):
             transform=ccrs.PlateCarree(),
             norm=color_norm,
             cmap="gist_earth",
+            rasterized=True,
         )
         ds_new.isel(**selector).plot(
             ax=ax[1],
             transform=ccrs.PlateCarree(),
             norm=color_norm,
             cmap="gist_earth",
+            rasterized=True,
         )
         error = ds.isel(**selector) - ds_new.isel(**selector)
         error.plot(ax=ax[2], transform=ccrs.PlateCarree())
@@ -198,7 +206,7 @@ class EsaBiomassPlotter(Plotter):
         ds.isel(**selector).plot(ax=ax[0])
         ds_new.isel(**selector).plot(ax=ax[1])
         error = ds.isel(**selector) - ds_new.isel(**selector)
-        error.plot(ax=ax[2])
+        error.plot(ax=ax[2], rasterized=True)
         ax[0].set_title("Original Dataset")
         ax[1].set_title("Compressed Dataset")
         ax[2].set_title("Error")
