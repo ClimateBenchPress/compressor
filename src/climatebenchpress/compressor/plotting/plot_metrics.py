@@ -49,11 +49,11 @@ def plot_metrics(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
 
-    for metric in ["Normalized_MAE", "Normalized_DSSIM", "Normalized_MaxAbsError"]:
+    for metric in ["Relative MAE", "Relative DSSIM", "Relative MaxAbsError"]:
         plot_aggregated_rd_curve(
             normalized_df,
-            plots_path / f"rd_curve_{metric.lower()}.pdf",
-            compression_metric="Normalized_CR",
+            plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
+            compression_metric="Relative CR",
             distortion_metric=metric,
             agg="median",
             bound_names=bound_names,
@@ -109,10 +109,10 @@ def normalize(data, bound_normalize="mid"):
 
     normalized = data.copy()
     normalize_vars = [
-        ("Compression Ratio [raw B / enc B]", "Normalized_CR"),
-        ("MAE", "Normalized_MAE"),
-        ("DSSIM", "Normalized_DSSIM"),
-        ("Max Absolute Error", "Normalized_MaxAbsError"),
+        ("Compression Ratio [raw B / enc B]", "Relative CR"),
+        ("MAE", "Relative MAE"),
+        ("DSSIM", "Relative DSSIM"),
+        ("Max Absolute Error", "Relative MaxAbsError"),
     ]
     # Avoid negative values. By default, DSSIM is in the range [-1, 1].
     normalized["DSSIM"] = normalized["DSSIM"] + 1.0
@@ -302,12 +302,12 @@ def plot_aggregated_rd_curve(
             markersize=8,
         )
 
-    plt.xlabel(compression_metric, fontsize=14)
+    plt.xlabel(f"{agg.title()} {compression_metric}", fontsize=14)
     plt.xscale("log")
     if "PSNR" not in distortion_metric:
         # PSNR is already on log scale.
         plt.yscale("log")
-    plt.ylabel(distortion_metric, fontsize=14)
+    plt.ylabel(f"{agg.title()} {distortion_metric}", fontsize=14)
 
     plt.legend(
         title="Compressor",
