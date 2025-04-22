@@ -22,8 +22,8 @@ COMPRESSOR2LINEINFO = {
 
 COMPRESSOR2LEGEND_NAME = {
     "jpeg2000": "JPEG2000",
-    "zfp": "ZFP (Classic)",
-    "zfp-round": "ZFP",
+    "zfp": "ZFP",
+    "zfp-round": "ZFP-ROUND",
     "sz3": "SZ3",
     "bitround-pco-conservative-rel": "BitRound + PCO",
     "bitround-conservative-rel": "BitRound + Zlib",
