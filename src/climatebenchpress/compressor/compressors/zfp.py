@@ -18,5 +18,5 @@ class Zfp(Compressor):
     # See https://zfp.readthedocs.io/en/release1.0.1/faq.html#q-relerr for more details.
 
     @staticmethod
-    def abs_bound_codec(dtype, error_bound):
+    def abs_bound_codec(error_bound, **kwargs):
         return numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=error_bound)

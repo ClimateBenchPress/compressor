@@ -57,12 +57,24 @@ class Compressor(ABC):
 
     @staticmethod
     @abstractmethod
-    def abs_bound_codec(dtype: np.dtype, error_bound: float) -> Codec:
+    def abs_bound_codec(
+        error_bound: float,
+        *,
+        dtype: Optional[np.dtype] = None,
+        data_abs_min: Optional[float] = None,
+        data_abs_max: Optional[float] = None,
+    ) -> Codec:
         pass
 
     @staticmethod
     @abstractmethod
-    def rel_bound_codec(dtype: np.dtype, error_bound: float) -> Codec:
+    def rel_bound_codec(
+        error_bound: float,
+        *,
+        dtype: Optional[np.dtype] = None,
+        data_abs_min: Optional[float] = None,
+        data_abs_max: Optional[float] = None,
+    ) -> Codec:
         pass
 
     @classmethod
@@ -116,9 +128,19 @@ class Compressor(ABC):
             new_codecs: dict[VariableName, Codec] = dict()
             for var, eb in eb_per_var.items():
                 if eb.abs_error is not None and cls.has_abs_error_impl:
-                    new_codecs[var] = cls.abs_bound_codec(dtypes[var], eb.abs_error)
+                    new_codecs[var] = cls.abs_bound_codec(
+                        eb.abs_error,
+                        dtype=dtypes[var],
+                        data_abs_min=data_abs_min[var],
+                        data_abs_max=data_abs_max[var],
+                    )
                 elif eb.rel_error is not None and cls.has_rel_error_impl:
-                    new_codecs[var] = cls.rel_bound_codec(dtypes[var], eb.rel_error)
+                    new_codecs[var] = cls.rel_bound_codec(
+                        eb.rel_error,
+                        dtype=dtypes[var],
+                        data_abs_min=data_abs_min[var],
+                        data_abs_max=data_abs_max[var],
+                    )
                 else:
                     # This should never happen as we have already transformed the error bounds.
                     # If this happens, it means there is a bug in the implementation.
