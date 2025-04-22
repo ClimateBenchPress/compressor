@@ -3,6 +3,7 @@ __all__ = [
     "BitRoundPco",
     "Jpeg2000",
     "StochRound",
+    "StochRoundPco",
     "Sz3",
     "Tthresh",
     "Zfp",
@@ -14,6 +15,7 @@ from .bitround import BitRound
 from .bitround_pco import BitRoundPco
 from .jpeg2000 import Jpeg2000
 from .stochround import StochRound
+from .stochround_pco import StochRoundPco
 from .sz3 import Sz3
 from .tthresh import Tthresh
 from .zfp import Zfp

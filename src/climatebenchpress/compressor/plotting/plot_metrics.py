@@ -11,20 +11,24 @@ from .variable_plotters import PLOTTERS
 COMPRESSOR2LINEINFO = {
     "jpeg2000": ("#EE7733", "-"),
     "zfp": ("#EE3377", "--"),
+    "zfp-round": ("#DDAA33", "--"),
     "sz3": ("#CC3311", "-."),
     "bitround-pco-conservative-rel": ("#0077BB", ":"),
     "bitround-conservative-rel": ("#33BBEE", "-"),
     "stochround": ("#009988", "--"),
-    "tthresh": ("#BBBBBB", "-."),
+    "stochround-pco": ("#BBBBBB", "--"),
+    "tthresh": ("#000000", "-."),
 }
 
 COMPRESSOR2LEGEND_NAME = {
     "jpeg2000": "JPEG2000",
-    "zfp": "ZFP",
+    "zfp": "ZFP (Classic)",
+    "zfp-round": "ZFP",
     "sz3": "SZ3",
     "bitround-pco-conservative-rel": "BitRound + PCO",
     "bitround-conservative-rel": "BitRound + Zlib",
-    "stochround": "StochRound",
+    "stochround": "StochRound + Zlib",
+    "stochround-pco": "StochRound + PCO",
     "tthresh": "TTHRESH",
 }
 
