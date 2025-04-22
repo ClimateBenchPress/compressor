@@ -23,6 +23,7 @@ dependencies = [
     "numcodecs-wasm-tthresh~=0.2.0",
     "numcodecs-wasm-uniform-noise~=0.3.0",
     "numcodecs-wasm-zfp~=0.5.1",
+    "numcodecs-wasm-zfp-classic~=0.3.1",
     "numcodecs-wasm-zlib~=0.3.0",
     "pandas~=2.2",
     "scipy~=1.14",
