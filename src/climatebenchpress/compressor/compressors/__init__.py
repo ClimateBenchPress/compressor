@@ -1,4 +1,13 @@
-__all__ = ["BitRound", "BitRoundPco", "Jpeg2000", "StochRound", "Sz3", "Tthresh", "Zfp"]
+__all__ = [
+    "BitRound",
+    "BitRoundPco",
+    "Jpeg2000",
+    "StochRound",
+    "Sz3",
+    "Tthresh",
+    "Zfp",
+    "ZfpRound",
+]
 
 from . import abc as abc
 from .bitround import BitRound
@@ -8,3 +17,4 @@ from .stochround import StochRound
 from .sz3 import Sz3
 from .tthresh import Tthresh
 from .zfp import Zfp
+from .zfp_round import ZfpRound

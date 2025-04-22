@@ -1,13 +1,13 @@
-__all__ = ["Zfp"]
+__all__ = ["ZfpRound"]
 
-import numcodecs_wasm_zfp_classic
+import numcodecs_wasm_zfp
 
 from .abc import Compressor
 
 
-class Zfp(Compressor):
-    name = "zfp"
-    description = "ZFP"
+class ZfpRound(Compressor):
+    name = "zfp-round"
+    description = "ZFP-ROUND"
 
     # NOTE:
     # ZFP mechanism for strictly supporting relative error bounds is to
@@ -19,6 +19,4 @@ class Zfp(Compressor):
 
     @staticmethod
     def abs_bound_codec(dtype, error_bound):
-        return numcodecs_wasm_zfp_classic.ZfpClassic(
-            mode="fixed-accuracy", tolerance=error_bound
-        )
+        return numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=error_bound)
