@@ -15,11 +15,7 @@ from numcodecs_observers.hash import HashableCodec
 from numcodecs_observers.walltime import WalltimeObserver
 from numcodecs_wasm import WasmCodecInstructionCounterObserver
 
-from ..compressors.abc import (
-    Compressor,
-    ErrorBound,
-    NamedPerVariableCodec,
-)
+from ..compressors.abc import Compressor, ErrorBound, NamedPerVariableCodec
 from ..monitor import progress_bar
 
 
@@ -49,11 +45,19 @@ def compress(
             continue
 
         ds = xr.open_dataset(dataset, chunks=dict(), engine="zarr")
-        ds_dtypes, ds_abs_mins, ds_abs_maxs = dict(), dict(), dict()
+        ds_dtypes, ds_abs_mins, ds_abs_maxs, ds_mins, ds_maxs = (
+            dict(),
+            dict(),
+            dict(),
+            dict(),
+            dict(),
+        )
         for v in ds:
             abs_vals = xr.ufuncs.abs(ds[v])
             ds_abs_mins[v] = abs_vals.min().values.item()
             ds_abs_maxs[v] = abs_vals.max().values.item()
+            ds_mins[v] = ds[v].min().values.item()
+            ds_maxs[v] = ds[v].max().values.item()
             ds_dtypes[v] = ds[v].dtype
 
         error_bounds = get_error_bounds(datasets_error_bounds, dataset.parent.name)
@@ -64,7 +68,9 @@ def compress(
                 continue
 
             compressor_variants: dict[str, list[NamedPerVariableCodec]] = (
-                compressor.build(ds_dtypes, ds_abs_mins, ds_abs_maxs, error_bounds)
+                compressor.build(
+                    ds_dtypes, ds_abs_mins, ds_abs_maxs, ds_mins, ds_maxs, error_bounds
+                )
             )
 
             for compr_name, named_codecs in compressor_variants.items():

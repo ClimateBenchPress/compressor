@@ -19,16 +19,16 @@ class Jpeg2000(Compressor):
     def abs_bound_codec(
         error_bound,
         *,
-        data_abs_min=None,
-        data_abs_max=None,
+        data_min=None,
+        data_max=None,
         **kwargs,
     ):
-        assert data_abs_min is not None, "data_abs_min must be provided"
-        assert data_abs_max is not None, "data_abs_max must be provided"
+        assert data_min is not None, "data_min must be provided"
+        assert data_max is not None, "data_max must be provided"
 
         max_pixel_val = 2**25 - 1  # maximum pixel value for our integer encoding.
 
-        data_range = data_abs_max - data_abs_min
+        data_range = data_max - data_min
 
         # Here we use the formula for the PSNR (https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio)
         # to convert between the absolute error and the PSNR value.
@@ -45,7 +45,7 @@ class Jpeg2000(Compressor):
             ),
             # remap from [min, max] to [0, max_pixel_val]
             numcodecs_wasm_fixed_offset_scale.FixedOffsetScale(
-                offset=data_abs_min,
+                offset=data_min,
                 scale=data_range / max_pixel_val,
             ),
             # round and truncate to integer values
