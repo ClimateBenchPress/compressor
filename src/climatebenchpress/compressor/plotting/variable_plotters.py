@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import cartopy.crs as ccrs
 import matplotlib.colors as mcolors
@@ -16,7 +17,9 @@ class Plotter(ABC):
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         pass
 
-    def plot(self, ds, ds_new, dataset_name, compressor, var, outfile=None):
+    def plot(
+        self, ds, ds_new, dataset_name, compressor, var, outfile: None | Path = None
+    ):
         fig, ax = plt.subplots(
             nrows=1,
             ncols=3,
@@ -33,7 +36,8 @@ class Plotter(ABC):
         fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
         fig.tight_layout()
         if outfile is not None:
-            fig.savefig(outfile, dpi=300)
+            with outfile.open("wb") as f:
+                fig.savefig(f, dpi=300)
         plt.close()
 
 

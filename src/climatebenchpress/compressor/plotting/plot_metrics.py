@@ -221,7 +221,7 @@ def plot_variable_error(
         print(f"No plotter found for dataset {dataset_name}")
 
 
-def plot_variable_rd_curve(df, distortion_metric, outfile=None):
+def plot_variable_rd_curve(df, distortion_metric, outfile: None | Path = None):
     plt.figure(figsize=(8, 6))
     compressors = df["Compressor"].unique()
     for comp in compressors:
@@ -276,7 +276,8 @@ def plot_variable_rd_curve(df, distortion_metric, outfile=None):
 
     plt.tight_layout()
     if outfile is not None:
-        plt.savefig(outfile, dpi=300)
+        with outfile.open("wb") as f:
+            plt.savefig(f, dpi=300)
     plt.close()
 
 
@@ -284,7 +285,7 @@ def plot_aggregated_rd_curve(
     normalized_df,
     compression_metric,
     distortion_metric,
-    outfile=None,
+    outfile: None | Path = None,
     agg="median",
     bound_names=["low", "mid", "high"],
 ):
@@ -376,11 +377,12 @@ def plot_aggregated_rd_curve(
 
     plt.tight_layout()
     if outfile is not None:
-        plt.savefig(outfile, dpi=300)
+        with outfile.open("wb") as f:
+            plt.savefig(f, dpi=300)
     plt.close()
 
 
-def plot_bound_violations(df, bound_names, outfile=None):
+def plot_bound_violations(df, bound_names, outfile: None | Path = None):
     fig, axs = plt.subplots(1, 3, figsize=(len(bound_names) * 6, 6), sharey=True)
 
     for i, bound_name in enumerate(bound_names):
@@ -411,7 +413,8 @@ def plot_bound_violations(df, bound_names, outfile=None):
 
     fig.tight_layout()
     if outfile is not None:
-        plt.savefig(outfile, dpi=300)
+        with outfile.open("wb") as f:
+            fig.savefig(f, dpi=300)
     plt.close()
 
 
