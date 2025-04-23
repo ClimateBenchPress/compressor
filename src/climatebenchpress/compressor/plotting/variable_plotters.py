@@ -16,7 +16,7 @@ class Plotter(ABC):
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
         pass
 
-    def plot(self, ds, ds_new, dataset_name, compressor, var, outfile):
+    def plot(self, ds, ds_new, dataset_name, compressor, var, outfile=None):
         fig, ax = plt.subplots(
             nrows=1,
             ncols=3,
@@ -32,7 +32,8 @@ class Plotter(ABC):
         ax[2].set_title("Error")
         fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
         fig.tight_layout()
-        fig.savefig(outfile, dpi=300)
+        if outfile is not None:
+            fig.savefig(outfile, dpi=300)
         plt.close()
 
 
