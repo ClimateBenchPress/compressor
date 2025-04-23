@@ -380,7 +380,7 @@ def plot_aggregated_rd_curve(
     plt.close()
 
 
-def plot_bound_violations(df, bound_names, outfile):
+def plot_bound_violations(df, bound_names, outfile=None):
     fig, axs = plt.subplots(1, 3, figsize=(len(bound_names) * 6, 6), sharey=True)
 
     for i, bound_name in enumerate(bound_names):
@@ -410,7 +410,8 @@ def plot_bound_violations(df, bound_names, outfile):
             axs[i].set_ylabel("")
 
     fig.tight_layout()
-    fig.savefig(outfile, dpi=300)
+    if outfile is not None:
+        plt.savefig(outfile, dpi=300)
     plt.close()
 
 
