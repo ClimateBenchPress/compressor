@@ -1,16 +1,16 @@
-__all__ = ["StochRound"]
+__all__ = ["StochRoundPco"]
 
+import numcodecs_wasm_pco
 import numcodecs_wasm_round
 import numcodecs_wasm_uniform_noise
-import numcodecs_wasm_zstd
 from numcodecs_combinators.stack import CodecStack
 
 from .abc import Compressor
 
 
-class StochRound(Compressor):
-    name = "stochround"
-    description = "Stochastic Rounding"
+class StochRoundPco(Compressor):
+    name = "stochround-pco"
+    description = "Stochastic Rounding + PCodec"
 
     @staticmethod
     def abs_bound_codec(dtype, error_bound):
@@ -18,5 +18,10 @@ class StochRound(Compressor):
         return CodecStack(
             numcodecs_wasm_uniform_noise.UniformNoise(scale=precision / 2, seed=42),
             numcodecs_wasm_round.Round(precision=precision),
-            numcodecs_wasm_zstd.Zstd(level=3),
+            numcodecs_wasm_pco.Pco(
+                level=8,
+                mode="auto",
+                delta="auto",
+                paging="equal-pages-up-to",
+            ),
         )
