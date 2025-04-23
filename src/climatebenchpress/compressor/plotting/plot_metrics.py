@@ -213,11 +213,10 @@ def plot_variable_error(
 
     ds = xr.open_dataset(input, chunks=dict(), engine="zarr").compute()
     ds_new = xr.open_dataset(compressed, chunks=dict(), engine="zarr").compute()
-    ds, ds_new = ds[var], ds_new[var]
 
     plotter = PLOTTERS.get(dataset_name, None)
     if plotter:
-        plotter().plot(ds, ds_new, dataset_name, compressor, var, outfile)
+        plotter().plot(ds[var], ds_new[var], dataset_name, compressor, var, outfile)
     else:
         print(f"No plotter found for dataset {dataset_name}")
 
