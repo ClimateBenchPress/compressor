@@ -57,12 +57,24 @@ class Compressor(ABC):
 
     @staticmethod
     @abstractmethod
-    def abs_bound_codec(dtype: np.dtype, error_bound: float) -> Codec:
+    def abs_bound_codec(
+        error_bound: float,
+        *,
+        dtype: Optional[np.dtype] = None,
+        data_min: Optional[float] = None,
+        data_max: Optional[float] = None,
+    ) -> Codec:
         pass
 
     @staticmethod
     @abstractmethod
-    def rel_bound_codec(dtype: np.dtype, error_bound: float) -> Codec:
+    def rel_bound_codec(
+        error_bound: float,
+        *,
+        dtype: Optional[np.dtype] = None,
+        data_min: Optional[float] = None,
+        data_max: Optional[float] = None,
+    ) -> Codec:
         pass
 
     @classmethod
@@ -71,6 +83,8 @@ class Compressor(ABC):
         dtypes: dict[VariableName, np.dtype],
         data_abs_min: dict[VariableName, float],
         data_abs_max: dict[VariableName, float],
+        data_min: dict[VariableName, float],
+        data_max: dict[VariableName, float],
         error_bounds: list[dict[VariableName, ErrorBound]],
     ) -> dict[VariantName, list[NamedPerVariableCodec]]:
         """
@@ -90,6 +104,10 @@ class Compressor(ABC):
             Dict mapping from variable name to minimum absolute value for the variable.
         data_abs_max : dict[VariableName, float]
             Dict mapping from variable name to maximum absolute value for the variable.
+        data_min : dict[VariableName, float]
+            Dict mapping from variable name to minimum value for the variable.
+        data_max : dict[VariableName, float]
+            Dict mapping from variable name to maximum value for the variable.
         error_bounds: list[ErrorBound]
             List of error bounds to use for the compressor.
 
@@ -116,9 +134,19 @@ class Compressor(ABC):
             new_codecs: dict[VariableName, Codec] = dict()
             for var, eb in eb_per_var.items():
                 if eb.abs_error is not None and cls.has_abs_error_impl:
-                    new_codecs[var] = cls.abs_bound_codec(dtypes[var], eb.abs_error)
+                    new_codecs[var] = cls.abs_bound_codec(
+                        eb.abs_error,
+                        dtype=dtypes[var],
+                        data_min=data_min[var],
+                        data_max=data_max[var],
+                    )
                 elif eb.rel_error is not None and cls.has_rel_error_impl:
-                    new_codecs[var] = cls.rel_bound_codec(dtypes[var], eb.rel_error)
+                    new_codecs[var] = cls.rel_bound_codec(
+                        eb.rel_error,
+                        dtype=dtypes[var],
+                        data_min=data_min[var],
+                        data_max=data_max[var],
+                    )
                 else:
                     # This should never happen as we have already transformed the error bounds.
                     # If this happens, it means there is a bug in the implementation.

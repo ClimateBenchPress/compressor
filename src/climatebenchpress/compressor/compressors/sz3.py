@@ -10,11 +10,11 @@ class Sz3(Compressor):
     description = "SZ3"
 
     @staticmethod
-    def abs_bound_codec(dtype, error_bound):
+    def abs_bound_codec(error_bound, **kwargs):
         return numcodecs_wasm_sz3.Sz3(eb_mode="abs", eb_abs=error_bound)
 
     @staticmethod
-    def rel_bound_codec(dtype, error_bound):
+    def rel_bound_codec(error_bound, **kwargs):
         # SZ3 will not ensure that the relative error bound is strictly met.
         # Internally, SZ3 transforms the relative error bound to an absolute error bound
         # based on the range of the input data:

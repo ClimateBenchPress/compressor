@@ -13,7 +13,7 @@ class StochRoundPco(Compressor):
     description = "Stochastic Rounding + PCodec"
 
     @staticmethod
-    def abs_bound_codec(dtype, error_bound):
+    def abs_bound_codec(error_bound, **kwargs):
         precision = error_bound
         return CodecStack(
             numcodecs_wasm_uniform_noise.UniformNoise(scale=precision / 2, seed=42),
