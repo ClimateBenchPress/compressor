@@ -26,7 +26,7 @@ class Jpeg2000(Compressor):
         assert data_min is not None, "data_min must be provided"
         assert data_max is not None, "data_max must be provided"
 
-        max_pixel_val = 2**25 - 1  # maximum pixel value for our integer encoding.
+        max_pixel_val = 2**24 - 1  # maximum pixel value for our integer encoding.
 
         data_range = data_max - data_min
 
