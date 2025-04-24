@@ -1,2 +1,3 @@
-/*/*/decompressed.zarr
-/*/*/measurements.json
+/*/*/*/decompressed.zarr
+/*/*/*/measurements.json
+/*/*/*/error.out

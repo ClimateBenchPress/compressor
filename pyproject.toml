@@ -6,8 +6,10 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "astropy~=7.0.1",
+    "cartopy~=0.24.1",
     "cf-xarray~=0.10",
     "dask>=2024.12.0,<2025.4",
+    "matplotlib~=3.8",
     "numcodecs>=0.13.0,<0.17",
     "numcodecs-combinators[xarray]~=0.2.4",
     "numcodecs-observers~=0.1.1",
@@ -21,9 +23,11 @@ dependencies = [
     "numcodecs-wasm-tthresh~=0.2.0",
     "numcodecs-wasm-uniform-noise~=0.3.0",
     "numcodecs-wasm-zfp~=0.5.1",
-    "numcodecs-wasm-zlib~=0.3.0",
+    "numcodecs-wasm-zfp-classic~=0.3.1",
+    "numcodecs-wasm-zstd~=0.3.0",
     "pandas~=2.2",
     "scipy~=1.14",
+    "seaborn~=0.13.2",
     "tabulate~=0.9",
     "typed-classproperties~=1.1.0",
     "xarray>=2024.11.0,<2025.4",
@@ -38,6 +42,7 @@ dev = [
     "pre-commit~=4.0",
     "ruff~=0.9",
     "scipy-stubs~=1.15",
+    "types-seaborn~=0.13.2.20250111",
 ]
 
 [tool.setuptools.packages.find]
@@ -47,5 +52,5 @@ where = ["src"]
 "climatebenchpress.compressor" = ["py.typed"]
 
 [[tool.mypy.overrides]]
-module = ["numcodecs.*", "astropy.convolution.*"]
+module = ["numcodecs.*", "astropy.convolution.*", "cartopy.*"]
 follow_untyped_imports = true
