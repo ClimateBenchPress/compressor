@@ -62,9 +62,9 @@ def plot_metrics(
         with plt.rc_context(rc={"text.usetex": True}):
             plot_aggregated_rd_curve(
                 normalized_df,
-                plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
                 compression_metric="Relative CR",
                 distortion_metric=metric,
+                outfile=plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
                 agg="median",
                 bound_names=bound_names,
             )
@@ -279,8 +279,7 @@ def plot_variable_rd_curve(df, distortion_metric, outfile: None | Path = None):
 
     plt.tight_layout()
     if outfile is not None:
-        with outfile.open("wb") as f:
-            plt.savefig(f, dpi=300)
+        savefig(outfile)
     plt.close()
 
 
@@ -362,7 +361,7 @@ def plot_aggregated_rd_curve(
         plt.ylabel(
             r"Median Mean Absolute Error Relative to SZ3 ($\downarrow$)", fontsize=16
         )
-        arrow_color = "block"
+        arrow_color = "black"
         # Add an arrow pointing into the lower right corner
         plt.annotate(
             "",
@@ -389,8 +388,7 @@ def plot_aggregated_rd_curve(
 
     plt.tight_layout()
     if outfile is not None:
-        with outfile.open("wb") as f:
-            plt.savefig(f, dpi=300)
+        savefig(outfile)
     plt.close()
 
 
@@ -425,9 +423,19 @@ def plot_bound_violations(df, bound_names, outfile: None | Path = None):
 
     fig.tight_layout()
     if outfile is not None:
-        with outfile.open("wb") as f:
-            fig.savefig(f, dpi=300)
+        savefig(outfile)
     plt.close()
+
+
+def savefig(outfile: Path):
+    ispdf = outfile.suffix == ".pdf"
+    if ispdf:
+        # Saving a PDF with the alternative code below leads to a corrupted file.
+        # Hence, we use the default savefig method.
+        plt.savefig(outfile, dpi=300)
+    else:
+        with outfile.open("wb") as f:
+            plt.savefig(f, dpi=300)
 
 
 if __name__ == "__main__":
