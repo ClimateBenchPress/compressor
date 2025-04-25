@@ -52,21 +52,22 @@ def plot_metrics(
     )
 
     df = rename_error_bounds(df, bound_names)
-    normalized_df = normalize(df, bound_normalize="mid")
+    normalized_df = normalize(df, bound_normalize="mid", normalizer="sz3")
 
     plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
 
     for metric in ["Relative MAE", "Relative DSSIM", "Relative MaxAbsError"]:
-        plot_aggregated_rd_curve(
-            normalized_df,
-            compression_metric="Relative CR",
-            distortion_metric=metric,
-            outfile=plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
-            agg="median",
-            bound_names=bound_names,
-        )
+        with plt.rc_context(rc={"text.usetex": True}):
+            plot_aggregated_rd_curve(
+                normalized_df,
+                compression_metric="Relative CR",
+                distortion_metric=metric,
+                outfile=plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
+                agg="median",
+                bound_names=bound_names,
+            )
 
 
 def rename_error_bounds(df, bound_names):
@@ -93,28 +94,30 @@ def rename_error_bounds(df, bound_names):
     return df
 
 
-def normalize(data, bound_normalize="mid"):
+def normalize(data, bound_normalize="mid", normalizer=None):
     """Generate normalized metrics for each compressor and variable. The normalization
-    first computes the 'best compressor' with the highest average rank over all variables (ranked by
+    is done either with respect to either a user provided compressor or the
+    compressor with the highest average rank over all variables (ranked by
     compression ratio).
 
     For each metric, the normalization is done by dividing the metric by the value of the
-    'best compressor' for the same variable and error bound, i.e.:
-    normalized_metric = metric[compressor, variable] / metric[best_compressor, variable].
+    normalizer for the same variable and error bound, i.e.:
+    normalized_metric = metric[compressor, variable] / metric[normalizer, variable].
     """
-    # Group by Variable and rank compressors within each variable
-    ranked = data.copy()
-    ranked = ranked[ranked["Error Bound"] == bound_normalize]
-    ranked["CompRatio_Rank"] = ranked.groupby("Variable")[
-        "Compression Ratio [raw B / enc B]"
-    ].rank(ascending=False)
+    if normalizer is None:
+        # Group by Variable and rank compressors within each variable
+        ranked = data.copy()
+        ranked = ranked[ranked["Error Bound"] == bound_normalize]
+        ranked["CompRatio_Rank"] = ranked.groupby("Variable")[
+            "Compression Ratio [raw B / enc B]"
+        ].rank(ascending=False)
 
-    # Calculate average rank for each compressor across all variables
-    avg_ranks = ranked.groupby("Compressor")["CompRatio_Rank"].mean().reset_index()
-    avg_ranks.columns = ["Compressor", "Average_Rank"]
-    avg_ranks = avg_ranks.sort_values("Average_Rank")
+        # Calculate average rank for each compressor across all variables
+        avg_ranks = ranked.groupby("Compressor")["CompRatio_Rank"].mean().reset_index()
+        avg_ranks.columns = ["Compressor", "Average_Rank"]
+        avg_ranks = avg_ranks.sort_values("Average_Rank")
 
-    best_compressor = avg_ranks.iloc[0]["Compressor"]
+        normalizer = avg_ranks.iloc[0]["Compressor"]
 
     normalized = data.copy()
     normalize_vars = [
@@ -128,7 +131,7 @@ def normalize(data, bound_normalize="mid"):
 
     def get_normalizer(row):
         return normalized[
-            (data["Compressor"] == best_compressor)
+            (data["Compressor"] == normalizer)
             & (data["Variable"] == row["Variable"])
             & (data["Error Bound"] == bound_normalize)
         ][col].item()
@@ -276,8 +279,7 @@ def plot_variable_rd_curve(df, distortion_metric, outfile: None | Path = None):
 
     plt.tight_layout()
     if outfile is not None:
-        with outfile.open("wb") as f:
-            plt.savefig(f, dpi=300)
+        savefig(outfile)
     plt.close()
 
 
@@ -349,36 +351,44 @@ def plot_aggregated_rd_curve(
         plt.legend(
             title="Compressor",
             loc="upper right",
-            bbox_to_anchor=(0.95, 0.6),
-            fontsize=10,
-            title_fontsize=12,
+            bbox_to_anchor=(0.95, 0.7),
+            fontsize=12,
+            title_fontsize=14,
         )
-        plt.xlabel("Median Compression Ratio Relative to SZ3", fontsize=14)
-        plt.ylabel("Median Mean Absolute Error Relative to SZ3", fontsize=14)
+        plt.xlabel(
+            r"Median Compression Ratio Relative to SZ3 ($\uparrow$)", fontsize=16
+        )
+        plt.ylabel(
+            r"Median Mean Absolute Error Relative to SZ3 ($\downarrow$)", fontsize=16
+        )
+        arrow_color = "black"
         # Add an arrow pointing into the lower right corner
         plt.annotate(
             "",
-            xy=(0.97, 0.05),
+            xy=(0.95, 0.05),
             xycoords="axes fraction",
             xytext=(-60, 50),
             textcoords="offset points",
-            arrowprops=dict(arrowstyle="-|>", color="grey", lw=2),
+            arrowprops=dict(
+                arrowstyle="-|>, head_length=0.5, head_width=0.5",
+                color=arrow_color,
+                lw=5,
+            ),
         )
         plt.text(
-            0.85,
+            0.83,
             0.08,
             "Better",
             transform=plt.gca().transAxes,
-            fontsize=14,
+            fontsize=16,
             fontweight="bold",
-            color="grey",
+            color=arrow_color,
             ha="center",
         )
 
     plt.tight_layout()
     if outfile is not None:
-        with outfile.open("wb") as f:
-            plt.savefig(f, dpi=300)
+        savefig(outfile)
     plt.close()
 
 
@@ -413,9 +423,19 @@ def plot_bound_violations(df, bound_names, outfile: None | Path = None):
 
     fig.tight_layout()
     if outfile is not None:
-        with outfile.open("wb") as f:
-            fig.savefig(f, dpi=300)
+        savefig(outfile)
     plt.close()
+
+
+def savefig(outfile: Path):
+    ispdf = outfile.suffix == ".pdf"
+    if ispdf:
+        # Saving a PDF with the alternative code below leads to a corrupted file.
+        # Hence, we use the default savefig method.
+        plt.savefig(outfile, dpi=300)
+    else:
+        with outfile.open("wb") as f:
+            plt.savefig(f, dpi=300)
 
 
 if __name__ == "__main__":
