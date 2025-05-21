@@ -432,6 +432,7 @@ def savefig(outfile: Path):
     if ispdf:
         # Saving a PDF with the alternative code below leads to a corrupted file.
         # Hence, we use the default savefig method.
+        # NOTE: This means passing a virtual UPath is only supported for non-PDF files.
         plt.savefig(outfile, dpi=300)
     else:
         with outfile.open("wb") as f:
