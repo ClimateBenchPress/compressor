@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>abc - climatebenchpress.compressor</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link href="../../../../../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "abc";
+        var mkdocs_page_input_path = "_ref/climatebenchpress/compressor/compressors/abc.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]--> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> climatebenchpress.compressor
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Links</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="https://github.com/ClimateBenchPress/compressor/">GitHub</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="https://pypi.org/project/climatebenchpress-compressor/">PyPI</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >climatebenchpress</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" >compressor</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../../">compressor</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../cf/">cf</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" >compressors</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../">compressors</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">abc</a>
+    <ul class="current">
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec">NamedPerVariableCodec</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec.name">name</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec.codecs">codecs</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.ErrorBound">ErrorBound</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.ErrorBound.abs_error">abs_error</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.ErrorBound.rel_error">rel_error</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.Compressor">Compressor</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.Compressor.name">name</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.Compressor.description">description</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.Compressor.abs_bound_codec">abs_bound_codec</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.Compressor.rel_bound_codec">rel_bound_codec</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.Compressor.build">build</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.Compressor.registry">registry</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.Compressor.has_abs_error_impl">has_abs_error_impl</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.Compressor.has_rel_error_impl">has_rel_error_impl</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../bitround/">bitround</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../bitround_pco/">bitround_pco</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../jpeg2000/">jpeg2000</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../stochround/">stochround</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../stochround_pco/">stochround_pco</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../sz3/">sz3</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../tthresh/">tthresh</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../utils/">utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../zfp/">zfp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../zfp_round/">zfp_round</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >metrics</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/">metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/dssim/">dssim</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/mae/">mae</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/max_abs_error/">max_abs_error</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/max_rel_error/">max_rel_error</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/psnr/">psnr</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/spectral_error/">spectral_error</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../monitor/">monitor</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >plotting</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../plotting/">plotting</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../plotting/plot_metrics/">plot_metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../plotting/variable_plotters/">variable_plotters</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >scripts</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/">scripts</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/collect_metrics/">collect_metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/compress/">compress</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/create_error_bounds/">create_error_bounds</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/print_metrics/">print_metrics</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">climatebenchpress.compressor</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Documentation</li>
+          <li class="breadcrumb-item">climatebenchpress</li>
+          <li class="breadcrumb-item">compressor</li>
+          <li class="breadcrumb-item">compressors</li>
+      <li class="breadcrumb-item active">abc</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="abc"><code>abc</code></h1>
+<p><code>climatebenchpress.compressor.compressors.abc</code></p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Classes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="NamedPerVariableCodec
+
+
+  
+      dataclass
+   (climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec)" href="#climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec">NamedPerVariableCodec</a></code></b>
+          –
+          <div class="doc-md-description">
+            
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="ErrorBound
+
+
+  
+      dataclass
+   (climatebenchpress.compressor.compressors.abc.ErrorBound)" href="#climatebenchpress.compressor.compressors.abc.ErrorBound">ErrorBound</a></code></b>
+          –
+          <div class="doc-md-description">
+            
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="Compressor (climatebenchpress.compressor.compressors.abc.Compressor)" href="#climatebenchpress.compressor.compressors.abc.Compressor">Compressor</a></code></b>
+          –
+          <div class="doc-md-description">
+            
+          </div>
+        </li>
+    </ul>
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">NamedPerVariableCodec</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>NamedPerVariableCodec(
+    name: <span title="ErrorBoundName">ErrorBoundName</span>, codecs: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>]
+)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec.name" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">name</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>name: <span title="ErrorBoundName">ErrorBoundName</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec.codecs" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">codecs</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>codecs: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>]
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="climatebenchpress.compressor.compressors.abc.ErrorBound" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">ErrorBound</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>ErrorBound(
+    abs_error: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    rel_error: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.ErrorBound.abs_error" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">abs_error</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>abs_error: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.ErrorBound.rel_error" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">rel_error</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>rel_error: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="climatebenchpress.compressor.compressors.abc.Compressor" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Compressor</span>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3.12/library/abc.html#abc.ABC">ABC</a></code></p>
+
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="abs_bound_codec
+
+
+  
+      abstractmethod
+      staticmethod
+   (climatebenchpress.compressor.compressors.abc.Compressor.abs_bound_codec)" href="#climatebenchpress.compressor.compressors.abc.Compressor.abs_bound_codec">abs_bound_codec</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="rel_bound_codec
+
+
+  
+      abstractmethod
+      staticmethod
+   (climatebenchpress.compressor.compressors.abc.Compressor.rel_bound_codec)" href="#climatebenchpress.compressor.compressors.abc.Compressor.rel_bound_codec">rel_bound_codec</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="build
+
+
+  
+      classmethod
+   (climatebenchpress.compressor.compressors.abc.Compressor.build)" href="#climatebenchpress.compressor.compressors.abc.Compressor.build">build</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Constructs a dictionary of codecs based on the provided error bounds.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="registry (climatebenchpress.compressor.compressors.abc.Compressor.registry)" href="#climatebenchpress.compressor.compressors.abc.Compressor.registry">registry</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="has_abs_error_impl (climatebenchpress.compressor.compressors.abc.Compressor.has_abs_error_impl)" href="#climatebenchpress.compressor.compressors.abc.Compressor.has_abs_error_impl">has_abs_error_impl</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="has_rel_error_impl (climatebenchpress.compressor.compressors.abc.Compressor.has_rel_error_impl)" href="#climatebenchpress.compressor.compressors.abc.Compressor.has_rel_error_impl">has_rel_error_impl</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+    </ul>
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.Compressor.name" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">name</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>name: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.Compressor.description" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">description</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>description: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.Compressor.abs_bound_codec" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">abs_bound_codec</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>abs_bound_codec(
+    error_bound: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>,
+    <span style="color: #666">*</span>,
+    dtype: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_min: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_max: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.Compressor.rel_bound_codec" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">rel_bound_codec</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>rel_bound_codec(
+    error_bound: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>,
+    <span style="color: #666">*</span>,
+    dtype: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_min: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_max: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.Compressor.build" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">build</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>build(
+    dtypes: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>],
+    data_abs_min: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
+    data_abs_max: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
+    data_min: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
+    data_max: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
+    error_bounds: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-internal" title="ErrorBound
+
+
+  
+      dataclass
+   (climatebenchpress.compressor.compressors.abc.ErrorBound)" href="#climatebenchpress.compressor.compressors.abc.ErrorBound">ErrorBound</a>]],
+) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariantName">VariantName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-internal" title="NamedPerVariableCodec
+
+
+  
+      dataclass
+   (climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec)" href="#climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec">NamedPerVariableCodec</a>]]
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Constructs a dictionary of codecs based on the provided error bounds.
+The dictionary has a separate entry for each compressor variant. Compressor
+variants are created when transforming between absolute and relative
+error bounds (each variant accounts for a different way to transform the
+error bound). The dictionary values are lists of <code>NamedPerVariableCodec</code> instances
+where each element in the list corresponds to a different value for the
+error bound.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>dtypes</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">numpy</a>.<a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Dict mapping from variable name to data type of the input data.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data_abs_min</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Dict mapping from variable name to minimum absolute value for the variable.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data_abs_max</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Dict mapping from variable name to maximum absolute value for the variable.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data_min</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Dict mapping from variable name to minimum value for the variable.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data_max</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Dict mapping from variable name to maximum value for the variable.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>error_bounds</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-internal" title="ErrorBound
+
+
+  
+      dataclass
+   (climatebenchpress.compressor.compressors.abc.ErrorBound)" href="#climatebenchpress.compressor.compressors.abc.ErrorBound">ErrorBound</a>]]</code>)
+              –
+              <div class="doc-md-description">
+                <p>List of error bounds to use for the compressor.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariantName">VariantName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-internal" title="NamedPerVariableCodec
+
+
+  
+      dataclass
+   (climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec)" href="#climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec">NamedPerVariableCodec</a>]]</code>
+              –
+              <div class="doc-md-description">
+                <p>A dictionary where keys are codec variant names (for separate error bound conversions)
+and values are lists of <code>NamedPerVariableCodec</code> instances configured with the specified error bounds.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.Compressor.registry" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">registry</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>registry() <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" title="collections.abc.Mapping" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Mapping">Mapping</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.Compressor.has_abs_error_impl" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">has_abs_error_impl</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>has_abs_error_impl() <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.compressors.abc.Compressor.has_rel_error_impl" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">has_rel_error_impl</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>has_rel_error_impl() <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../bitround/" class="btn btn-neutral float-right" title="bitround">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="../bitround/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../js/katex.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

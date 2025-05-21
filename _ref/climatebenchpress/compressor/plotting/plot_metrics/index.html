@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
+    <title>plot_metrics - climatebenchpress.compressor</title>
+    <link rel="stylesheet" href="../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
+        <link href="../../../../../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "plot_metrics";
+        var mkdocs_page_input_path = "_ref/climatebenchpress/compressor/plotting/plot_metrics.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../js/html5shiv.min.js"></script>
+    <![endif]--> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../.." class="icon icon-home"> climatebenchpress.compressor
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Links</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="https://github.com/ClimateBenchPress/compressor/">GitHub</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="https://pypi.org/project/climatebenchpress-compressor/">PyPI</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >climatebenchpress</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" >compressor</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../../">compressor</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../cf/">cf</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >compressors</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/">compressors</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/bitround/">bitround</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/bitround_pco/">bitround_pco</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/jpeg2000/">jpeg2000</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/stochround/">stochround</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/stochround_pco/">stochround_pco</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/sz3/">sz3</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/tthresh/">tthresh</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/utils/">utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/zfp/">zfp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/zfp_round/">zfp_round</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >metrics</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/">metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/dssim/">dssim</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/mae/">mae</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/max_abs_error/">max_abs_error</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/max_rel_error/">max_rel_error</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/psnr/">psnr</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../metrics/spectral_error/">spectral_error</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../monitor/">monitor</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" >plotting</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../">plotting</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">plot_metrics</a>
+    <ul class="current">
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.COMPRESSOR2LINEINFO">COMPRESSOR2LINEINFO</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.COMPRESSOR2LEGEND_NAME">COMPRESSOR2LEGEND_NAME</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_metrics">plot_metrics</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.rename_error_bounds">rename_error_bounds</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.normalize">normalize</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_per_variable_metrics">plot_per_variable_metrics</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_variable_error">plot_variable_error</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_variable_rd_curve">plot_variable_rd_curve</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_aggregated_rd_curve">plot_aggregated_rd_curve</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_bound_violations">plot_bound_violations</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../variable_plotters/">variable_plotters</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >scripts</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/">scripts</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/collect_metrics/">collect_metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/compress/">compress</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/create_error_bounds/">create_error_bounds</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/print_metrics/">print_metrics</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../..">climatebenchpress.compressor</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Documentation</li>
+          <li class="breadcrumb-item">climatebenchpress</li>
+          <li class="breadcrumb-item">compressor</li>
+          <li class="breadcrumb-item">plotting</li>
+      <li class="breadcrumb-item active">plot_metrics</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="plot_metrics"><code>plot_metrics</code></h1>
+<p><code>climatebenchpress.compressor.plotting.plot_metrics</code></p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Functions:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="plot_metrics (climatebenchpress.compressor.plotting.plot_metrics.plot_metrics)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_metrics">plot_metrics</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="rename_error_bounds (climatebenchpress.compressor.plotting.plot_metrics.rename_error_bounds)" href="#climatebenchpress.compressor.plotting.plot_metrics.rename_error_bounds">rename_error_bounds</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Give error bound consistent names between variables. By default the error bounds</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="normalize (climatebenchpress.compressor.plotting.plot_metrics.normalize)" href="#climatebenchpress.compressor.plotting.plot_metrics.normalize">normalize</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Generate normalized metrics for each compressor and variable. The normalization</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="plot_per_variable_metrics (climatebenchpress.compressor.plotting.plot_metrics.plot_per_variable_metrics)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_per_variable_metrics">plot_per_variable_metrics</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Creates all the plots which only depend on a single variable.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="plot_variable_error (climatebenchpress.compressor.plotting.plot_metrics.plot_variable_error)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_variable_error">plot_variable_error</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="plot_variable_rd_curve (climatebenchpress.compressor.plotting.plot_metrics.plot_variable_rd_curve)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_variable_rd_curve">plot_variable_rd_curve</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="plot_aggregated_rd_curve (climatebenchpress.compressor.plotting.plot_metrics.plot_aggregated_rd_curve)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_aggregated_rd_curve">plot_aggregated_rd_curve</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="plot_bound_violations (climatebenchpress.compressor.plotting.plot_metrics.plot_bound_violations)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_bound_violations">plot_bound_violations</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+    </ul>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.COMPRESSOR2LINEINFO" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">COMPRESSOR2LINEINFO</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>COMPRESSOR2LINEINFO <span style="color: #666">=</span> {
+    <span style="color: #BA2121">&quot;jpeg2000&quot;</span>: (<span style="color: #BA2121">&quot;#EE7733&quot;</span>, <span style="color: #BA2121">&quot;-&quot;</span>),
+    <span style="color: #BA2121">&quot;zfp&quot;</span>: (<span style="color: #BA2121">&quot;#EE3377&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
+    <span style="color: #BA2121">&quot;zfp-round&quot;</span>: (<span style="color: #BA2121">&quot;#DDAA33&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
+    <span style="color: #BA2121">&quot;sz3&quot;</span>: (<span style="color: #BA2121">&quot;#CC3311&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>),
+    <span style="color: #BA2121">&quot;bitround-pco-conservative-rel&quot;</span>: (<span style="color: #BA2121">&quot;#0077BB&quot;</span>, <span style="color: #BA2121">&quot;:&quot;</span>),
+    <span style="color: #BA2121">&quot;bitround-conservative-rel&quot;</span>: (<span style="color: #BA2121">&quot;#33BBEE&quot;</span>, <span style="color: #BA2121">&quot;-&quot;</span>),
+    <span style="color: #BA2121">&quot;stochround&quot;</span>: (<span style="color: #BA2121">&quot;#009988&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
+    <span style="color: #BA2121">&quot;stochround-pco&quot;</span>: (<span style="color: #BA2121">&quot;#BBBBBB&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
+    <span style="color: #BA2121">&quot;tthresh&quot;</span>: (<span style="color: #BA2121">&quot;#000000&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>),
+}
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.COMPRESSOR2LEGEND_NAME" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">COMPRESSOR2LEGEND_NAME</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>COMPRESSOR2LEGEND_NAME <span style="color: #666">=</span> {
+    <span style="color: #BA2121">&quot;jpeg2000&quot;</span>: <span style="color: #BA2121">&quot;JPEG2000&quot;</span>,
+    <span style="color: #BA2121">&quot;zfp&quot;</span>: <span style="color: #BA2121">&quot;ZFP&quot;</span>,
+    <span style="color: #BA2121">&quot;zfp-round&quot;</span>: <span style="color: #BA2121">&quot;ZFP-ROUND&quot;</span>,
+    <span style="color: #BA2121">&quot;sz3&quot;</span>: <span style="color: #BA2121">&quot;SZ3&quot;</span>,
+    <span style="color: #BA2121">&quot;bitround-pco-conservative-rel&quot;</span>: <span style="color: #BA2121">&quot;BitRound + PCO&quot;</span>,
+    <span style="color: #BA2121">&quot;bitround-conservative-rel&quot;</span>: <span style="color: #BA2121">&quot;BitRound + Zstd&quot;</span>,
+    <span style="color: #BA2121">&quot;stochround&quot;</span>: <span style="color: #BA2121">&quot;StochRound + Zstd&quot;</span>,
+    <span style="color: #BA2121">&quot;stochround-pco&quot;</span>: <span style="color: #BA2121">&quot;StochRound + PCO&quot;</span>,
+    <span style="color: #BA2121">&quot;tthresh&quot;</span>: <span style="color: #BA2121">&quot;TTHRESH&quot;</span>,
+}
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_metrics" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_metrics</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_metrics(
+    basepath: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>(),
+    data_loader_base_path: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    bound_names: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [<span style="color: #BA2121">&quot;low&quot;</span>, <span style="color: #BA2121">&quot;mid&quot;</span>, <span style="color: #BA2121">&quot;high&quot;</span>],
+)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.rename_error_bounds" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">rename_error_bounds</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>rename_error_bounds(df, bound_names)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Give error bound consistent names between variables. By default the error bounds
+have the pattern {variable_name}-{bound_type}={bound_value}.</p>
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.normalize" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">normalize</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>normalize(data, bound_normalize<span style="color: #666">=</span><span style="color: #BA2121">&#39;mid&#39;</span>)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Generate normalized metrics for each compressor and variable. The normalization
+first computes the 'best compressor' with the highest average rank over all variables (ranked by
+compression ratio).</p>
+<p>For each metric, the normalization is done by dividing the metric by the value of the
+'best compressor' for the same variable and error bound, i.e.:
+normalized_metric = metric[compressor, variable] / metric[best_compressor, variable].</p>
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_per_variable_metrics" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_per_variable_metrics</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_per_variable_metrics(
+    datasets: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>,
+    compressed_datasets: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>,
+    plots_path: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>,
+    all_results: <span title="pandas">pd</span><span style="color: #666">.</span><span title="pandas.DataFrame">DataFrame</span>,
+)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Creates all the plots which only depend on a single variable.</p>
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_variable_error" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_variable_error</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_variable_error(
+    datasets: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>,
+    compressed_datasets: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>,
+    dataset_name: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>,
+    error_bound: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>,
+    compressor: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>,
+    var: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>,
+    outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_variable_rd_curve" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_variable_rd_curve</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_variable_rd_curve(
+    df, distortion_metric, outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>
+)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_aggregated_rd_curve" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_aggregated_rd_curve</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_aggregated_rd_curve(
+    normalized_df,
+    compression_metric,
+    distortion_metric,
+    outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    agg<span style="color: #666">=</span><span style="color: #BA2121">&quot;median&quot;</span>,
+    bound_names<span style="color: #666">=</span>[<span style="color: #BA2121">&quot;low&quot;</span>, <span style="color: #BA2121">&quot;mid&quot;</span>, <span style="color: #BA2121">&quot;high&quot;</span>],
+)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_bound_violations" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_bound_violations</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_bound_violations(
+    df, bound_names, outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>
+)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../variable_plotters/" class="btn btn-neutral float-right" title="variable_plotters">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="../variable_plotters/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../..";</script>
+    <script src="../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../js/theme.js"></script>
+      <script src="../../../../../js/katex.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js"></script>
+      <script src="../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
