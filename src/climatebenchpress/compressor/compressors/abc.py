@@ -98,7 +98,7 @@ class Compressor(ABC):
 
         Parameters
         ----------
-        dtype : dict[VariableName, numpy.dtype]
+        dtypes : dict[VariableName, numpy.dtype]
             Dict mapping from variable name to data type of the input data.
         data_abs_min : dict[VariableName, float]
             Dict mapping from variable name to minimum absolute value for the variable.
