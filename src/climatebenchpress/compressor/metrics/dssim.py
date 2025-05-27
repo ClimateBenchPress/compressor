@@ -20,17 +20,19 @@ class DSSIM(Metric):
         and then take the minimum value over all vertical slices (this follows the official implementation
         of [1]). The final dSSIM value is the average over the realization and time dimensions.
 
-        NOTE: This implementation can return values > 1.0 in the case that one of the inputs
-          has large regions with NaNs and the other input does not. This is because the
-          `astropy.convolution.convolve` function linearly interpolates the NaN values.
-          The interpolation of NaN is an explicit design decision made in [1]. In practice,
-          this metric should not be used for data with large regions of NaNs.
+        > **NOTE:** This implementation can return values > 1.0 in the case that one of the inputs
+        has large regions with NaNs and the other input does not. This is because the
+        `astropy.convolution.convolve` function linearly interpolates the NaN values.
+        The interpolation of NaN is an explicit design decision made in [1]. In practice,
+        this metric should not be used for data with large regions of NaNs.
 
         References:
-        [1] A. H. Baker, A. Pinard and D. M. Hammerling, "On a Structural Similarity
-            Index Approach for Floating-Point Data," in IEEE Transactions on Visualization
-            and Computer Graphics
-        [2] https://github.com/NCAR/ldcpy/blob/6c5bcb8149ec7876a4f53b0e784e9c528f6f14cb/ldcpy/calcs.py#L2516
+
+        > [1] A. H. Baker, A. Pinard and D. M. Hammerling, "On a Structural Similarity
+        Index Approach for Floating-Point Data," in *IEEE Transactions on Visualization
+        and Computer Graphics*
+
+        > [2] <https://github.com/NCAR/ldcpy/blob/6c5bcb8149ec7876a4f53b0e784e9c528f6f14cb/ldcpy/calcs.py#L2516>
 
         Parameters
         ----------
