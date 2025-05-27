@@ -1,0 +1,73 @@
+site_name: climatebenchpress.compressor
+
+strict: true
+
+markdown_extensions:
+  - footnotes
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      use_pygments: true
+      noclasses: true
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - js/katex.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js
+
+extra_css:
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css
+
+theme:
+  name: readthedocs
+  highlightjs: false
+  navigation_depth: 99
+
+nav:
+  - Home: index.md
+  - Links:
+      - GitHub: https://github.com/ClimateBenchPress/compressor/
+      - PyPI: https://pypi.org/project/climatebenchpress-compressor/
+
+plugins:
+  - exclude:
+      glob:
+        - requirements.txt
+  - search
+  - autorefs
+  - mkdocstrings-python-generator:
+      source_dirs:
+        - nav_heading: [Documentation]
+          base: src
+  - mkdocstrings:
+      enable_inventory: true
+      handlers:
+        python:
+          options:
+            docstring_section_style: list
+            docstring_style: numpy
+            show_if_no_docstring: true
+            filters: ["!^_$", "!^_[^_]", "!^__", "__init__"]
+            members_order: source
+            group_by_category: false
+            show_source: false
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            show_root_toc_entry: false
+            merge_init_into_class: true
+            annotations_path: source
+            summary:
+              attributes: false
+              classes: true
+              functions: true
+              modules: true
+          inventories:
+            - https://docs.python.org/3.12/objects.inv
+            - https://numpy.org/doc/2.2/objects.inv
+            - https://numcodecs.readthedocs.io/en/v0.16.0/objects.inv
+            - https://docs.xarray.dev/en/v2025.03.0/objects.inv
+
+watch:
+  - src
