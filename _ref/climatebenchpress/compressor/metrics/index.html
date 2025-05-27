@@ -57,8 +57,6 @@
     <ul class="current">
                 <li class="toctree-l3"><a class="reference internal" href="../">compressor</a>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="../cf/">cf</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >compressors</a>
     <ul>
                 <li class="toctree-l4"><a class="reference internal" href="../compressors/">compressors</a>
@@ -94,16 +92,40 @@
                 <li class="toctree-l4 current"><a class="reference internal current" href="#">metrics</a>
     <ul class="current">
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.metrics.DSSIM">DSSIM</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.metrics.DSSIM.__call__">__call__</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.metrics.MAE">MAE</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.metrics.MAE.__call__">__call__</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.metrics.MaxAbsError">MaxAbsError</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.metrics.MaxAbsError.__call__">__call__</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.metrics.MaxRelError">MaxRelError</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.metrics.MaxRelError.__call__">__call__</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.metrics.PSNR">PSNR</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.metrics.PSNR.__call__">__call__</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.metrics.SpectralError">SpectralError</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.metrics.SpectralError.__call__">__call__</a>
+    </li>
+        </ul>
     </li>
     </ul>
                 </li>
@@ -146,6 +168,20 @@
                 <li class="toctree-l4"><a class="reference internal" href="../scripts/create_error_bounds/">create_error_bounds</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../scripts/print_metrics/">print_metrics</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >tests</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../tests/">tests</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../tests/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../tests/error_bound/">error_bound</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../tests/r2_correlation/">r2_correlation</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../tests/spatial_relative_error/">spatial_relative_error</a>
                 </li>
     </ul>
                 </li>
@@ -337,11 +373,101 @@
 
 
 
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="__call__ (climatebenchpress.compressor.metrics.DSSIM.__call__)" href="#climatebenchpress.compressor.metrics.DSSIM.__call__">__call__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Implementation of the data-SSIM (dSSIM) metric presented in [1], This is an</p>
+            </div>
+          </li>
+    </ul>
+
+
 
 
 
   <div class="doc doc-children">
 
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.metrics.DSSIM.__call__" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">__call__</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><span style="color: #00F">__call__</span>(x: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>, y: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Implementation of the data-SSIM (dSSIM) metric presented in [1], This is an
+extension of the standard structural similarity index (SSIM) to floating
+point data. The implementation is adapted from the official implementation [2]
+to be able to handle our data format.</p>
+<p>Here we assume that the input data has shape (realization, time, vertical, latitude, longitude).
+The dSSIM metric is defined for 2D fields, so we compute the dSSIM for each vertical slice
+and then take the minimum value over all vertical slices (this follows the official implementation
+of [1]). The final dSSIM value is the average over the realization and time dimensions.</p>
+<blockquote>
+<p><strong>NOTE:</strong> This implementation can return values &gt; 1.0 in the case that one of the inputs
+has large regions with NaNs and the other input does not. This is because the
+<code>astropy.convolution.convolve</code> function linearly interpolates the NaN values.
+The interpolation of NaN is an explicit design decision made in [1]. In practice,
+this metric should not be used for data with large regions of NaNs.</p>
+</blockquote>
+<p>References:</p>
+<blockquote>
+<p>[1] A. H. Baker, A. Pinard and D. M. Hammerling, "On a Structural Similarity
+Index Approach for Floating-Point Data," in <em>IEEE Transactions on Visualization
+and Computer Graphics</em></p>
+<p>[2] <a href="https://github.com/NCAR/ldcpy/blob/6c5bcb8149ec7876a4f53b0e784e9c528f6f14cb/ldcpy/calcs.py#L2516">https://github.com/NCAR/ldcpy/blob/6c5bcb8149ec7876a4f53b0e784e9c528f6f14cb/ldcpy/calcs.py#L2516</a></p>
+</blockquote>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>x</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>y</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
 
 
 
@@ -382,11 +508,80 @@
 
 
 
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="__call__ (climatebenchpress.compressor.metrics.MAE.__call__)" href="#climatebenchpress.compressor.metrics.MAE.__call__">__call__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Compute the mean absolute error between two inputs.</p>
+            </div>
+          </li>
+    </ul>
+
+
 
 
 
   <div class="doc doc-children">
 
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.metrics.MAE.__call__" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">__call__</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><span style="color: #00F">__call__</span>(x: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>, y: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the mean absolute error between two inputs.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>x</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>y</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
 
 
 
@@ -427,11 +622,80 @@
 
 
 
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="__call__ (climatebenchpress.compressor.metrics.MaxAbsError.__call__)" href="#climatebenchpress.compressor.metrics.MaxAbsError.__call__">__call__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Compute the maximum absolute error between two inputs.</p>
+            </div>
+          </li>
+    </ul>
+
+
 
 
 
   <div class="doc doc-children">
 
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.metrics.MaxAbsError.__call__" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">__call__</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><span style="color: #00F">__call__</span>(x: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>, y: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the maximum absolute error between two inputs.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>x</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>y</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
 
 
 
@@ -472,11 +736,80 @@
 
 
 
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="__call__ (climatebenchpress.compressor.metrics.MaxRelError.__call__)" href="#climatebenchpress.compressor.metrics.MaxRelError.__call__">__call__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Compute the maximum relative error between two inputs.</p>
+            </div>
+          </li>
+    </ul>
+
+
 
 
 
   <div class="doc doc-children">
 
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.metrics.MaxRelError.__call__" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">__call__</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><span style="color: #00F">__call__</span>(x: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>, y: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the maximum relative error between two inputs.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>x</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>y</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
 
 
 
@@ -517,11 +850,85 @@
 
 
 
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="__call__ (climatebenchpress.compressor.metrics.PSNR.__call__)" href="#climatebenchpress.compressor.metrics.PSNR.__call__">__call__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Compute the peak signal-to-noise ratio (PSNR) between an input <code>x</code> and</p>
+            </div>
+          </li>
+    </ul>
+
+
 
 
 
   <div class="doc doc-children">
 
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.metrics.PSNR.__call__" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">__call__</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><span style="color: #00F">__call__</span>(x: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>, y: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the peak signal-to-noise ratio (PSNR) between an input <code>x</code> and
+its reconstruction <code>y</code>.</p>
+<p>This implementation assumes that the input data has shape
+(realization, time, vertical, latitude, longitude). The PSNR gets computed
+over the vertical, latitude, and longitude dimensions. The return value is then
+the average over the other dimensions (realization and time).</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>x</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>y</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
 
 
 
@@ -562,11 +969,83 @@
 
 
 
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="__call__ (climatebenchpress.compressor.metrics.SpectralError.__call__)" href="#climatebenchpress.compressor.metrics.SpectralError.__call__">__call__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Compute the mean squared error in the spectral energy between the two inputs.</p>
+            </div>
+          </li>
+    </ul>
+
+
 
 
 
   <div class="doc doc-children">
 
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.metrics.SpectralError.__call__" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">__call__</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><span style="color: #00F">__call__</span>(x: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>, y: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the mean squared error in the spectral energy between the two inputs.
+Spectral energy is computed using the radially averaged power spectral density
+on the (lon, lat) 2D field and then the error is averaged over the remaining
+dimensions.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>x</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape: (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>y</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape: (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
 
 
 

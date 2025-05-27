@@ -57,8 +57,6 @@
     <ul class="current">
                 <li class="toctree-l3"><a class="reference internal" href="../../">compressor</a>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="../../cf/">cf</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >compressors</a>
     <ul>
                 <li class="toctree-l4"><a class="reference internal" href="../../compressors/">compressors</a>
@@ -108,6 +106,10 @@
                 <li class="toctree-l4 current"><a class="reference internal current" href="#">spectral_error</a>
     <ul class="current">
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.metrics.spectral_error.SpectralError">SpectralError</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.metrics.spectral_error.SpectralError.__call__">__call__</a>
+    </li>
+        </ul>
     </li>
     </ul>
                 </li>
@@ -136,6 +138,20 @@
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/create_error_bounds/">create_error_bounds</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/print_metrics/">print_metrics</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >tests</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../tests/">tests</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../tests/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../tests/error_bound/">error_bound</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../tests/r2_correlation/">r2_correlation</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../tests/spatial_relative_error/">spatial_relative_error</a>
                 </li>
     </ul>
                 </li>
@@ -283,11 +299,83 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</p>
 
 
 
+<p><span class="doc-section-title">Methods:</span></p>
+    <ul>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="__call__ (climatebenchpress.compressor.metrics.spectral_error.SpectralError.__call__)" href="#climatebenchpress.compressor.metrics.spectral_error.SpectralError.__call__">__call__</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Compute the mean squared error in the spectral energy between the two inputs.</p>
+            </div>
+          </li>
+    </ul>
+
+
 
 
 
   <div class="doc doc-children">
 
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.metrics.spectral_error.SpectralError.__call__" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">__call__</span>
+
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code><span style="color: #00F">__call__</span>(x: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>, y: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the mean squared error in the spectral energy between the two inputs.
+Spectral energy is computed using the radially averaged power spectral density
+on the (lon, lat) 2D field and then the error is averaged over the remaining
+dimensions.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>x</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape: (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>y</code></b>
+                  (<code><a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a>.<a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Shape: (realization, time, vertical, latitude, longitude)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    </div>
+
+</div>
 
 
 
