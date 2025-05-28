@@ -10,6 +10,7 @@ from .variable_plotters import PLOTTERS
 
 COMPRESSOR2LINEINFO = {
     "jpeg2000": ("#EE7733", "-"),
+    "sperr": ("#000000", ":"),
     "zfp": ("#EE3377", "--"),
     "zfp-round": ("#DDAA33", "--"),
     "sz3": ("#CC3311", "-."),
@@ -17,11 +18,12 @@ COMPRESSOR2LINEINFO = {
     "bitround-conservative-rel": ("#33BBEE", "-"),
     "stochround": ("#009988", "--"),
     "stochround-pco": ("#BBBBBB", "--"),
-    "tthresh": ("#000000", "-."),
+    "tthresh": ("#882255", "-."),
 }
 
 COMPRESSOR2LEGEND_NAME = {
     "jpeg2000": "JPEG2000",
+    "sperr": "SPERR",
     "zfp": "ZFP",
     "zfp-round": "ZFP-ROUND",
     "sz3": "SZ3",
@@ -440,4 +442,4 @@ def savefig(outfile: Path):
 
 
 if __name__ == "__main__":
-    plot_metrics(basepath=Path())
+    plot_metrics(basepath=Path(), data_loader_base_path=Path() / ".." / "data-loader")
