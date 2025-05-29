@@ -60,8 +60,9 @@ def plot_metrics(
     )
 
     df = rename_error_bounds(df, bound_names)
-    normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
+    plot_throughput(df, plots_path / "throughput.pdf")
 
+    normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
     plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
@@ -402,6 +403,70 @@ def plot_aggregated_rd_curve(
     plt.tight_layout()
     if outfile is not None:
         savefig(outfile)
+    plt.close()
+
+
+def plot_throughput(df, outfile: None | Path = None):
+    grouped_df = df.groupby(["Compressor", "Error Bound"])[
+        ["Encode Throughput [raw B / s]", "Decode Throughput [raw B / s]"]
+    ].agg(["mean", "std"])
+    grouped_df["Encode Throughput [raw B / s]"] /= 1e6
+    grouped_df["Decode Throughput [raw B / s]"] /= 1e6
+    grouped_df.rename(
+        columns={
+            "Encode Throughput [raw B / s]": "Encode Throughput [MB / s]",
+            "Decode Throughput [raw B / s]": "Decode Throughput [MB / s]",
+        },
+        inplace=True,
+    )
+
+    colors = ["#1f77b4", "#ff7f0e"]
+    fig, axes = plt.subplots(3, 1, figsize=(10, 18), sharex=True, sharey=True)
+
+    # Bar width
+    bar_width = 0.35
+    x_labels = grouped_df.index.levels[0].tolist()
+    x_positions = range(len(x_labels))
+
+    error_bounds = ["low", "mid", "high"]
+
+    for i, error_bound in enumerate(error_bounds):
+        ax = axes[i]
+        bound_data = grouped_df.xs(error_bound, level="Error Bound")
+
+        # Plot encode throughput
+        ax.bar(
+            x_positions,
+            bound_data[("Encode Throughput [MB / s]", "mean")],
+            bar_width,
+            label="Encoding",
+            color=colors[0],
+        )
+
+        # Plot decode throughput
+        ax.bar(
+            [p + bar_width for p in x_positions],
+            bound_data[("Decode Throughput [MB / s]", "mean")],
+            bar_width,
+            label="Decoding",
+            color=colors[1],
+        )
+
+        # Add labels and title
+        ax.set_xticks([p + bar_width / 2 for p in x_positions])
+        ax.set_xticklabels(x_labels, rotation=45, ha="right")
+        ax.set_ylabel("Throughput (MB/s)")
+        ax.set_title(
+            f"Mean Encode and Decode Throughput ({error_bound.capitalize()} Error Bound)"
+        )
+        ax.grid(axis="y", linestyle="--", alpha=0.7)
+        if i == 0:
+            ax.legend()
+
+    fig.tight_layout()
+    if outfile is not None:
+        with outfile.open("wb") as f:
+            fig.savefig(f, dpi=300)
     plt.close()
 
 
