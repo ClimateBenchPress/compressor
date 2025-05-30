@@ -6,6 +6,8 @@ import pandas as pd
 import seaborn as sns
 import xarray as xr
 
+from ..scripts.collect_metrics import parse_error_bounds
+from .error_dist_plotter import ErrorDistPlotter
 from .variable_plotters import PLOTTERS
 
 COMPRESSOR2LINEINFO = {
@@ -181,32 +183,69 @@ def plot_per_variable_metrics(
                     / f"{var}_compression_ratio_{metric_name}.pdf",
                 )
 
-            error_bounds = df[df["Variable"] == var]["Error Bound"].unique()
-            for err_bound in error_bounds:
-                compressors = df[
-                    (df["Variable"] == var) & (df["Error Bound"] == err_bound)
-                ]["Compressor"].unique()
+        error_bounds = df[df["Dataset"] == dataset]["Error Bound"].unique()
+        error_dist_plotter = ErrorDistPlotter(
+            dataset=dataset,
+            variables=variables,
+            error_bounds=error_bounds,
+        )
+        for i, err_bound in enumerate(error_bounds):
+            compressors = df[(df["Error Bound"] == err_bound)]["Compressor"].unique()
 
-                err_bound_path = dataset_plots_path / err_bound
-                err_bound_path.mkdir(parents=True, exist_ok=True)
-                for comp in compressors:
+            err_bound_path = dataset_plots_path / err_bound
+            err_bound_path.mkdir(parents=True, exist_ok=True)
+
+            error_bound_vals = parse_error_bounds(err_bound)
+            for comp in compressors:
+                compressed = (
+                    compressed_datasets
+                    / dataset
+                    / err_bound
+                    / comp
+                    / "decompressed.zarr"
+                )
+                input = datasets / dataset / "standardized.zarr"
+
+                ds = xr.open_dataset(input, chunks=dict(), engine="zarr")
+                ds_new = xr.open_dataset(compressed, chunks=dict(), engine="zarr")
+
+                for var in variables:
                     print(f"Plotting {var} error for {comp}...")
+                    error_dist_plotter.compute_errors(
+                        comp,
+                        ds,
+                        ds_new,
+                        var,
+                        error_bound_vals[var][0],
+                    )
+
                     plot_variable_error(
-                        datasets,
-                        compressed_datasets,
+                        ds[var],
+                        ds_new[var],
                         dataset,
-                        err_bound,
                         comp,
                         var,
                         outfile=err_bound_path / f"{var}_{comp}.png",
                     )
 
+            error_dist_plotter.plot_error_bound_histograms(
+                i,
+                variables,
+                compressors,
+                error_bound_vals,
+                COMPRESSOR2LEGEND_NAME,
+                COMPRESSOR2LINEINFO,
+            )
+
+        fig, _ = error_dist_plotter.get_final_figure()
+        savefig(dataset_plots_path / f"error_histograms_{dataset}.pdf")
+        plt.close(fig)
+
 
 def plot_variable_error(
-    datasets: Path,
-    compressed_datasets: Path,
+    uncompressed_data: xr.DataArray,
+    compressed_data: xr.DataArray,
     dataset_name: str,
-    error_bound: str,
     compressor: str,
     var: str,
     outfile: None | Path = None,
@@ -215,21 +254,11 @@ def plot_variable_error(
         # These plots can be quite expensive to generate, so we skip if they already exist.
         return
 
-    compressed = (
-        compressed_datasets
-        / dataset_name
-        / error_bound
-        / compressor
-        / "decompressed.zarr"
-    )
-    input = datasets / dataset_name / "standardized.zarr"
-
-    ds = xr.open_dataset(input, chunks=dict(), engine="zarr").compute()
-    ds_new = xr.open_dataset(compressed, chunks=dict(), engine="zarr").compute()
-
     plotter = PLOTTERS.get(dataset_name, None)
     if plotter:
-        plotter().plot(ds[var], ds_new[var], dataset_name, compressor, var, outfile)
+        plotter().plot(
+            uncompressed_data, compressed_data, dataset_name, compressor, var, outfile
+        )
     else:
         print(f"No plotter found for dataset {dataset_name}")
 
@@ -465,8 +494,7 @@ def plot_throughput(df, outfile: None | Path = None):
 
     fig.tight_layout()
     if outfile is not None:
-        with outfile.open("wb") as f:
-            fig.savefig(f, dpi=300)
+        savefig(outfile)
     plt.close()
 
 

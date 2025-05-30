@@ -204,7 +204,6 @@ def load_measurements(compressed_dataset: Path, compressor: Path) -> pd.DataFram
             {
                 "Compressor": compressor.stem,
                 "Variable": var,
-                "Dataset": compressed_dataset.parent.parent.name,
                 "Compression Ratio [raw B / enc B]": variable_measurements[
                     "decoded_bytes"
                 ]
