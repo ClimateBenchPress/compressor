@@ -39,6 +39,7 @@ def plot_metrics(
     basepath: Path = Path(),
     data_loader_base_path: None | Path = None,
     bound_names: list[str] = ["low", "mid", "high"],
+    normalizer: str = "sz3",
 ):
     metrics_path = basepath / "metrics"
     plots_path = basepath / "plots"
@@ -46,6 +47,11 @@ def plot_metrics(
     compressed_datasets = basepath / "compressed-datasets"
 
     df = pd.read_csv(metrics_path / "all_results.csv")
+    df = df[
+        np.logical_and(
+            df["Compressor"] != "tthresh", df["Dataset"].str.endswith("tiny")
+        )
+    ]
     plot_per_variable_metrics(
         datasets=datasets,
         compressed_datasets=compressed_datasets,
@@ -54,7 +60,7 @@ def plot_metrics(
     )
 
     df = rename_error_bounds(df, bound_names)
-    normalized_df = normalize(df, bound_normalize="mid", normalizer="sz3")
+    normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
 
     plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
@@ -64,6 +70,7 @@ def plot_metrics(
         with plt.rc_context(rc={"text.usetex": True}):
             plot_aggregated_rd_curve(
                 normalized_df,
+                normalizer=normalizer,
                 compression_metric="Relative CR",
                 distortion_metric=metric,
                 outfile=plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
@@ -287,6 +294,7 @@ def plot_variable_rd_curve(df, distortion_metric, outfile: None | Path = None):
 
 def plot_aggregated_rd_curve(
     normalized_df,
+    normalizer,
     compression_metric,
     distortion_metric,
     outfile: None | Path = None,
@@ -357,11 +365,14 @@ def plot_aggregated_rd_curve(
             fontsize=12,
             title_fontsize=14,
         )
+        normalizer_label = COMPRESSOR2LEGEND_NAME.get(normalizer, normalizer)
         plt.xlabel(
-            r"Median Compression Ratio Relative to SZ3 ($\uparrow$)", fontsize=16
+            rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
+            fontsize=16,
         )
         plt.ylabel(
-            r"Median Mean Absolute Error Relative to SZ3 ($\downarrow$)", fontsize=16
+            rf"Median Mean Absolute Error Relative to {normalizer_label} ($\downarrow$)",
+            fontsize=16,
         )
         arrow_color = "black"
         # Add an arrow pointing into the lower right corner
