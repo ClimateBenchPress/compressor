@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -42,6 +43,9 @@ def plot_metrics(
     data_loader_base_path: None | Path = None,
     bound_names: list[str] = ["low", "mid", "high"],
     normalizer: str = "sz3",
+    exclude_dataset: list[str] = [],
+    exclude_compressor: list[str] = [],
+    tiny_datasets: bool = False,
 ):
     metrics_path = basepath / "metrics"
     plots_path = basepath / "plots"
@@ -49,11 +53,14 @@ def plot_metrics(
     compressed_datasets = basepath / "compressed-datasets"
 
     df = pd.read_csv(metrics_path / "all_results.csv")
-    df = df[
-        np.logical_and(
-            df["Compressor"] != "tthresh", df["Dataset"].str.endswith("tiny")
-        )
-    ]
+
+    # Filter out excluded datasets and compressors
+    df = df[~df["Compressor"].isin(exclude_compressor)]
+    df = df[~df["Dataset"].isin(exclude_dataset)]
+    is_tiny = df["Dataset"].str.endswith("-tiny")
+    filter_tiny = is_tiny if tiny_datasets else ~is_tiny
+    df = df[filter_tiny]
+
     plot_per_variable_metrics(
         datasets=datasets,
         compressed_datasets=compressed_datasets,
@@ -98,9 +105,9 @@ def rename_error_bounds(df, bound_names):
             key=lambda x: float(x.split("=")[1].split("_")[0]),
         )
 
-        assert len(error_bounds) == len(bound_names), (
-            f"Number of error bounds {len(error_bounds)} does not match number of bound names {len(bound_names)} for {variable}."
-        )
+        assert len(error_bounds) == len(
+            bound_names
+        ), f"Number of error bounds {len(error_bounds)} does not match number of bound names {len(bound_names)} for {variable}."
         for i in range(len(error_bounds)):
             bound_selector = var_data["Error Bound"] == error_bounds[i]
             df.loc[bound_selector & var_selector, "Error Bound"] = bound_names[i]
@@ -451,12 +458,12 @@ def plot_throughput(df, outfile: None | Path = None):
         inplace=True,
     )
 
-    colors = ["#1f77b4", "#ff7f0e"]
     fig, axes = plt.subplots(3, 1, figsize=(10, 18), sharex=True, sharey=True)
 
     # Bar width
     bar_width = 0.35
-    x_labels = grouped_df.index.levels[0].tolist()
+    compressors = grouped_df.index.levels[0].tolist()
+    x_labels = [COMPRESSOR2LEGEND_NAME[c] for c in compressors]
     x_positions = range(len(x_labels))
 
     error_bounds = ["low", "mid", "high"]
@@ -471,7 +478,7 @@ def plot_throughput(df, outfile: None | Path = None):
             bound_data[("Encode Throughput [MB / s]", "mean")],
             bar_width,
             label="Encoding",
-            color=colors[0],
+            color=[COMPRESSOR2LINEINFO[comp][0] for comp in compressors],
         )
 
         # Plot decode throughput
@@ -480,7 +487,9 @@ def plot_throughput(df, outfile: None | Path = None):
             bound_data[("Decode Throughput [MB / s]", "mean")],
             bar_width,
             label="Decoding",
-            color=colors[1],
+            edgecolor=[COMPRESSOR2LINEINFO[comp][0] for comp in compressors],
+            fill=False,
+            linewidth=4,
         )
 
         # Add labels and title
@@ -548,4 +557,16 @@ def savefig(outfile: Path):
 
 
 if __name__ == "__main__":
-    plot_metrics(basepath=Path(), data_loader_base_path=Path() / ".." / "data-loader")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
+    parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
+    parser.add_argument("--tiny-datasets", action="store_true", default=False)
+    args = parser.parse_args()
+
+    plot_metrics(
+        basepath=Path(),
+        data_loader_base_path=Path() / ".." / "data-loader",
+        exclude_compressor=args.exclude_compressor,
+        exclude_dataset=args.exclude_dataset,
+        tiny_datasets=args.tiny_datasets,
+    )
