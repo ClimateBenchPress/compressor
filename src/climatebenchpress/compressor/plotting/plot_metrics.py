@@ -105,9 +105,10 @@ def rename_error_bounds(df, bound_names):
             key=lambda x: float(x.split("=")[1].split("_")[0]),
         )
 
-        assert len(error_bounds) == len(
-            bound_names
-        ), f"Number of error bounds {len(error_bounds)} does not match number of bound names {len(bound_names)} for {variable}."
+        assert len(error_bounds) == len(bound_names), (
+            f"Number of error bounds {len(error_bounds)} does not match number of bound names {len(bound_names)} for {variable}."
+        )
+
         for i in range(len(error_bounds)):
             bound_selector = var_data["Error Bound"] == error_bounds[i]
             df.loc[bound_selector & var_selector, "Error Bound"] = bound_names[i]
