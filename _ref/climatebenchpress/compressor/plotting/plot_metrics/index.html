@@ -135,6 +135,8 @@
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_bound_violations">plot_bound_violations</a>
     </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.savefig">savefig</a>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../variable_plotters/">variable_plotters</a>
@@ -279,6 +281,13 @@
               
             </div>
           </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="savefig (climatebenchpress.compressor.plotting.plot_metrics.savefig)" href="#climatebenchpress.compressor.plotting.plot_metrics.savefig">savefig</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
     </ul>
 
 
@@ -335,6 +344,7 @@
 </h2>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>COMPRESSOR2LINEINFO <span style="color: #666">=</span> {
     <span style="color: #BA2121">&quot;jpeg2000&quot;</span>: (<span style="color: #BA2121">&quot;#EE7733&quot;</span>, <span style="color: #BA2121">&quot;-&quot;</span>),
+    <span style="color: #BA2121">&quot;sperr&quot;</span>: (<span style="color: #BA2121">&quot;#000000&quot;</span>, <span style="color: #BA2121">&quot;:&quot;</span>),
     <span style="color: #BA2121">&quot;zfp&quot;</span>: (<span style="color: #BA2121">&quot;#EE3377&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
     <span style="color: #BA2121">&quot;zfp-round&quot;</span>: (<span style="color: #BA2121">&quot;#DDAA33&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
     <span style="color: #BA2121">&quot;sz3&quot;</span>: (<span style="color: #BA2121">&quot;#CC3311&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>),
@@ -342,7 +352,7 @@
     <span style="color: #BA2121">&quot;bitround-conservative-rel&quot;</span>: (<span style="color: #BA2121">&quot;#33BBEE&quot;</span>, <span style="color: #BA2121">&quot;-&quot;</span>),
     <span style="color: #BA2121">&quot;stochround&quot;</span>: (<span style="color: #BA2121">&quot;#009988&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
     <span style="color: #BA2121">&quot;stochround-pco&quot;</span>: (<span style="color: #BA2121">&quot;#BBBBBB&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
-    <span style="color: #BA2121">&quot;tthresh&quot;</span>: (<span style="color: #BA2121">&quot;#000000&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>),
+    <span style="color: #BA2121">&quot;tthresh&quot;</span>: (<span style="color: #BA2121">&quot;#882255&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>),
 }
 </code></pre></div>
 
@@ -372,6 +382,7 @@
 </h2>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>COMPRESSOR2LEGEND_NAME <span style="color: #666">=</span> {
     <span style="color: #BA2121">&quot;jpeg2000&quot;</span>: <span style="color: #BA2121">&quot;JPEG2000&quot;</span>,
+    <span style="color: #BA2121">&quot;sperr&quot;</span>: <span style="color: #BA2121">&quot;SPERR&quot;</span>,
     <span style="color: #BA2121">&quot;zfp&quot;</span>: <span style="color: #BA2121">&quot;ZFP&quot;</span>,
     <span style="color: #BA2121">&quot;zfp-round&quot;</span>: <span style="color: #BA2121">&quot;ZFP-ROUND&quot;</span>,
     <span style="color: #BA2121">&quot;sz3&quot;</span>: <span style="color: #BA2121">&quot;SZ3&quot;</span>,
@@ -406,6 +417,7 @@
     basepath: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>(),
     data_loader_base_path: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
     bound_names: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [<span style="color: #BA2121">&quot;low&quot;</span>, <span style="color: #BA2121">&quot;mid&quot;</span>, <span style="color: #BA2121">&quot;high&quot;</span>],
+    normalizer: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> <span style="color: #666">=</span> <span style="color: #BA2121">&quot;sz3&quot;</span>,
 )
 </code></pre></div>
 
@@ -455,17 +467,18 @@ have the pattern {variable_name}-{bound_type}={bound_value}.</p>
 
 
 </h2>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>normalize(data, bound_normalize<span style="color: #666">=</span><span style="color: #BA2121">&#39;mid&#39;</span>)
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>normalize(data, bound_normalize<span style="color: #666">=</span><span style="color: #BA2121">&#39;mid&#39;</span>, normalizer<span style="color: #666">=</span><span style="color: #008000; font-weight: bold">None</span>)
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Generate normalized metrics for each compressor and variable. The normalization
-first computes the 'best compressor' with the highest average rank over all variables (ranked by
+is done either with respect to either a user provided compressor or the
+compressor with the highest average rank over all variables (ranked by
 compression ratio).</p>
 <p>For each metric, the normalization is done by dividing the metric by the value of the
-'best compressor' for the same variable and error bound, i.e.:
-normalized_metric = metric[compressor, variable] / metric[best_compressor, variable].</p>
+normalizer for the same variable and error bound, i.e.:
+normalized_metric = metric[compressor, variable] / metric[normalizer, variable].</p>
 
 
     </div>
@@ -573,6 +586,7 @@ normalized_metric = metric[compressor, variable] / metric[best_compressor, varia
 </h2>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_aggregated_rd_curve(
     normalized_df,
+    normalizer,
     compression_metric,
     distortion_metric,
     outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
@@ -604,6 +618,29 @@ normalized_metric = metric[compressor, variable] / metric[best_compressor, varia
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_bound_violations(
     df, bound_names, outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>
 )
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.savefig" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">savefig</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>savefig(outfile: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>)
 </code></pre></div>
 
     <div class="doc doc-contents ">
