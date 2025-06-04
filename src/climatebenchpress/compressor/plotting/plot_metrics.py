@@ -70,6 +70,7 @@ def plot_metrics(
 
     df = rename_error_bounds(df, bound_names)
     plot_throughput(df, plots_path / "throughput.pdf")
+    plot_instruction_count(df, plots_path / "instruction_count.pdf")
 
     normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
     plot_bound_violations(
@@ -446,20 +447,73 @@ def plot_aggregated_rd_curve(
 
 
 def plot_throughput(df, outfile: None | Path = None):
-    grouped_df = df.groupby(["Compressor", "Error Bound"])[
-        ["Encode Throughput [raw B / s]", "Decode Throughput [raw B / s]"]
-    ].agg(["mean", "std"])
-    grouped_df["Encode Throughput [raw B / s]"] /= 1e6
-    grouped_df["Decode Throughput [raw B / s]"] /= 1e6
-    grouped_df.rename(
-        columns={
-            "Encode Throughput [raw B / s]": "Encode Throughput [MB / s]",
-            "Decode Throughput [raw B / s]": "Decode Throughput [MB / s]",
-        },
-        inplace=True,
+    encode_col = "Encode Throughput [raw B / s]"
+    decode_col = "Decode Throughput [raw B / s]"
+    new_df = df[["Compressor", "Error Bound", encode_col, decode_col]].copy()
+    transformed_encode_col = "Encode Throughput [s / MB]"
+    transformed_decode_col = "Decode Throughput [s / MB]"
+    new_df[transformed_encode_col] = 1e6 / new_df[encode_col]
+    new_df[transformed_decode_col] = 1e6 / new_df[decode_col]
+    encode_col, decode_col = transformed_encode_col, transformed_decode_col
+    grouped_df = new_df.groupby(["Compressor", "Error Bound"])[
+        [encode_col, decode_col]
+    ].agg(
+        encode_median=pd.NamedAgg(column=encode_col, aggfunc=lambda x: x.quantile(0.5)),
+        encode_lower_quantile=pd.NamedAgg(
+            column=encode_col, aggfunc=lambda x: x.quantile(0.25)
+        ),
+        encode_upper_quantile=pd.NamedAgg(
+            column=encode_col, aggfunc=lambda x: x.quantile(0.75)
+        ),
+        decode_median=pd.NamedAgg(column=decode_col, aggfunc=lambda x: x.quantile(0.5)),
+        decode_lower_quantile=pd.NamedAgg(
+            column=decode_col, aggfunc=lambda x: x.quantile(0.25)
+        ),
+        decode_upper_quantile=pd.NamedAgg(
+            column=decode_col, aggfunc=lambda x: x.quantile(0.75)
+        ),
     )
 
-    fig, axes = plt.subplots(3, 1, figsize=(10, 18), sharex=True, sharey=True)
+    plot_grouped_df(
+        grouped_df,
+        title="Encoding and Decoding Throughput",
+        ylabel="Throughput [s/MB]",
+        outfile=outfile,
+    )
+
+
+def plot_instruction_count(df, outfile: None | Path = None):
+    encode_col = "Encode Instructions [# / raw B]"
+    decode_col = "Decode Instructions [# / raw B]"
+    grouped_df = df.groupby(["Compressor", "Error Bound"])[
+        [encode_col, decode_col]
+    ].agg(
+        encode_median=pd.NamedAgg(column=encode_col, aggfunc=lambda x: x.quantile(0.5)),
+        encode_lower_quantile=pd.NamedAgg(
+            column=encode_col, aggfunc=lambda x: x.quantile(0.25)
+        ),
+        encode_upper_quantile=pd.NamedAgg(
+            column=encode_col, aggfunc=lambda x: x.quantile(0.75)
+        ),
+        decode_median=pd.NamedAgg(column=decode_col, aggfunc=lambda x: x.quantile(0.5)),
+        decode_lower_quantile=pd.NamedAgg(
+            column=decode_col, aggfunc=lambda x: x.quantile(0.25)
+        ),
+        decode_upper_quantile=pd.NamedAgg(
+            column=decode_col, aggfunc=lambda x: x.quantile(0.75)
+        ),
+    )
+
+    plot_grouped_df(
+        grouped_df,
+        title="Encode and Decode Instruction Counts",
+        ylabel="Instructions [# / raw B]",
+        outfile=outfile,
+    )
+
+
+def plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None):
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharex=True, sharey=True)
 
     # Bar width
     bar_width = 0.35
@@ -476,8 +530,12 @@ def plot_throughput(df, outfile: None | Path = None):
         # Plot encode throughput
         ax.bar(
             x_positions,
-            bound_data[("Encode Throughput [MB / s]", "mean")],
+            bound_data["encode_median"],
             bar_width,
+            yerr=[
+                bound_data["encode_lower_quantile"],
+                bound_data["encode_upper_quantile"],
+            ],
             label="Encoding",
             color=[COMPRESSOR2LINEINFO[comp][0] for comp in compressors],
         )
@@ -485,8 +543,12 @@ def plot_throughput(df, outfile: None | Path = None):
         # Plot decode throughput
         ax.bar(
             [p + bar_width for p in x_positions],
-            bound_data[("Decode Throughput [MB / s]", "mean")],
+            bound_data["decode_median"],
             bar_width,
+            yerr=[
+                bound_data["decode_lower_quantile"],
+                bound_data["decode_upper_quantile"],
+            ],
             label="Decoding",
             edgecolor=[COMPRESSOR2LINEINFO[comp][0] for comp in compressors],
             fill=False,
@@ -496,13 +558,24 @@ def plot_throughput(df, outfile: None | Path = None):
         # Add labels and title
         ax.set_xticks([p + bar_width / 2 for p in x_positions])
         ax.set_xticklabels(x_labels, rotation=45, ha="right")
-        ax.set_ylabel("Throughput (MB/s)")
-        ax.set_title(
-            f"Mean Encode and Decode Throughput ({error_bound.capitalize()} Error Bound)"
-        )
+        ax.set_title(f"{error_bound.capitalize()} Error Bound")
         ax.grid(axis="y", linestyle="--", alpha=0.7)
         if i == 0:
             ax.legend()
+            ax.set_ylabel(ylabel)
+            ax.annotate(
+                "Better",
+                xy=(0.05, 0.8),
+                xycoords="axes fraction",
+                xytext=(0.05, 0.95),
+                textcoords="axes fraction",
+                arrowprops=dict(arrowstyle="->", lw=3, color="black"),
+                fontsize=12,
+                ha="center",
+                va="bottom",
+            )
+
+    fig.suptitle(title)
 
     fig.tight_layout()
     if outfile is not None:
