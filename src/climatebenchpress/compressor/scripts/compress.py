@@ -5,6 +5,7 @@ import json
 import traceback
 from collections.abc import Container
 from pathlib import Path
+from typing import Callable
 
 import numcodecs_observers
 import xarray as xr
@@ -115,7 +116,7 @@ def compress(
 
 
 def compress_decompress(
-    codecs: dict[str, Codec],
+    codecs: dict[str, Callable[[], Codec]],
     ds: xr.Dataset,
 ) -> tuple[xr.Dataset, dict]:
     variables = dict()
@@ -126,7 +127,7 @@ def compress_decompress(
         timing = WalltimeObserver()
         instructions = WasmCodecInstructionCounterObserver()
 
-        codec = codecs[v]  # type: ignore
+        codec: Codec = codecs[v]()  # type: ignore
         if not isinstance(codec, CodecStack):
             codec = CodecStack(codec)
 

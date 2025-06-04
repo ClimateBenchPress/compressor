@@ -3,9 +3,10 @@ __all__ = ["Compressor", "NamedPerVariableCodec", "ErrorBound"]
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Mapping
+from functools import partial
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Optional
+from typing import Callable, Optional
 
 import numpy as np
 from numcodecs.abc import Codec
@@ -19,7 +20,7 @@ type VariantName = str
 @dataclass
 class NamedPerVariableCodec:
     name: ErrorBoundName
-    codecs: dict[VariableName, Codec]
+    codecs: dict[VariableName, Callable[[], Codec]]
 
 
 @dataclass
@@ -131,17 +132,19 @@ class Compressor(ABC):
         # For each error bound, create a new codec.
         for variant_info in transformed_bounds:
             variant_name, eb_per_var = variant_info.name, variant_info.error_bounds
-            new_codecs: dict[VariableName, Codec] = dict()
+            new_codecs: dict[VariableName, Callable[[], Codec]] = dict()
             for var, eb in eb_per_var.items():
                 if eb.abs_error is not None and cls.has_abs_error_impl:
-                    new_codecs[var] = cls.abs_bound_codec(
+                    new_codecs[var] = partial(
+                        cls.abs_bound_codec,
                         eb.abs_error,
                         dtype=dtypes[var],
                         data_min=data_min[var],
                         data_max=data_max[var],
                     )
                 elif eb.rel_error is not None and cls.has_rel_error_impl:
-                    new_codecs[var] = cls.rel_bound_codec(
+                    new_codecs[var] = partial(
+                        cls.rel_bound_codec,
                         eb.rel_error,
                         dtype=dtypes[var],
                         data_min=data_min[var],
