@@ -224,6 +224,18 @@ def load_measurements(compressed_dataset: Path, compressor: Path) -> pd.DataFram
                         / variable_measurements["decoded_bytes"]
                     )
                 ),
+                "Encode Throughput [raw B / s]": (
+                    None
+                    if variable_measurements["encode_timing"] == 0
+                    else variable_measurements["decoded_bytes"]
+                    / variable_measurements["encode_timing"]
+                ),
+                "Decode Throughput [raw B / s]": (
+                    None
+                    if variable_measurements["decode_timing"] == 0
+                    else variable_measurements["decoded_bytes"]
+                    / variable_measurements["decode_timing"]
+                ),
             }
         )
     return pd.DataFrame(rows)

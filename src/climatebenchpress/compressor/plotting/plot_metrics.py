@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -6,11 +7,13 @@ import pandas as pd
 import seaborn as sns
 import xarray as xr
 
+from ..scripts.collect_metrics import parse_error_bounds
+from .error_dist_plotter import ErrorDistPlotter
 from .variable_plotters import PLOTTERS
 
 COMPRESSOR2LINEINFO = {
     "jpeg2000": ("#EE7733", "-"),
-    "sperr": ("#000000", ":"),
+    "sperr": ("#117733", ":"),
     "zfp": ("#EE3377", "--"),
     "zfp-round": ("#DDAA33", "--"),
     "sz3": ("#CC3311", "-."),
@@ -40,6 +43,9 @@ def plot_metrics(
     data_loader_base_path: None | Path = None,
     bound_names: list[str] = ["low", "mid", "high"],
     normalizer: str = "sz3",
+    exclude_dataset: list[str] = [],
+    exclude_compressor: list[str] = [],
+    tiny_datasets: bool = False,
 ):
     metrics_path = basepath / "metrics"
     plots_path = basepath / "plots"
@@ -47,11 +53,14 @@ def plot_metrics(
     compressed_datasets = basepath / "compressed-datasets"
 
     df = pd.read_csv(metrics_path / "all_results.csv")
-    df = df[
-        np.logical_and(
-            df["Compressor"] != "tthresh", df["Dataset"].str.endswith("tiny")
-        )
-    ]
+
+    # Filter out excluded datasets and compressors
+    df = df[~df["Compressor"].isin(exclude_compressor)]
+    df = df[~df["Dataset"].isin(exclude_dataset)]
+    is_tiny = df["Dataset"].str.endswith("-tiny")
+    filter_tiny = is_tiny if tiny_datasets else ~is_tiny
+    df = df[filter_tiny]
+
     plot_per_variable_metrics(
         datasets=datasets,
         compressed_datasets=compressed_datasets,
@@ -60,8 +69,10 @@ def plot_metrics(
     )
 
     df = rename_error_bounds(df, bound_names)
-    normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
+    plot_throughput(df, plots_path / "throughput.pdf")
+    plot_instruction_count(df, plots_path / "instruction_count.pdf")
 
+    normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
     plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
@@ -90,17 +101,31 @@ def rename_error_bounds(df, bound_names):
         var_selector = df["Variable"] == variable
         var_data = df[var_selector]
 
-        error_bounds = sorted(
-            var_data["Error Bound"].unique(),
-            key=lambda x: float(x.split("=")[1].split("_")[0]),
+        error_bounds = sort_error_bounds(var_data["Error Bound"].unique())
+
+        assert len(error_bounds) == len(bound_names), (
+            f"Number of error bounds {len(error_bounds)} does not match number of bound names {len(bound_names)} for {variable}."
         )
 
-        assert len(error_bounds) == len(bound_names)
         for i in range(len(error_bounds)):
             bound_selector = var_data["Error Bound"] == error_bounds[i]
             df.loc[bound_selector & var_selector, "Error Bound"] = bound_names[i]
 
     return df
+
+
+def sort_error_bounds(error_bounds: list[str]) -> list[str]:
+    """Each error bound has the format
+
+    {variable_name}-{bound_type}={bound_value}_{variable_name2}-{bound_type2}={bound_value2}
+
+    for 1 or more variables. This function takes a list of error bounds and sorts them
+    according to their {bound_value} i.e. in ascending order of the first bound value.
+    """
+    return sorted(
+        error_bounds,
+        key=lambda x: float(x.split("=")[1].split("_")[0]),
+    )
 
 
 def normalize(data, bound_normalize="mid", normalizer=None):
@@ -180,32 +205,70 @@ def plot_per_variable_metrics(
                     / f"{var}_compression_ratio_{metric_name}.pdf",
                 )
 
-            error_bounds = df[df["Variable"] == var]["Error Bound"].unique()
-            for err_bound in error_bounds:
-                compressors = df[
-                    (df["Variable"] == var) & (df["Error Bound"] == err_bound)
-                ]["Compressor"].unique()
+        error_bounds = df[df["Dataset"] == dataset]["Error Bound"].unique()
+        error_bounds = sort_error_bounds(error_bounds)
 
-                err_bound_path = dataset_plots_path / err_bound
-                err_bound_path.mkdir(parents=True, exist_ok=True)
-                for comp in compressors:
+        error_dist_plotter = ErrorDistPlotter(
+            variables=variables,
+            error_bounds=error_bounds,
+        )
+        for i, err_bound in enumerate(error_bounds):
+            compressors = df[(df["Error Bound"] == err_bound)]["Compressor"].unique()
+
+            err_bound_path = dataset_plots_path / err_bound
+            err_bound_path.mkdir(parents=True, exist_ok=True)
+
+            error_bound_vals = parse_error_bounds(err_bound)
+            for comp in compressors:
+                compressed = (
+                    compressed_datasets
+                    / dataset
+                    / err_bound
+                    / comp
+                    / "decompressed.zarr"
+                )
+                input = datasets / dataset / "standardized.zarr"
+
+                ds = xr.open_dataset(input, chunks=dict(), engine="zarr")
+                ds_new = xr.open_dataset(compressed, chunks=dict(), engine="zarr")
+
+                for var in variables:
                     print(f"Plotting {var} error for {comp}...")
+                    error_dist_plotter.compute_errors(
+                        comp,
+                        ds,
+                        ds_new,
+                        var,
+                        error_bound_vals[var][0],
+                    )
+
                     plot_variable_error(
-                        datasets,
-                        compressed_datasets,
+                        ds[var],
+                        ds_new[var],
                         dataset,
-                        err_bound,
                         comp,
                         var,
                         outfile=err_bound_path / f"{var}_{comp}.png",
                     )
 
+            error_dist_plotter.plot_error_bound_histograms(
+                i,
+                variables,
+                compressors,
+                error_bound_vals,
+                COMPRESSOR2LEGEND_NAME,
+                COMPRESSOR2LINEINFO,
+            )
+
+        fig, _ = error_dist_plotter.get_final_figure()
+        savefig(dataset_plots_path / f"error_histograms_{dataset}.pdf")
+        plt.close(fig)
+
 
 def plot_variable_error(
-    datasets: Path,
-    compressed_datasets: Path,
+    uncompressed_data: xr.DataArray,
+    compressed_data: xr.DataArray,
     dataset_name: str,
-    error_bound: str,
     compressor: str,
     var: str,
     outfile: None | Path = None,
@@ -214,21 +277,11 @@ def plot_variable_error(
         # These plots can be quite expensive to generate, so we skip if they already exist.
         return
 
-    compressed = (
-        compressed_datasets
-        / dataset_name
-        / error_bound
-        / compressor
-        / "decompressed.zarr"
-    )
-    input = datasets / dataset_name / "standardized.zarr"
-
-    ds = xr.open_dataset(input, chunks=dict(), engine="zarr").compute()
-    ds_new = xr.open_dataset(compressed, chunks=dict(), engine="zarr").compute()
-
     plotter = PLOTTERS.get(dataset_name, None)
     if plotter:
-        plotter().plot(ds[var], ds_new[var], dataset_name, compressor, var, outfile)
+        plotter().plot(
+            uncompressed_data, compressed_data, dataset_name, compressor, var, outfile
+        )
     else:
         print(f"No plotter found for dataset {dataset_name}")
 
@@ -405,11 +458,141 @@ def plot_aggregated_rd_curve(
     plt.close()
 
 
+def plot_throughput(df, outfile: None | Path = None):
+    # Transform throughput measurements from raw B/s to s/MB for better comparison
+    # with instruction count measurements.
+    encode_col = "Encode Throughput [raw B / s]"
+    decode_col = "Decode Throughput [raw B / s]"
+    new_df = df[["Compressor", "Error Bound", encode_col, decode_col]].copy()
+    transformed_encode_col = "Encode Throughput [s / MB]"
+    transformed_decode_col = "Decode Throughput [s / MB]"
+    new_df[transformed_encode_col] = 1e6 / new_df[encode_col]
+    new_df[transformed_decode_col] = 1e6 / new_df[decode_col]
+    encode_col, decode_col = transformed_encode_col, transformed_decode_col
+
+    grouped_df = get_median_and_quantiles(new_df, encode_col, decode_col)
+    plot_grouped_df(
+        grouped_df,
+        title="",
+        ylabel="Throughput [s / MB]",
+        outfile=outfile,
+    )
+
+
+def plot_instruction_count(df, outfile: None | Path = None):
+    encode_col = "Encode Instructions [# / raw B]"
+    decode_col = "Decode Instructions [# / raw B]"
+    grouped_df = get_median_and_quantiles(df, encode_col, decode_col)
+    plot_grouped_df(
+        grouped_df,
+        title="",
+        ylabel="Instructions [# / raw B]",
+        outfile=outfile,
+    )
+
+
+def get_median_and_quantiles(df, encode_column, decode_column):
+    return df.groupby(["Compressor", "Error Bound"])[
+        [encode_column, decode_column]
+    ].agg(
+        encode_median=pd.NamedAgg(
+            column=encode_column, aggfunc=lambda x: x.quantile(0.5)
+        ),
+        encode_lower_quantile=pd.NamedAgg(
+            column=encode_column, aggfunc=lambda x: x.quantile(0.25)
+        ),
+        encode_upper_quantile=pd.NamedAgg(
+            column=encode_column, aggfunc=lambda x: x.quantile(0.75)
+        ),
+        decode_median=pd.NamedAgg(
+            column=decode_column, aggfunc=lambda x: x.quantile(0.5)
+        ),
+        decode_lower_quantile=pd.NamedAgg(
+            column=decode_column, aggfunc=lambda x: x.quantile(0.25)
+        ),
+        decode_upper_quantile=pd.NamedAgg(
+            column=decode_column, aggfunc=lambda x: x.quantile(0.75)
+        ),
+    )
+
+
+def plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None):
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharex=True, sharey=True)
+
+    # Bar width
+    bar_width = 0.35
+    compressors = grouped_df.index.levels[0].tolist()
+    x_labels = [COMPRESSOR2LEGEND_NAME[c] for c in compressors]
+    x_positions = range(len(x_labels))
+
+    error_bounds = ["low", "mid", "high"]
+
+    for i, error_bound in enumerate(error_bounds):
+        ax = axes[i]
+        bound_data = grouped_df.xs(error_bound, level="Error Bound")
+
+        # Plot encode throughput
+        ax.bar(
+            x_positions,
+            bound_data["encode_median"],
+            bar_width,
+            yerr=[
+                bound_data["encode_lower_quantile"],
+                bound_data["encode_upper_quantile"],
+            ],
+            label="Encoding",
+            color=[COMPRESSOR2LINEINFO[comp][0] for comp in compressors],
+        )
+
+        # Plot decode throughput
+        ax.bar(
+            [p + bar_width for p in x_positions],
+            bound_data["decode_median"],
+            bar_width,
+            yerr=[
+                bound_data["decode_lower_quantile"],
+                bound_data["decode_upper_quantile"],
+            ],
+            label="Decoding",
+            edgecolor=[COMPRESSOR2LINEINFO[comp][0] for comp in compressors],
+            fill=False,
+            linewidth=4,
+        )
+
+        # Add labels and title
+        ax.set_xticks([p + bar_width / 2 for p in x_positions])
+        ax.set_xticklabels(x_labels, rotation=45, ha="right")
+        ax.set_title(f"{error_bound.capitalize()} Error Bound")
+        ax.grid(axis="y", linestyle="--", alpha=0.7)
+        if i == 0:
+            ax.legend()
+            ax.set_ylabel(ylabel)
+            ax.annotate(
+                "Better",
+                xy=(0.05, 0.8),
+                xycoords="axes fraction",
+                xytext=(0.05, 0.95),
+                textcoords="axes fraction",
+                arrowprops=dict(arrowstyle="->", lw=3, color="black"),
+                fontsize=12,
+                ha="center",
+                va="bottom",
+            )
+
+    fig.suptitle(title)
+
+    fig.tight_layout()
+    if outfile is not None:
+        savefig(outfile)
+    plt.close()
+
+
 def plot_bound_violations(df, bound_names, outfile: None | Path = None):
     fig, axs = plt.subplots(1, 3, figsize=(len(bound_names) * 6, 6), sharey=True)
 
     for i, bound_name in enumerate(bound_names):
-        df_bound = df[df["Error Bound"] == bound_name]
+        df_bound = df[df["Error Bound"] == bound_name].copy()
+        df_bound["Compressor"] = df_bound["Compressor"].map(COMPRESSOR2LEGEND_NAME)
         pass_fail = df_bound.pivot(
             index="Compressor", columns="Variable", values="Satisfies Bound (Passed)"
         )
@@ -428,9 +611,15 @@ def plot_bound_violations(df, bound_names, outfile: None | Path = None):
             annot=annotations,
             fmt="s",
             linewidths=0.5,
+            alpha=0.8,
             ax=axs[i],
+            annot_kws={"size": 12},  # Adjust annotation font size
         )
-        axs[i].set_title(f"Bound: {bound_name}")
+        axs[i].set_xticklabels(
+            axs[i].get_xticklabels(), rotation=45, ha="right", fontsize=12
+        )
+        axs[i].tick_params(axis="y", labelsize=12)  # Adjust y-axis label font size
+        axs[i].set_title(f"Bound: {bound_name}", fontsize=14)  # Adjust title font size
         if i != 0:
             axs[i].set_ylabel("")
 
@@ -453,4 +642,16 @@ def savefig(outfile: Path):
 
 
 if __name__ == "__main__":
-    plot_metrics(basepath=Path(), data_loader_base_path=Path() / ".." / "data-loader")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
+    parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
+    parser.add_argument("--tiny-datasets", action="store_true", default=False)
+    args = parser.parse_args()
+
+    plot_metrics(
+        basepath=Path(),
+        data_loader_base_path=Path() / ".." / "data-loader",
+        exclude_compressor=args.exclude_compressor,
+        exclude_dataset=args.exclude_dataset,
+        tiny_datasets=args.tiny_datasets,
+    )
