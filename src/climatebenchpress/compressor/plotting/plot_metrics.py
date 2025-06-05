@@ -13,7 +13,7 @@ from .variable_plotters import PLOTTERS
 
 COMPRESSOR2LINEINFO = {
     "jpeg2000": ("#EE7733", "-"),
-    "sperr": ("#000000", ":"),
+    "sperr": ("#117733", ":"),
     "zfp": ("#EE3377", "--"),
     "zfp-round": ("#DDAA33", "--"),
     "sz3": ("#CC3311", "-."),
@@ -101,10 +101,7 @@ def rename_error_bounds(df, bound_names):
         var_selector = df["Variable"] == variable
         var_data = df[var_selector]
 
-        error_bounds = sorted(
-            var_data["Error Bound"].unique(),
-            key=lambda x: float(x.split("=")[1].split("_")[0]),
-        )
+        error_bounds = sort_error_bounds(var_data["Error Bound"].unique())
 
         assert len(error_bounds) == len(bound_names), (
             f"Number of error bounds {len(error_bounds)} does not match number of bound names {len(bound_names)} for {variable}."
@@ -115,6 +112,20 @@ def rename_error_bounds(df, bound_names):
             df.loc[bound_selector & var_selector, "Error Bound"] = bound_names[i]
 
     return df
+
+
+def sort_error_bounds(error_bounds: list[str]) -> list[str]:
+    """Each error bound has the format
+
+    {variable_name}-{bound_type}={bound_value}_{variable_name2}-{bound_type2}={bound_value2}
+
+    for 1 or more variables. This function takes a list of error bounds and sorts them
+    according to their {bound_value} i.e. in ascending order of the first bound value.
+    """
+    return sorted(
+        error_bounds,
+        key=lambda x: float(x.split("=")[1].split("_")[0]),
+    )
 
 
 def normalize(data, bound_normalize="mid", normalizer=None):
@@ -195,6 +206,8 @@ def plot_per_variable_metrics(
                 )
 
         error_bounds = df[df["Dataset"] == dataset]["Error Bound"].unique()
+        error_bounds = sort_error_bounds(error_bounds)
+
         error_dist_plotter = ErrorDistPlotter(
             dataset=dataset,
             variables=variables,
@@ -447,6 +460,8 @@ def plot_aggregated_rd_curve(
 
 
 def plot_throughput(df, outfile: None | Path = None):
+    # Transform throughput measurements from raw B/s to s/MB for better comparison
+    # with instruction count measurements.
     encode_col = "Encode Throughput [raw B / s]"
     decode_col = "Decode Throughput [raw B / s]"
     new_df = df[["Compressor", "Error Bound", encode_col, decode_col]].copy()
@@ -455,29 +470,12 @@ def plot_throughput(df, outfile: None | Path = None):
     new_df[transformed_encode_col] = 1e6 / new_df[encode_col]
     new_df[transformed_decode_col] = 1e6 / new_df[decode_col]
     encode_col, decode_col = transformed_encode_col, transformed_decode_col
-    grouped_df = new_df.groupby(["Compressor", "Error Bound"])[
-        [encode_col, decode_col]
-    ].agg(
-        encode_median=pd.NamedAgg(column=encode_col, aggfunc=lambda x: x.quantile(0.5)),
-        encode_lower_quantile=pd.NamedAgg(
-            column=encode_col, aggfunc=lambda x: x.quantile(0.25)
-        ),
-        encode_upper_quantile=pd.NamedAgg(
-            column=encode_col, aggfunc=lambda x: x.quantile(0.75)
-        ),
-        decode_median=pd.NamedAgg(column=decode_col, aggfunc=lambda x: x.quantile(0.5)),
-        decode_lower_quantile=pd.NamedAgg(
-            column=decode_col, aggfunc=lambda x: x.quantile(0.25)
-        ),
-        decode_upper_quantile=pd.NamedAgg(
-            column=decode_col, aggfunc=lambda x: x.quantile(0.75)
-        ),
-    )
 
+    grouped_df = get_median_and_quantiles(new_df, encode_col, decode_col)
     plot_grouped_df(
         grouped_df,
         title="Encoding and Decoding Throughput",
-        ylabel="Throughput [s/MB]",
+        ylabel="Throughput [s / MB]",
         outfile=outfile,
     )
 
@@ -485,30 +483,37 @@ def plot_throughput(df, outfile: None | Path = None):
 def plot_instruction_count(df, outfile: None | Path = None):
     encode_col = "Encode Instructions [# / raw B]"
     decode_col = "Decode Instructions [# / raw B]"
-    grouped_df = df.groupby(["Compressor", "Error Bound"])[
-        [encode_col, decode_col]
-    ].agg(
-        encode_median=pd.NamedAgg(column=encode_col, aggfunc=lambda x: x.quantile(0.5)),
-        encode_lower_quantile=pd.NamedAgg(
-            column=encode_col, aggfunc=lambda x: x.quantile(0.25)
-        ),
-        encode_upper_quantile=pd.NamedAgg(
-            column=encode_col, aggfunc=lambda x: x.quantile(0.75)
-        ),
-        decode_median=pd.NamedAgg(column=decode_col, aggfunc=lambda x: x.quantile(0.5)),
-        decode_lower_quantile=pd.NamedAgg(
-            column=decode_col, aggfunc=lambda x: x.quantile(0.25)
-        ),
-        decode_upper_quantile=pd.NamedAgg(
-            column=decode_col, aggfunc=lambda x: x.quantile(0.75)
-        ),
-    )
-
+    grouped_df = get_median_and_quantiles(df, encode_col, decode_col)
     plot_grouped_df(
         grouped_df,
         title="Encode and Decode Instruction Counts",
         ylabel="Instructions [# / raw B]",
         outfile=outfile,
+    )
+
+
+def get_median_and_quantiles(df, encode_column, decode_column):
+    return df.groupby(["Compressor", "Error Bound"])[
+        [encode_column, decode_column]
+    ].agg(
+        encode_median=pd.NamedAgg(
+            column=encode_column, aggfunc=lambda x: x.quantile(0.5)
+        ),
+        encode_lower_quantile=pd.NamedAgg(
+            column=encode_column, aggfunc=lambda x: x.quantile(0.25)
+        ),
+        encode_upper_quantile=pd.NamedAgg(
+            column=encode_column, aggfunc=lambda x: x.quantile(0.75)
+        ),
+        decode_median=pd.NamedAgg(
+            column=decode_column, aggfunc=lambda x: x.quantile(0.5)
+        ),
+        decode_lower_quantile=pd.NamedAgg(
+            column=decode_column, aggfunc=lambda x: x.quantile(0.25)
+        ),
+        decode_upper_quantile=pd.NamedAgg(
+            column=decode_column, aggfunc=lambda x: x.quantile(0.75)
+        ),
     )
 
 

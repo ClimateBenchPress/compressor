@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class ErrorDistPlotter:
@@ -14,6 +15,9 @@ class ErrorDistPlotter:
         self.errors = {var: dict() for var in variables}
 
     def compute_errors(self, compressor, ds, ds_new, var, err_bound_type):
+        if "-pco" in compressor:
+            return
+
         if err_bound_type == "abs_error":
             error = (ds_new[var] - ds[var]).compute().values
         elif err_bound_type == "rel_error":
@@ -35,6 +39,17 @@ class ErrorDistPlotter:
         Plot error histograms for a single error bound across all variables in that
         dataset.
         """
+        # We only plot bitround and stochround once because the lossless compressor
+        # does not change the error plot distribution.
+        legend_names = compressor2legendname.copy()
+        legend_names.update(
+            {
+                "bitround-conservative-rel": "BitRound",
+                "stochround": "StochRound",
+            }
+        )
+        compressors = [comp for comp in compressors if "-pco" not in comp]
+
         for j, var in enumerate(variables):
             for comp in compressors:
                 self.axes[j, col_index].hist(
@@ -42,24 +57,29 @@ class ErrorDistPlotter:
                     bins=100,
                     density=True,
                     histtype="step",
-                    label=compressor2legendname.get(comp, comp),
+                    label=legend_names.get(comp, comp),
                     color=compressor2lineinfo.get(comp, ("#000000", "-"))[0],
                     linestyle=compressor2lineinfo.get(comp, ("#000000", "-"))[1],
                     linewidth=2,
                     alpha=0.8,
                 )
 
-            error_bound_value = error_bound_vals[var][1]
+            error_bound_name, error_bound_value = error_bound_vals[var]
             self.axes[j, col_index].set_xlabel("Error Value")
             self.axes[j, col_index].set_ylabel("Log Probability Density")
             self.axes[j, col_index].set_yscale("log")
+
+            xticks = np.linspace(-2 * error_bound_value, 2 * error_bound_value, num=5)
+            xlabels = ["0.0" if x == 0.0 else f"{x:.2e}" for x in xticks]
+            self.axes[j, col_index].set_xticks(xticks, labels=xlabels)
             self.axes[j, col_index].set_xlim(
                 -2 * error_bound_value, 2 * error_bound_value
             )
+
             self.axes[j, col_index].set_title(
-                f"{var}\n{error_bound_vals[var][0]} = {error_bound_value:.2e}"
+                f"{var}\n{error_bound_name} = {error_bound_value:.2e}"
                 if col_index == 1
-                else f"{error_bound_vals[var][0]} = {error_bound_value:.2e}"
+                else f"{error_bound_name} = {error_bound_value:.2e}"
             )
 
         # Reset errors for the next iteration. Ensures we don't plot the wrong errors
