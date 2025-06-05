@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import xarray as xr
 
 
 class ErrorDistPlotter:
@@ -18,10 +19,20 @@ class ErrorDistPlotter:
         if "-pco" in compressor:
             return
 
+        error = robust_error(ds[var], ds_new[var])
         if err_bound_type == "abs_error":
-            error = (ds_new[var] - ds[var]).compute().values
+            error = error.compute().values
         elif err_bound_type == "rel_error":
-            error = ((ds_new[var] - ds[var]) / ds[var]).compute().values
+            # Relative error calculation with avoiding division by zero.
+            error = (
+                xr.where(
+                    (ds[var] == 0) & (ds[var] == ds_new[var]),
+                    0.0,
+                    error / np.abs(ds[var]),
+                )
+                .compute()
+                .value
+            )
         else:
             raise ValueError(f"Unknown error bound type: {err_bound_type}")
         self.errors[var][compressor] = error.flatten()
@@ -90,3 +101,27 @@ class ErrorDistPlotter:
         self.axes[0, -1].legend(loc="center left", bbox_to_anchor=(1, 0.5))
         self.fig.tight_layout()
         return self.fig, self.axes
+
+
+def robust_error(x, y):
+    """
+    Compute the difference between two arrays with NaN and inf handling. Ensures
+    that the difference is 0 when both x and y are NaN or inf, and returns NaN
+    when one is NaN or inf and the other is not.
+    """
+    x_nan = np.isnan(x)
+    y_nan = np.isnan(y)
+    x_inf = np.isinf(x)
+    y_inf = np.isinf(y)
+
+    # Check if infinities have mismatched signs
+    inf_sign_mismatch = (x_inf & y_inf) & (np.sign(x) != np.sign(y))
+    both_nan = x_nan & y_nan
+    both_inf = x_inf & y_inf
+
+    # Hard check: If both are NaN or inf with matching signs, return 0.
+    # If one is NaN or inf and the other is not, or infinities have mismatched signs, then
+    # the result will already evaluate to NaN.
+    result = xr.where(both_nan | (both_inf & ~inf_sign_mismatch), 0.0, x - y)
+
+    return result
