@@ -209,7 +209,6 @@ def plot_per_variable_metrics(
         error_bounds = sort_error_bounds(error_bounds)
 
         error_dist_plotter = ErrorDistPlotter(
-            dataset=dataset,
             variables=variables,
             error_bounds=error_bounds,
         )
@@ -474,7 +473,7 @@ def plot_throughput(df, outfile: None | Path = None):
     grouped_df = get_median_and_quantiles(new_df, encode_col, decode_col)
     plot_grouped_df(
         grouped_df,
-        title="Encoding and Decoding Throughput",
+        title="",
         ylabel="Throughput [s / MB]",
         outfile=outfile,
     )
@@ -486,7 +485,7 @@ def plot_instruction_count(df, outfile: None | Path = None):
     grouped_df = get_median_and_quantiles(df, encode_col, decode_col)
     plot_grouped_df(
         grouped_df,
-        title="Encode and Decode Instruction Counts",
+        title="",
         ylabel="Instructions [# / raw B]",
         outfile=outfile,
     )
@@ -592,7 +591,8 @@ def plot_bound_violations(df, bound_names, outfile: None | Path = None):
     fig, axs = plt.subplots(1, 3, figsize=(len(bound_names) * 6, 6), sharey=True)
 
     for i, bound_name in enumerate(bound_names):
-        df_bound = df[df["Error Bound"] == bound_name]
+        df_bound = df[df["Error Bound"] == bound_name].copy()
+        df_bound["Compressor"] = df_bound["Compressor"].map(COMPRESSOR2LEGEND_NAME)
         pass_fail = df_bound.pivot(
             index="Compressor", columns="Variable", values="Satisfies Bound (Passed)"
         )
@@ -611,9 +611,15 @@ def plot_bound_violations(df, bound_names, outfile: None | Path = None):
             annot=annotations,
             fmt="s",
             linewidths=0.5,
+            alpha=0.8,
             ax=axs[i],
+            annot_kws={"size": 12},  # Adjust annotation font size
         )
-        axs[i].set_title(f"Bound: {bound_name}")
+        axs[i].set_xticklabels(
+            axs[i].get_xticklabels(), rotation=45, ha="right", fontsize=12
+        )
+        axs[i].tick_params(axis="y", labelsize=12)  # Adjust y-axis label font size
+        axs[i].set_title(f"Bound: {bound_name}", fontsize=14)  # Adjust title font size
         if i != 0:
             axs[i].set_ylabel("")
 

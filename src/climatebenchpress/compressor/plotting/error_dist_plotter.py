@@ -4,14 +4,13 @@ import xarray as xr
 
 
 class ErrorDistPlotter:
-    def __init__(self, dataset, variables, error_bounds):
+    def __init__(self, variables, error_bounds):
         self.fig, self.axes = plt.subplots(
             len(variables),
             len(error_bounds),
             figsize=(17, 5 * len(variables)),
             squeeze=False,
         )
-        self.fig.suptitle(f"Error Histograms for {dataset}", fontsize=16)
 
         self.errors = {var: dict() for var in variables}
 
