@@ -113,6 +113,8 @@
     <ul class="current">
                 <li class="toctree-l4"><a class="reference internal" href="../">plotting</a>
                 </li>
+                <li class="toctree-l4"><a class="reference internal" href="../error_dist_plotter/">error_dist_plotter</a>
+                </li>
                 <li class="toctree-l4 current"><a class="reference internal current" href="#">plot_metrics</a>
     <ul class="current">
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.COMPRESSOR2LINEINFO">COMPRESSOR2LINEINFO</a>
@@ -122,6 +124,8 @@
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_metrics">plot_metrics</a>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.rename_error_bounds">rename_error_bounds</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.sort_error_bounds">sort_error_bounds</a>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.normalize">normalize</a>
     </li>
@@ -133,9 +137,21 @@
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_aggregated_rd_curve">plot_aggregated_rd_curve</a>
     </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_throughput">plot_throughput</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_instruction_count">plot_instruction_count</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.get_median_and_quantiles">get_median_and_quantiles</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_grouped_df">plot_grouped_df</a>
+    </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_bound_violations">plot_bound_violations</a>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.savefig">savefig</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.parser">parser</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.args">args</a>
     </li>
     </ul>
                 </li>
@@ -240,6 +256,13 @@
             </div>
           </li>
           <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="sort_error_bounds (climatebenchpress.compressor.plotting.plot_metrics.sort_error_bounds)" href="#climatebenchpress.compressor.plotting.plot_metrics.sort_error_bounds">sort_error_bounds</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Each error bound has the format</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
             <b><code><a class="autorefs autorefs-internal" title="normalize (climatebenchpress.compressor.plotting.plot_metrics.normalize)" href="#climatebenchpress.compressor.plotting.plot_metrics.normalize">normalize</a></code></b>
             –
             <div class="doc-md-description">
@@ -269,6 +292,34 @@
           </li>
           <li class="doc-section-item field-body">
             <b><code><a class="autorefs autorefs-internal" title="plot_aggregated_rd_curve (climatebenchpress.compressor.plotting.plot_metrics.plot_aggregated_rd_curve)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_aggregated_rd_curve">plot_aggregated_rd_curve</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="plot_throughput (climatebenchpress.compressor.plotting.plot_metrics.plot_throughput)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_throughput">plot_throughput</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="plot_instruction_count (climatebenchpress.compressor.plotting.plot_metrics.plot_instruction_count)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_instruction_count">plot_instruction_count</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="get_median_and_quantiles (climatebenchpress.compressor.plotting.plot_metrics.get_median_and_quantiles)" href="#climatebenchpress.compressor.plotting.plot_metrics.get_median_and_quantiles">get_median_and_quantiles</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="plot_grouped_df (climatebenchpress.compressor.plotting.plot_metrics.plot_grouped_df)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_grouped_df">plot_grouped_df</a></code></b>
             –
             <div class="doc-md-description">
               
@@ -329,6 +380,18 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 <div class="doc doc-object doc-attribute">
 
 
@@ -344,7 +407,7 @@
 </h2>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>COMPRESSOR2LINEINFO <span style="color: #666">=</span> {
     <span style="color: #BA2121">&quot;jpeg2000&quot;</span>: (<span style="color: #BA2121">&quot;#EE7733&quot;</span>, <span style="color: #BA2121">&quot;-&quot;</span>),
-    <span style="color: #BA2121">&quot;sperr&quot;</span>: (<span style="color: #BA2121">&quot;#000000&quot;</span>, <span style="color: #BA2121">&quot;:&quot;</span>),
+    <span style="color: #BA2121">&quot;sperr&quot;</span>: (<span style="color: #BA2121">&quot;#117733&quot;</span>, <span style="color: #BA2121">&quot;:&quot;</span>),
     <span style="color: #BA2121">&quot;zfp&quot;</span>: (<span style="color: #BA2121">&quot;#EE3377&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
     <span style="color: #BA2121">&quot;zfp-round&quot;</span>: (<span style="color: #BA2121">&quot;#DDAA33&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
     <span style="color: #BA2121">&quot;sz3&quot;</span>: (<span style="color: #BA2121">&quot;#CC3311&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>),
@@ -418,6 +481,9 @@
     data_loader_base_path: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
     bound_names: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [<span style="color: #BA2121">&quot;low&quot;</span>, <span style="color: #BA2121">&quot;mid&quot;</span>, <span style="color: #BA2121">&quot;high&quot;</span>],
     normalizer: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> <span style="color: #666">=</span> <span style="color: #BA2121">&quot;sz3&quot;</span>,
+    exclude_dataset: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [],
+    exclude_compressor: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [],
+    tiny_datasets: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">False</span>,
 )
 </code></pre></div>
 
@@ -448,6 +514,34 @@
 
         <p>Give error bound consistent names between variables. By default the error bounds
 have the pattern {variable_name}-{bound_type}={bound_value}.</p>
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.sort_error_bounds" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">sort_error_bounds</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>sort_error_bounds(error_bounds: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Each error bound has the format</p>
+<p>{variable_name}-{bound_type}={bound_value}_{variable_name2}-{bound_type2}={bound_value2}</p>
+<p>for 1 or more variables. This function takes a list of error bounds and sorts them
+according to their {bound_value} i.e. in ascending order of the first bound value.</p>
 
 
     </div>
@@ -529,10 +623,9 @@ normalized_metric = metric[compressor, variable] / metric[normalizer, variable].
 
 </h2>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_variable_error(
-    datasets: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>,
-    compressed_datasets: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>,
+    uncompressed_data: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>,
+    compressed_data: <a class="autorefs autorefs-external" title="xarray" href="https://docs.xarray.dev/en/v2025.03.0/index.html#module-xarray">xr</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="xarray.DataArray" href="https://docs.xarray.dev/en/v2025.03.0/generated/xarray.DataArray.html#xarray.DataArray">DataArray</a>,
     dataset_name: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>,
-    error_bound: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>,
     compressor: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>,
     var: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>,
     outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
@@ -610,6 +703,100 @@ normalized_metric = metric[compressor, variable] / metric[normalizer, variable].
 <div class="doc doc-object doc-function">
 
 
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_throughput" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_throughput</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_throughput(df, outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_instruction_count" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_instruction_count</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_instruction_count(df, outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.get_median_and_quantiles" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">get_median_and_quantiles</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>get_median_and_quantiles(df, encode_column, decode_column)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_grouped_df" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_grouped_df</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_grouped_df(
+    grouped_df, title, ylabel, outfile: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>
+)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_bound_violations" class="doc doc-heading">
             <span class="doc doc-object-name doc-function-name">plot_bound_violations</span>
 
@@ -645,6 +832,65 @@ normalized_metric = metric[compressor, variable] / metric[normalizer, variable].
 
     <div class="doc doc-contents ">
 
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.parser" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">parser</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>parser <span style="color: #666">=</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/argparse.html#module-argparse">argparse</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="argparse.ArgumentParser" href="https://docs.python.org/3.12/library/argparse.html#argparse.ArgumentParser">ArgumentParser</a>()
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.args" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">args</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>args <span style="color: #666">=</span> <a class="autorefs autorefs-internal" title="parser
+
+
+  
+      module-attribute
+   (climatebenchpress.compressor.plotting.plot_metrics.parser)" href="#climatebenchpress.compressor.plotting.plot_metrics.parser">parser</a><span style="color: #666">.</span><span title="climatebenchpress.compressor.plotting.plot_metrics.parser.parse_args">parse_args</span>()
+</code></pre></div>
+
+    <div class="doc doc-contents ">
 
     </div>
 
