@@ -451,6 +451,48 @@ def plot_aggregated_rd_curve(
             color=arrow_color,
             ha="center",
         )
+    elif "DSSIM" in distortion_metric:
+        plt.legend("", frameon=False)
+        # plt.legend(
+        #     title="Compressor",
+        #     loc="upper right",
+        #     bbox_to_anchor=(0.95, 0.7),
+        #     fontsize=12,
+        #     title_fontsize=14,
+        # )
+        normalizer_label = COMPRESSOR2LEGEND_NAME.get(normalizer, normalizer)
+        plt.xlabel(
+            rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
+            fontsize=16,
+        )
+        plt.ylabel(
+            rf"Median DSSIM Relative to {normalizer_label} ($\uparrow$)",
+            fontsize=16,
+        )
+        arrow_color = "black"
+        # Add an arrow pointing into the lower right corner
+        plt.annotate(
+            "",
+            xy=(0.95, 0.95),
+            xycoords="axes fraction",
+            xytext=(-60, -50),
+            textcoords="offset points",
+            arrowprops=dict(
+                arrowstyle="-|>, head_length=0.5, head_width=0.5",
+                color=arrow_color,
+                lw=5,
+            ),
+        )
+        plt.text(
+            0.83,
+            0.92,
+            "Better",
+            transform=plt.gca().transAxes,
+            fontsize=16,
+            fontweight="bold",
+            color=arrow_color,
+            ha="center",
+        )
 
     plt.tight_layout()
     if outfile is not None:
