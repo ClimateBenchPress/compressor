@@ -76,7 +76,7 @@ def create_error_bounds(
         for v in ds:
             if v in VAR_NAME_TO_ERA5:
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
-                    get_error_bounds(era5_error_bounds, VAR_NAME_TO_ERA5[v])
+                    get_error_bounds(era5_error_bounds, VAR_NAME_TO_ERA5[str(v)])
                 )
             elif v == "agb":
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
@@ -116,7 +116,7 @@ def get_error_bounds(
     var_ebs = []
     for percentile in percentiles:
         eb_row = var_error_bounds[var_error_bounds["percentile"] == percentile]
-        eb_type = eb_row["pick"].values.item()
+        eb_type = eb_row["pick"].item()
 
         if eb_type == "quadratic":
             # Right now no compressor supports quadratic error bounds. We therefore
@@ -126,7 +126,7 @@ def get_error_bounds(
         if eb_type == "relative":
             # Relative error bounds are given as a percentage with an "%" at the end,
             # so we need to convert them to a fraction.
-            rel_error = float(eb_row[f"es{eb_type}"].values.item()[:-1]) / 100.0
+            rel_error = float(eb_row[f"es{eb_type}"].item()[:-1]) / 100.0
             var_ebs.append(
                 {
                     "abs_error": None,
@@ -134,9 +134,10 @@ def get_error_bounds(
                 }
             )
         elif eb_type == "absolute":
+            abs_error = float(eb_row[f"es{eb_type}"].item())
             var_ebs.append(
                 {
-                    "abs_error": eb_row[f"es{eb_type}"].values.item(),
+                    "abs_error": abs_error,
                     "rel_error": None,
                 }
             )
@@ -212,18 +213,18 @@ class EnsembleSpreadBounds:
 def compute_ensemble_spread_bounds(
     mean: xr.DataArray, spread: xr.DataArray, percentile: list[float]
 ) -> EnsembleSpreadBounds:
-    mean = mean.values.flatten()
-    spread = spread.values.flatten()
+    mean_values = mean.values.flatten()
+    spread_values = spread.values.flatten()
 
-    spread_nonzero = spread[spread > 0.0]
+    spread_nonzero = spread_values[spread_values > 0.0]
 
     if len(spread_nonzero) > 0:
         absolute = np.nanquantile(spread_nonzero, [1 - p for p in percentile])
     else:
         absolute = [0.0 for _ in percentile]
 
-    abs_mean = np.abs(mean)
-    rel = spread[abs_mean > 0.0] / abs_mean[abs_mean > 0.0]
+    abs_mean = np.abs(mean_values)
+    rel = spread_values[abs_mean > 0.0] / abs_mean[abs_mean > 0.0]
     rel_nonzero = rel[rel > 0.0]
 
     if len(rel_nonzero) > 0:
@@ -252,19 +253,17 @@ def compute_minimum_bound(
     percentile: list[float],
     nbins: int = 100,
 ) -> MinimumBounds:
-    mean, spread = mean.copy(deep=True), spread.copy(deep=True)
+    mean_values = mean.copy(deep=True).values.flatten()
+    spread_values = spread.copy(deep=True).values.flatten()
 
-    mean = mean.values.flatten()
-    spread = spread.values.flatten()
+    mean_bin_edges = np.nanquantile(mean_values, np.linspace(0.0, 1.0, nbins + 1))
 
-    mean_bin_edges = np.nanquantile(mean, np.linspace(0.0, 1.0, nbins + 1))
-
-    ibin = np.minimum(np.searchsorted(mean_bin_edges, mean), nbins - 1)
+    ibin = np.minimum(np.searchsorted(mean_bin_edges, mean_values), nbins - 1)
 
     mean_bin_spread_bounds = [np.zeros(nbins) for _ in percentile]
 
     for i in range(nbins):
-        ispread = spread[ibin == i]
+        ispread = spread_values[ibin == i]
 
         if len(ispread) > 0:
             bs = np.nanquantile(ispread, [1 - p for p in percentile])
@@ -274,7 +273,7 @@ def compute_minimum_bound(
         for bd, b in zip(mean_bin_spread_bounds, bs):
             bd[i] = b
 
-    mean_bin_counts, _ = np.histogram(mean, bins=mean_bin_edges)
+    mean_bin_counts, _ = np.histogram(mean_values, bins=mean_bin_edges)
 
     return MinimumBounds(
         percentile=percentile,
