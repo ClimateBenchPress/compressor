@@ -19,28 +19,42 @@ ERROR_BOUNDS = "https://gist.githubusercontent.com/juntyr/bbe2780256e5f91d8f2cb2
 
 VAR_NAME_TO_ERA5 = {
     # NextGEMS Icon Outgoing Longwave Radiation (OLR).
-    # Closest ERA5 equivalent Top net long-wave (thermal) radiation
+    # Closest ERA5 equivalent Mean flux top net long-wave radiation
     # (https://www.ecmwf.int/sites/default/files/elibrary/2015/18490-radiation-quantities-ecmwf-model-and-mars.pdf).
     # which is the negative of OLR.
-    # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/179
-    "rlut": "ttr",
+    # NOTE: Be careful in using the flux instead of the time-accumulated variables.
+    # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/235040
+    # ERA5 unit: W m-2
+    # NextGEMS unit: W m-2
+    "rlut": "avg_tnlwrf",
     # NextGEMS Icon Precipitation
-    # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/228
-    "pr": "tp",
+    # NOTE: Be careful in using the flux instead of the time-accumulated variables.
+    # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/235055
+    # ERA5 unit: kg m-2 s-1
+    # NextGEMS unit: kg m-2 s-1
+    "pr": "avg_tprate",
     # Air temperature.
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/130
     # The CMIP6 data contains temperature data for multiple pressure levels,
     # we use the 2m ERA5 temperature data to derive the error bound for all
     # pressure levels.
+    # ERA5 unit: K
+    # CMIP6 unit: K
     "ta": "t2m",
     # Sea surface temperature.
+    # NOTE: Difference in units means we should use absolute error bounds.
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/34
+    # ERA5 unit: K
+    # CMIP6 unit: degC
     "tos": "sst",
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/165
+    # Units will match because data source is ERA5.
     "10m_u_component_of_wind": "u10",
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/166
+    # Units will match because data source is ERA5.
     "10m_v_component_of_wind": "v10",
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/151
+    # Units will match because data source is ERA5.
     "mean_sea_level_pressure": "msl",
 }
 
