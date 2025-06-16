@@ -10,11 +10,11 @@ import pandas as pd
 import xarray as xr
 
 # Table has header:
-# var,level,percentile,min,range,max,lpbits,lpabsolute,lprelative,brlqabsolute,brabsolute,brrelative,esabsolute,esrelative,esquadratic,unabsolute,cabsolute,crelative,cquadratic,pick,crlinquant,crbitround,crlinquantquadstep
+# var,level,percentile,min,range,max,lpbits,lpabsolute,lprelative,brlqabsolute,brabsolute,brrelative,esabsolute,esrelative,esquadratic,unabsolute,cabsolute,crelative,cquadratic,pick,crlinquant,crbitround,crlinquantquadstep,exabsmean,exabsmax,exrelmean,exrelmax
 #
 # esabsolute and esrelative are respectively the absolute and relative error bounds
 # derived from the ERA5 ensembles.
-ERROR_BOUNDS = "https://raw.githubusercontent.com/juntyr/era5-ensemble/refs/heads/main/table-raw.csv?token=GHSAT0AAAAAACTGGFLKSCEPFNNUEGWSWPEA2CJOYSQ"
+ERROR_BOUNDS = "https://gist.githubusercontent.com/juntyr/bbe2780256e5f91d8f2cb2f606b7935f/raw/table-raw.csv"
 
 
 VAR_NAME_TO_ERA5 = {
@@ -45,6 +45,21 @@ VAR_NAME_TO_ERA5 = {
 }
 
 
+ABS_ERROR = "abs_error"
+REL_ERROR = "rel_error"
+VAR_NAME_TO_ERROR_BOUND = {
+    "rlut": REL_ERROR,
+    "agb": REL_ERROR,
+    "pr": ABS_ERROR,
+    "ta": ABS_ERROR,
+    "tos": ABS_ERROR,
+    "10m_u_component_of_wind": ABS_ERROR,
+    "10m_v_component_of_wind": ABS_ERROR,
+    "mean_sea_level_pressure": ABS_ERROR,
+    "no2": ABS_ERROR,
+}
+
+
 def create_error_bounds(
     basepath: Path = Path(),
     data_loader_base_path: None | Path = None,
@@ -70,13 +85,15 @@ def create_error_bounds(
             decode_times=False,
         )
 
-        # TODO: This is a temporary solution that should be replaced by a more
-        #       principled method to selct the error bounds.
         low_error_bounds, mid_error_bounds, high_error_bounds = dict(), dict(), dict()
         for v in ds:
             if v in VAR_NAME_TO_ERA5:
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
-                    get_error_bounds(era5_error_bounds, VAR_NAME_TO_ERA5[str(v)])
+                    get_error_bounds(
+                        era5_error_bounds,
+                        VAR_NAME_TO_ERA5[str(v)],
+                        VAR_NAME_TO_ERROR_BOUND[str(v)],
+                    )
                 )
             elif v == "agb":
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
@@ -85,16 +102,16 @@ def create_error_bounds(
             else:
                 data_range: float = (ds[v].max() - ds[v].min()).values.item()  # type: ignore
                 low_error_bounds[v] = {
-                    "abs_error": 0.0001 * data_range,
-                    "rel_error": None,
+                    ABS_ERROR: 0.0001 * data_range,
+                    REL_ERROR: None,
                 }
                 mid_error_bounds[v] = {
-                    "abs_error": 0.001 * data_range,
-                    "rel_error": None,
+                    ABS_ERROR: 0.001 * data_range,
+                    REL_ERROR: None,
                 }
                 high_error_bounds[v] = {
-                    "abs_error": 0.01 * data_range,
-                    "rel_error": None,
+                    ABS_ERROR: 0.01 * data_range,
+                    REL_ERROR: None,
                 }
 
         error_bounds = [low_error_bounds, mid_error_bounds, high_error_bounds]
@@ -106,7 +123,7 @@ def create_error_bounds(
 
 
 def get_error_bounds(
-    error_bounds: pd.DataFrame, era5_var: str
+    error_bounds: pd.DataFrame, era5_var: str, error_bound_type: str
 ) -> list[dict[str, Optional[float]]]:
     var_error_bounds = error_bounds[error_bounds["var"] == era5_var]
     assert len(var_error_bounds) == 3, "Expected three error bounds for each variable."
@@ -116,33 +133,17 @@ def get_error_bounds(
     var_ebs = []
     for percentile in percentiles:
         eb_row = var_error_bounds[var_error_bounds["percentile"] == percentile]
-        eb_type = eb_row["pick"].item()
 
-        if eb_type == "quadratic":
-            # Right now no compressor supports quadratic error bounds. We therefore
-            # fall back to absolute error bounds for them.
-            eb_type = "absolute"
-
-        if eb_type == "relative":
+        if error_bound_type == REL_ERROR:
             # Relative error bounds are given as a percentage with an "%" at the end,
             # so we need to convert them to a fraction.
-            rel_error = float(eb_row[f"es{eb_type}"].item()[:-1]) / 100.0
-            var_ebs.append(
-                {
-                    "abs_error": None,
-                    "rel_error": rel_error,
-                }
-            )
-        elif eb_type == "absolute":
-            abs_error = float(eb_row[f"es{eb_type}"].item())
-            var_ebs.append(
-                {
-                    "abs_error": abs_error,
-                    "rel_error": None,
-                }
-            )
+            rel_error = float(eb_row["esrelative"].item()[:-1]) / 100.0
+            var_ebs.append({ABS_ERROR: None, REL_ERROR: rel_error})
+        elif error_bound_type == ABS_ERROR:
+            abs_error = float(eb_row["esabsolute"].item())
+            var_ebs.append({ABS_ERROR: abs_error, REL_ERROR: None})
         else:
-            raise ValueError(f"Unknown error bound type: {eb_type}")
+            raise ValueError(f"Unknown error bound type: {error_bound_type}")
 
     return var_ebs
 
@@ -169,30 +170,16 @@ def get_agb_bound(
         mean=agb.agb, spread=agb.agb_sd, percentile=percentiles
     )
 
-    minfo = compute_minimum_bound(
-        mean=agb.agb,
-        spread=agb.agb_sd,
-        percentile=percentiles,
-    )
-
     error_bounds = []
-    for a, r, b in zip(
-        ensemble_bounds.absolute, ensemble_bounds.relative, minfo.mean_bin_spread_bounds
-    ):
-        cabs = f"{np.nansum(np.abs(np.array(b) - a) * minfo.mean_bin_counts) / np.sum(minfo.mean_bin_counts):.1e}"
-        crel = f"{np.nansum(np.abs(np.array(b) - np.abs((np.array(minfo.mean_bin_edges[:-1]) + np.array(minfo.mean_bin_edges[1:])) / 2) * r) * minfo.mean_bin_counts) / np.sum(minfo.mean_bin_counts):.1e}"
-
-        bounds = [("absolute", cabs), ("relative", crel)]
-        bound_pick = sorted(bounds, key=lambda x: float(x[1]))[0][0]
-
-        if bound_pick == "absolute":
+    for a, r in zip(ensemble_bounds.absolute, ensemble_bounds.relative):
+        if VAR_NAME_TO_ERROR_BOUND["agb"] == ABS_ERROR:
             error_bounds.append(
                 {
                     "abs_error": float(a),
                     "rel_error": None,
                 }
             )
-        elif bound_pick == "relative":
+        elif VAR_NAME_TO_ERROR_BOUND["agb"] == REL_ERROR:
             error_bounds.append(
                 {
                     "abs_error": None,
@@ -236,50 +223,6 @@ def compute_ensemble_spread_bounds(
         percentile=percentile,
         absolute=absolute,
         relative=relative,
-    )
-
-
-@dataclass
-class MinimumBounds:
-    percentile: list[float]
-    mean_bin_edges: list[float]
-    mean_bin_counts: list[int]
-    mean_bin_spread_bounds: list[list[float]]
-
-
-def compute_minimum_bound(
-    mean: xr.DataArray,
-    spread: xr.DataArray,
-    percentile: list[float],
-    nbins: int = 100,
-) -> MinimumBounds:
-    mean_values = mean.copy(deep=True).values.flatten()
-    spread_values = spread.copy(deep=True).values.flatten()
-
-    mean_bin_edges = np.nanquantile(mean_values, np.linspace(0.0, 1.0, nbins + 1))
-
-    ibin = np.minimum(np.searchsorted(mean_bin_edges, mean_values), nbins - 1)
-
-    mean_bin_spread_bounds = [np.zeros(nbins) for _ in percentile]
-
-    for i in range(nbins):
-        ispread = spread_values[ibin == i]
-
-        if len(ispread) > 0:
-            bs = np.nanquantile(ispread, [1 - p for p in percentile])
-        else:
-            bs = [np.nan for _ in percentile]
-
-        for bd, b in zip(mean_bin_spread_bounds, bs):
-            bd[i] = b
-
-    mean_bin_counts, _ = np.histogram(mean_values, bins=mean_bin_edges)
-
-    return MinimumBounds(
-        percentile=percentile,
-        mean_bin_edges=list(mean_bin_edges),
-        mean_bin_counts=list(mean_bin_counts),
-        mean_bin_spread_bounds=[list(bs) for bs in mean_bin_spread_bounds],
     )
 
 
