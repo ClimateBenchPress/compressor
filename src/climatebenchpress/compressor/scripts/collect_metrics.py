@@ -118,8 +118,9 @@ def get_error_bound_name(
     """
 
     # Convert the variable2bound dictionary to match the format of error_bound_list.
+    new_bound_format = dict()
     for k in variable2bound.keys():
-        variable2bound[k] = {
+        new_bound_format[k] = {
             "abs_error": (
                 variable2bound[k][1] if variable2bound[k][0] == "abs_error" else None
             ),
@@ -128,13 +129,13 @@ def get_error_bound_name(
             ),
         }
 
-    # Return the name of the error bound that matches variable2bound.
+    # Return the name of the error bound that matches new_bound_format.
     for bound_name, error_bound in zip(bound_names, error_bound_list):
-        if variable2bound == error_bound:
+        if new_bound_format == error_bound:
             return bound_name
 
     raise ValueError(
-        f"Error bounds {variable2bound} do not match any of the error bounds "
+        f"Error bounds {new_bound_format} do not match any of the error bounds "
         f"{error_bound_list}."
     )
 
