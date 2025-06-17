@@ -11,7 +11,7 @@ from ..scripts.collect_metrics import parse_error_bounds
 from .error_dist_plotter import ErrorDistPlotter
 from .variable_plotters import PLOTTERS
 
-COMPRESSOR2LINEINFO = {
+COMPRESSOR2LINEINFO = [
     ("jpeg2000", ("#EE7733", "-")),
     ("sperr", ("#117733", ":")),
     ("zfp", ("#EE3377", "--")),
@@ -22,7 +22,7 @@ COMPRESSOR2LINEINFO = {
     ("stochround-pco", ("#BBBBBB", "--")),
     ("stochround", ("#009988", "--")),
     ("tthresh", ("#882255", "-.")),
-}
+]
 
 
 def get_lineinfo(compressor: str) -> tuple[str, str]:
