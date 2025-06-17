@@ -88,8 +88,6 @@ def plot_metrics(
 
     df = rename_compressors(df)
     normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
-
-    normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
     plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
