@@ -14,8 +14,8 @@ from .variable_plotters import PLOTTERS
 COMPRESSOR2LINEINFO = [
     ("jpeg2000", ("#EE7733", "-")),
     ("sperr", ("#117733", ":")),
-    ("zfp", ("#EE3377", "--")),
     ("zfp-round", ("#DDAA33", "--")),
+    ("zfp", ("#EE3377", "--")),
     ("sz3", ("#CC3311", "-.")),
     ("bitround-pco", ("#0077BB", ":")),
     ("bitround", ("#33BBEE", "-")),
