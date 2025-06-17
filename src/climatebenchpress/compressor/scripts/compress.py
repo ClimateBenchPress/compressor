@@ -55,7 +55,8 @@ def compress(
         )
         for v in ds:
             abs_vals = xr.ufuncs.abs(ds[v])
-            ds_abs_mins[v] = abs_vals.min().values.item()
+            # Take minimum of non-zero absolute values to avoid division by zero.
+            ds_abs_mins[v] = abs_vals.where(abs_vals > 0).min().values.item()
             ds_abs_maxs[v] = abs_vals.max().values.item()
             ds_mins[v] = ds[v].min().values.item()
             ds_maxs[v] = ds[v].max().values.item()
