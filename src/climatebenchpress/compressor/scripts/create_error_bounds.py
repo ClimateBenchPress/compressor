@@ -35,12 +35,9 @@ VAR_NAME_TO_ERA5 = {
     "pr": "avg_tprate",
     # Air temperature.
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/130
-    # The CMIP6 data contains temperature data for multiple pressure levels,
-    # we use the 2m ERA5 temperature data to derive the error bound for all
-    # pressure levels.
     # ERA5 unit: K
     # CMIP6 unit: K
-    "ta": "t2m",
+    "ta": "t",
     # Sea surface temperature.
     # NOTE: Difference in units means we should use absolute error bounds.
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/34
@@ -67,8 +64,8 @@ VAR_NAME_TO_ERROR_BOUND = {
     "pr": ABS_ERROR,
     "ta": ABS_ERROR,
     "tos": ABS_ERROR,
-    "10m_u_component_of_wind": ABS_ERROR,
-    "10m_v_component_of_wind": ABS_ERROR,
+    "10m_u_component_of_wind": REL_ERROR,
+    "10m_v_component_of_wind": REL_ERROR,
     "mean_sea_level_pressure": ABS_ERROR,
     "no2": ABS_ERROR,
 }
@@ -139,8 +136,25 @@ def create_error_bounds(
 def get_error_bounds(
     error_bounds: pd.DataFrame, era5_var: str, error_bound_type: str
 ) -> list[dict[str, Optional[float]]]:
-    var_error_bounds = error_bounds[error_bounds["var"] == era5_var]
-    assert len(var_error_bounds) == 3, "Expected three error bounds for each variable."
+    var_error_bounds = error_bounds[error_bounds["var"] == era5_var].copy()
+    single_level = var_error_bounds["level"].unique()[0] == "single"
+    if single_level:
+        assert len(var_error_bounds) == 3, (
+            "Expected three error bounds for each variable."
+        )
+    else:
+        # For variables with multiple levels (only air temperature at this point)
+        # take the average error bound across all levels.
+        var_error_bounds["esrelative_float"] = (
+            var_error_bounds["esrelative"].str.rstrip("%").astype(float)
+        )
+        grouped = (
+            var_error_bounds.groupby(["percentile"])
+            .agg({"esabsolute": "mean", "esrelative_float": "mean"})
+            .reset_index()
+        )
+        grouped["esrelative"] = grouped["esrelative_float"].astype(str) + "%"
+        var_error_bounds = grouped[["percentile", "esabsolute", "esrelative"]]
 
     # Ordered from strictest to most relaxed error bounds.
     percentiles = ["100%", "99%", "95%"]
