@@ -30,7 +30,7 @@ class ErrorDistPlotter:
                     error / np.abs(ds[var]),
                 )
                 .compute()
-                .value
+                .values
             )
         else:
             raise ValueError(f"Unknown error bound type: {err_bound_type}")
@@ -42,34 +42,35 @@ class ErrorDistPlotter:
         variables,
         compressors,
         error_bound_vals,
-        compressor2legendname,
-        compressor2lineinfo,
+        get_legend_name,
+        get_line_info,
     ):
         """
         Plot error histograms for a single error bound across all variables in that
         dataset.
         """
         # We only plot bitround and stochround once because the lossless compressor
-        # does not change the error plot distribution.
-        legend_names = compressor2legendname.copy()
-        legend_names.update(
-            {
-                "bitround-conservative-rel": "BitRound",
-                "stochround": "StochRound",
-            }
-        )
+        # does not change the error plot distribution. Hence, we ignore the PCO
+        # compressors here.
         compressors = [comp for comp in compressors if "-pco" not in comp]
 
         for j, var in enumerate(variables):
             for comp in compressors:
+                color, linestyle = get_line_info(comp)
+                label = get_legend_name(comp)
+                # Don't state the lossless compressor in the legend.
+                if label.startswith("BitRound"):
+                    label = "BitRound"
+                elif label.startswith("StochRound"):
+                    label = "StochRound"
                 self.axes[j, col_index].hist(
                     self.errors[var][comp],
                     bins=100,
                     density=True,
                     histtype="step",
-                    label=legend_names.get(comp, comp),
-                    color=compressor2lineinfo.get(comp, ("#000000", "-"))[0],
-                    linestyle=compressor2lineinfo.get(comp, ("#000000", "-"))[1],
+                    label=label,
+                    color=color,
+                    linestyle=linestyle,
                     linewidth=2,
                     alpha=0.8,
                 )

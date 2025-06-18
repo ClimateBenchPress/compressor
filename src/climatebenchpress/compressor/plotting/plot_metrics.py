@@ -64,6 +64,7 @@ def plot_metrics(
     exclude_dataset: list[str] = [],
     exclude_compressor: list[str] = [],
     tiny_datasets: bool = False,
+    use_latex: bool = True,
 ):
     metrics_path = basepath / "metrics"
     plots_path = basepath / "plots"
@@ -95,7 +96,7 @@ def plot_metrics(
     plot_instruction_count(df, plots_path / "instruction_count.pdf")
 
     for metric in ["Relative MAE", "Relative DSSIM", "Relative MaxAbsError"]:
-        with plt.rc_context(rc={"text.usetex": True}):
+        with plt.rc_context(rc={"text.usetex": use_latex}):
             plot_aggregated_rd_curve(
                 normalized_df,
                 normalizer=normalizer,
@@ -263,8 +264,8 @@ def plot_per_variable_metrics(
                 variables,
                 compressors,
                 error_bound_vals,
-                COMPRESSOR2LEGEND_NAME,
-                COMPRESSOR2LINEINFO,
+                get_legend_name,
+                get_lineinfo,
             )
 
         fig, _ = error_dist_plotter.get_final_figure()
@@ -362,6 +363,11 @@ def plot_aggregated_rd_curve(
     bound_names=["low", "mid", "high"],
 ):
     plt.figure(figsize=(8, 6))
+    if distortion_metric == "DSSIM":
+        # For fields with large number of NaNs, the DSSIM values are unreliable
+        # which is why we exclude them here.
+        normalized_df = normalized_df[~normalized_df["Variable"].isin(["ta", "tos"])]
+
     compressors = normalized_df["Compressor"].unique()
     agg_distortion = normalized_df.groupby(["Error Bound Name", "Compressor"])[
         [compression_metric, distortion_metric]
@@ -417,6 +423,7 @@ def plot_aggregated_rd_curve(
         right=True,
     )
 
+    normalizer_label = get_legend_name(normalizer)
     if "MAE" in distortion_metric:
         plt.legend(
             title="Compressor",
@@ -425,7 +432,6 @@ def plot_aggregated_rd_curve(
             fontsize=12,
             title_fontsize=14,
         )
-        normalizer_label = get_legend_name(normalizer)
         plt.xlabel(
             rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
             fontsize=16,
@@ -458,6 +464,42 @@ def plot_aggregated_rd_curve(
             color=arrow_color,
             ha="center",
         )
+    elif "DSSIM" in distortion_metric:
+        plt.xlabel(
+            rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
+            fontsize=16,
+        )
+        plt.ylabel(
+            rf"Median DSSIM to {normalizer_label} ($\downarrow$)",
+            fontsize=16,
+        )
+        arrow_color = "black"
+        # Add an arrow pointing into the top right corner
+        plt.annotate(
+            "",
+            xy=(0.95, 0.95),
+            xycoords="axes fraction",
+            xytext=(-60, -50),
+            textcoords="offset points",
+            arrowprops=dict(
+                arrowstyle="-|>, head_length=0.5, head_width=0.5",
+                color=arrow_color,
+                lw=5,
+            ),
+        )
+        # Attach the text to the lower left of the arrow
+        plt.text(
+            0.83,
+            0.92,
+            "Better",
+            transform=plt.gca().transAxes,
+            fontsize=16,
+            fontweight="bold",
+            color=arrow_color,
+            ha="center",
+            va="center",
+        )
+        plt.legend().remove()
 
     plt.tight_layout()
     if outfile is not None:
@@ -653,6 +695,7 @@ if __name__ == "__main__":
     parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
     parser.add_argument("--tiny-datasets", action="store_true", default=False)
+    parser.add_argument("--avoid-latex", action="store_true", default=False)
     args = parser.parse_args()
 
     plot_metrics(
@@ -661,4 +704,5 @@ if __name__ == "__main__":
         exclude_compressor=args.exclude_compressor,
         exclude_dataset=args.exclude_dataset,
         tiny_datasets=args.tiny_datasets,
+        use_latex=(not args.avoid_latex),
     )
