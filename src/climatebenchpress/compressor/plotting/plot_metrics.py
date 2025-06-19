@@ -11,31 +11,49 @@ from ..scripts.collect_metrics import parse_error_bounds
 from .error_dist_plotter import ErrorDistPlotter
 from .variable_plotters import PLOTTERS
 
-COMPRESSOR2LINEINFO = {
-    "jpeg2000": ("#EE7733", "-"),
-    "sperr": ("#117733", ":"),
-    "zfp": ("#EE3377", "--"),
-    "zfp-round": ("#DDAA33", "--"),
-    "sz3": ("#CC3311", "-."),
-    "bitround-pco-conservative-rel": ("#0077BB", ":"),
-    "bitround-conservative-rel": ("#33BBEE", "-"),
-    "stochround": ("#009988", "--"),
-    "stochround-pco": ("#BBBBBB", "--"),
-    "tthresh": ("#882255", "-."),
-}
+COMPRESSOR2LINEINFO = [
+    ("jpeg2000", ("#EE7733", "-")),
+    ("sperr", ("#117733", ":")),
+    ("zfp-round", ("#DDAA33", "--")),
+    ("zfp", ("#EE3377", "--")),
+    ("sz3", ("#CC3311", "-.")),
+    ("bitround-pco", ("#0077BB", ":")),
+    ("bitround", ("#33BBEE", "-")),
+    ("stochround-pco", ("#BBBBBB", "--")),
+    ("stochround", ("#009988", "--")),
+    ("tthresh", ("#882255", "-.")),
+]
 
-COMPRESSOR2LEGEND_NAME = {
-    "jpeg2000": "JPEG2000",
-    "sperr": "SPERR",
-    "zfp": "ZFP",
-    "zfp-round": "ZFP-ROUND",
-    "sz3": "SZ3",
-    "bitround-pco-conservative-rel": "BitRound + PCO",
-    "bitround-conservative-rel": "BitRound + Zstd",
-    "stochround": "StochRound + Zstd",
-    "stochround-pco": "StochRound + PCO",
-    "tthresh": "TTHRESH",
-}
+
+def get_lineinfo(compressor: str) -> tuple[str, str]:
+    """Get the line color and style for a given compressor."""
+    for comp, (color, linestyle) in COMPRESSOR2LINEINFO:
+        if compressor.startswith(comp):
+            return color, linestyle
+    raise ValueError(f"Unknown compressor: {compressor}")
+
+
+COMPRESSOR2LEGEND_NAME = [
+    ("jpeg2000", "JPEG2000"),
+    ("sperr", "SPERR"),
+    ("zfp-round", "ZFP-ROUND"),
+    ("zfp", "ZFP"),
+    ("sz3", "SZ3"),
+    ("bitround-pco", "BitRound + PCO"),
+    ("bitround", "BitRound + Zstd"),
+    ("stochround-pco", "StochRound + PCO"),
+    ("stochround", "StochRound + Zstd"),
+    ("tthresh", "TTHRESH"),
+]
+
+
+def get_legend_name(compressor: str) -> str:
+    """Get the legend name for a given compressor."""
+    for comp, name in COMPRESSOR2LEGEND_NAME:
+        if compressor.startswith(comp):
+            return name
+
+    return compressor  # Fallback to the compressor name if not found in the mapping.
 
 
 def plot_metrics(
@@ -46,6 +64,7 @@ def plot_metrics(
     exclude_dataset: list[str] = [],
     exclude_compressor: list[str] = [],
     tiny_datasets: bool = False,
+    use_latex: bool = True,
 ):
     metrics_path = basepath / "metrics"
     plots_path = basepath / "plots"
@@ -68,17 +87,16 @@ def plot_metrics(
         all_results=df,
     )
 
-    df = rename_error_bounds(df, bound_names)
-    plot_throughput(df, plots_path / "throughput.pdf")
-    plot_instruction_count(df, plots_path / "instruction_count.pdf")
-
+    df = rename_compressors(df)
     normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
     plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
+    plot_throughput(df, plots_path / "throughput.pdf")
+    plot_instruction_count(df, plots_path / "instruction_count.pdf")
 
     for metric in ["Relative MAE", "Relative DSSIM", "Relative MaxAbsError"]:
-        with plt.rc_context(rc={"text.usetex": True}):
+        with plt.rc_context(rc={"text.usetex": use_latex}):
             plot_aggregated_rd_curve(
                 normalized_df,
                 normalizer=normalizer,
@@ -90,27 +108,17 @@ def plot_metrics(
             )
 
 
-def rename_error_bounds(df, bound_names):
-    """Give error bound consistent names between variables. By default the error bounds
-    have the pattern {variable_name}-{bound_type}={bound_value}."""
-    # Get unique variables
-    variables = df["Variable"].unique()
-
-    # Process each variable
-    for variable in variables:
-        var_selector = df["Variable"] == variable
-        var_data = df[var_selector]
-
-        error_bounds = sort_error_bounds(var_data["Error Bound"].unique())
-
-        assert len(error_bounds) == len(bound_names), (
-            f"Number of error bounds {len(error_bounds)} does not match number of bound names {len(bound_names)} for {variable}."
-        )
-
-        for i in range(len(error_bounds)):
-            bound_selector = var_data["Error Bound"] == error_bounds[i]
-            df.loc[bound_selector & var_selector, "Error Bound"] = bound_names[i]
-
+def rename_compressors(df):
+    """Give compressors consistent names. They sometimes have suffixes if they are
+    applied on a converted error bound. The three patterns are:
+    - {compressor_name}
+    - {compressor_name}-conservative-abs
+    - {compressor_name}-conservative-rel
+    """
+    df = df.copy()
+    df["Compressor"] = df["Compressor"].str.replace(
+        r"-(conservative-(abs|rel))$", "", regex=True
+    )
     return df
 
 
@@ -141,7 +149,7 @@ def normalize(data, bound_normalize="mid", normalizer=None):
     if normalizer is None:
         # Group by Variable and rank compressors within each variable
         ranked = data.copy()
-        ranked = ranked[ranked["Error Bound"] == bound_normalize]
+        ranked = ranked[ranked["Error Bound Name"] == bound_normalize]
         ranked["CompRatio_Rank"] = ranked.groupby("Variable")[
             "Compression Ratio [raw B / enc B]"
         ].rank(ascending=False)
@@ -167,7 +175,7 @@ def normalize(data, bound_normalize="mid", normalizer=None):
         return normalized[
             (data["Compressor"] == normalizer)
             & (data["Variable"] == row["Variable"])
-            & (data["Error Bound"] == bound_normalize)
+            & (data["Error Bound Name"] == bound_normalize)
         ][col].item()
 
     for col, new_col in normalize_vars:
@@ -256,8 +264,8 @@ def plot_per_variable_metrics(
                 variables,
                 compressors,
                 error_bound_vals,
-                COMPRESSOR2LEGEND_NAME,
-                COMPRESSOR2LINEINFO,
+                get_legend_name,
+                get_lineinfo,
             )
 
         fig, _ = error_dist_plotter.get_final_figure()
@@ -297,11 +305,11 @@ def plot_variable_rd_curve(df, distortion_metric, outfile: None | Path = None):
             for i in sorting_ixs
         ]
         distortion = [compressor_data[distortion_metric].iloc[i] for i in sorting_ixs]
-        color, linestyle = COMPRESSOR2LINEINFO[comp]
+        color, linestyle = get_lineinfo(comp)
         plt.plot(
             compr_ratio,
             distortion,
-            label=COMPRESSOR2LEGEND_NAME[comp],
+            label=get_legend_name(comp),
             marker="s",
             color=color,
             linestyle=linestyle,
@@ -355,8 +363,13 @@ def plot_aggregated_rd_curve(
     bound_names=["low", "mid", "high"],
 ):
     plt.figure(figsize=(8, 6))
+    if distortion_metric == "DSSIM":
+        # For fields with large number of NaNs, the DSSIM values are unreliable
+        # which is why we exclude them here.
+        normalized_df = normalized_df[~normalized_df["Variable"].isin(["ta", "tos"])]
+
     compressors = normalized_df["Compressor"].unique()
-    agg_distortion = normalized_df.groupby(["Error Bound", "Compressor"])[
+    agg_distortion = normalized_df.groupby(["Error Bound Name", "Compressor"])[
         [compression_metric, distortion_metric]
     ].agg(agg)
     for comp in compressors:
@@ -368,11 +381,11 @@ def plot_aggregated_rd_curve(
             agg_distortion.loc[(bound, comp), distortion_metric]
             for bound in bound_names
         ]
-        color, linestyle = COMPRESSOR2LINEINFO[comp]
+        color, linestyle = get_lineinfo(comp)
         plt.plot(
             compr_ratio,
             distortion,
-            label=COMPRESSOR2LEGEND_NAME[comp],
+            label=get_legend_name(comp),
             marker="s",
             color=color,
             linestyle=linestyle,
@@ -410,6 +423,7 @@ def plot_aggregated_rd_curve(
         right=True,
     )
 
+    normalizer_label = get_legend_name(normalizer)
     if "MAE" in distortion_metric:
         plt.legend(
             title="Compressor",
@@ -418,7 +432,6 @@ def plot_aggregated_rd_curve(
             fontsize=12,
             title_fontsize=14,
         )
-        normalizer_label = COMPRESSOR2LEGEND_NAME.get(normalizer, normalizer)
         plt.xlabel(
             rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
             fontsize=16,
@@ -451,6 +464,42 @@ def plot_aggregated_rd_curve(
             color=arrow_color,
             ha="center",
         )
+    elif "DSSIM" in distortion_metric:
+        plt.xlabel(
+            rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
+            fontsize=16,
+        )
+        plt.ylabel(
+            rf"Median DSSIM to {normalizer_label} ($\downarrow$)",
+            fontsize=16,
+        )
+        arrow_color = "black"
+        # Add an arrow pointing into the top right corner
+        plt.annotate(
+            "",
+            xy=(0.95, 0.95),
+            xycoords="axes fraction",
+            xytext=(-60, -50),
+            textcoords="offset points",
+            arrowprops=dict(
+                arrowstyle="-|>, head_length=0.5, head_width=0.5",
+                color=arrow_color,
+                lw=5,
+            ),
+        )
+        # Attach the text to the lower left of the arrow
+        plt.text(
+            0.83,
+            0.92,
+            "Better",
+            transform=plt.gca().transAxes,
+            fontsize=16,
+            fontweight="bold",
+            color=arrow_color,
+            ha="center",
+            va="center",
+        )
+        plt.legend().remove()
 
     plt.tight_layout()
     if outfile is not None:
@@ -463,7 +512,7 @@ def plot_throughput(df, outfile: None | Path = None):
     # with instruction count measurements.
     encode_col = "Encode Throughput [raw B / s]"
     decode_col = "Decode Throughput [raw B / s]"
-    new_df = df[["Compressor", "Error Bound", encode_col, decode_col]].copy()
+    new_df = df[["Compressor", "Error Bound Name", encode_col, decode_col]].copy()
     transformed_encode_col = "Encode Throughput [s / MB]"
     transformed_decode_col = "Decode Throughput [s / MB]"
     new_df[transformed_encode_col] = 1e6 / new_df[encode_col]
@@ -492,7 +541,7 @@ def plot_instruction_count(df, outfile: None | Path = None):
 
 
 def get_median_and_quantiles(df, encode_column, decode_column):
-    return df.groupby(["Compressor", "Error Bound"])[
+    return df.groupby(["Compressor", "Error Bound Name"])[
         [encode_column, decode_column]
     ].agg(
         encode_median=pd.NamedAgg(
@@ -522,14 +571,14 @@ def plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None):
     # Bar width
     bar_width = 0.35
     compressors = grouped_df.index.levels[0].tolist()
-    x_labels = [COMPRESSOR2LEGEND_NAME[c] for c in compressors]
+    x_labels = [get_legend_name(c) for c in compressors]
     x_positions = range(len(x_labels))
 
     error_bounds = ["low", "mid", "high"]
 
     for i, error_bound in enumerate(error_bounds):
         ax = axes[i]
-        bound_data = grouped_df.xs(error_bound, level="Error Bound")
+        bound_data = grouped_df.xs(error_bound, level="Error Bound Name")
 
         # Plot encode throughput
         ax.bar(
@@ -541,7 +590,7 @@ def plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None):
                 bound_data["encode_upper_quantile"],
             ],
             label="Encoding",
-            color=[COMPRESSOR2LINEINFO[comp][0] for comp in compressors],
+            color=[get_lineinfo(comp)[0] for comp in compressors],
         )
 
         # Plot decode throughput
@@ -554,7 +603,7 @@ def plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None):
                 bound_data["decode_upper_quantile"],
             ],
             label="Decoding",
-            edgecolor=[COMPRESSOR2LINEINFO[comp][0] for comp in compressors],
+            edgecolor=[get_lineinfo(comp)[0] for comp in compressors],
             fill=False,
             linewidth=4,
         )
@@ -591,8 +640,8 @@ def plot_bound_violations(df, bound_names, outfile: None | Path = None):
     fig, axs = plt.subplots(1, 3, figsize=(len(bound_names) * 6, 6), sharey=True)
 
     for i, bound_name in enumerate(bound_names):
-        df_bound = df[df["Error Bound"] == bound_name].copy()
-        df_bound["Compressor"] = df_bound["Compressor"].map(COMPRESSOR2LEGEND_NAME)
+        df_bound = df[df["Error Bound Name"] == bound_name].copy()
+        df_bound["Compressor"] = df_bound["Compressor"].map(get_legend_name)
         pass_fail = df_bound.pivot(
             index="Compressor", columns="Variable", values="Satisfies Bound (Passed)"
         )
@@ -646,6 +695,7 @@ if __name__ == "__main__":
     parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
     parser.add_argument("--tiny-datasets", action="store_true", default=False)
+    parser.add_argument("--avoid-latex", action="store_true", default=False)
     args = parser.parse_args()
 
     plot_metrics(
@@ -654,4 +704,5 @@ if __name__ == "__main__":
         exclude_compressor=args.exclude_compressor,
         exclude_dataset=args.exclude_dataset,
         tiny_datasets=args.tiny_datasets,
+        use_latex=(not args.avoid_latex),
     )

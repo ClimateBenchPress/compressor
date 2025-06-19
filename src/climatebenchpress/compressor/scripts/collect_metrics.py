@@ -3,6 +3,7 @@ __all__ = ["collect_metrics"]
 import json
 import re
 from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 import xarray as xr
@@ -30,6 +31,7 @@ def collect_metrics(
 ):
     datasets = (data_loader_base_path or basepath) / "datasets"
     compressed_datasets = basepath / "compressed-datasets"
+    error_bounds_dir = basepath / "datasets-error-bounds"
     metrics_dir = basepath / "metrics"
 
     all_results = []
@@ -37,8 +39,14 @@ def collect_metrics(
         if dataset.name == ".gitignore":
             continue
 
+        with (error_bounds_dir / dataset.name / "error_bounds.json").open() as f:
+            error_bound_list = json.load(f)
+
         for error_bound in dataset.iterdir():
             variable2error_bound = parse_error_bounds(error_bound.name)
+            error_bound_name = get_error_bound_name(
+                variable2error_bound, error_bound_list
+            )
 
             for compressor in error_bound.iterdir():
                 print(f"Evaluating {compressor.stem} on {dataset.name}...")
@@ -75,10 +83,61 @@ def collect_metrics(
                 df = merge_metrics(measurements, metrics, tests)
                 df["Dataset"] = dataset.name
                 df["Error Bound"] = error_bound.name
+                df["Error Bound Name"] = error_bound_name
                 all_results.append(df)
 
     all_results_df = pd.concat(all_results)
     all_results_df.to_csv(metrics_dir / "all_results.csv", index=False)
+
+
+def get_error_bound_name(
+    variable2bound: dict[str, tuple[str, float]],
+    error_bound_list: list[dict[str, dict[str, Optional[float]]]],
+    bound_names: list[str] = ["low", "mid", "high"],
+) -> str:
+    """The function returns either "low", "mid", or "high" depending on which error bound
+    from the variable2bound dictionary matches the exact error bound in the error_bound_list.
+
+    error_bound_list contains one dictionary for each error bound (low, mid, high).
+    Each of these dictionaries contains the error bounds for
+    each variable. The variable names in the dictionaries should exactly match the variable names
+    in the variable2bound dictionary.
+
+    Parameters
+    ----------
+    variable2bound : dict[str, tuple[str, float]]
+        A dictionary representing a single error bound, mapping variable names to
+        tuples of error type and error bound. The error type is either "abs_error"
+        or "rel_error", and the error bound is a float.
+    error_bound_list : list[dict[str, dict[str, Optional[float]]]]
+        A list of dictionaries, each representing an error bound (low, mid, high).
+        Each dictionary contains variable names as keys and a dictionary of error types
+        and bounds as values.
+    bound_names : list[str], optional
+        A list of names for the error bounds, by default ["low", "mid", "high"].
+    """
+
+    # Convert the variable2bound dictionary to match the format of error_bound_list.
+    new_bound_format = dict()
+    for k in variable2bound.keys():
+        new_bound_format[k] = {
+            "abs_error": (
+                variable2bound[k][1] if variable2bound[k][0] == "abs_error" else None
+            ),
+            "rel_error": (
+                variable2bound[k][1] if variable2bound[k][0] == "rel_error" else None
+            ),
+        }
+
+    # Return the name of the error bound that matches new_bound_format.
+    for bound_name, error_bound in zip(bound_names, error_bound_list):
+        if new_bound_format == error_bound:
+            return bound_name
+
+    raise ValueError(
+        f"Error bounds {new_bound_format} do not match any of the error bounds "
+        f"{error_bound_list}."
+    )
 
 
 def parse_error_bounds(error_bound_str: str) -> dict[str, tuple[str, float]]:
