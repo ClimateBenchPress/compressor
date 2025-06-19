@@ -119,11 +119,15 @@
     <ul class="current">
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.COMPRESSOR2LINEINFO">COMPRESSOR2LINEINFO</a>
     </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.get_lineinfo">get_lineinfo</a>
+    </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.COMPRESSOR2LEGEND_NAME">COMPRESSOR2LEGEND_NAME</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.get_legend_name">get_legend_name</a>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_metrics">plot_metrics</a>
     </li>
-    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.rename_error_bounds">rename_error_bounds</a>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.rename_compressors">rename_compressors</a>
     </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.sort_error_bounds">sort_error_bounds</a>
     </li>
@@ -242,6 +246,20 @@
 <p><span class="doc-section-title">Functions:</span></p>
     <ul>
           <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="get_lineinfo (climatebenchpress.compressor.plotting.plot_metrics.get_lineinfo)" href="#climatebenchpress.compressor.plotting.plot_metrics.get_lineinfo">get_lineinfo</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Get the line color and style for a given compressor.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="get_legend_name (climatebenchpress.compressor.plotting.plot_metrics.get_legend_name)" href="#climatebenchpress.compressor.plotting.plot_metrics.get_legend_name">get_legend_name</a></code></b>
+            –
+            <div class="doc-md-description">
+              <p>Get the legend name for a given compressor.</p>
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
             <b><code><a class="autorefs autorefs-internal" title="plot_metrics (climatebenchpress.compressor.plotting.plot_metrics.plot_metrics)" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_metrics">plot_metrics</a></code></b>
             –
             <div class="doc-md-description">
@@ -249,10 +267,10 @@
             </div>
           </li>
           <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="rename_error_bounds (climatebenchpress.compressor.plotting.plot_metrics.rename_error_bounds)" href="#climatebenchpress.compressor.plotting.plot_metrics.rename_error_bounds">rename_error_bounds</a></code></b>
+            <b><code><a class="autorefs autorefs-internal" title="rename_compressors (climatebenchpress.compressor.plotting.plot_metrics.rename_compressors)" href="#climatebenchpress.compressor.plotting.plot_metrics.rename_compressors">rename_compressors</a></code></b>
             –
             <div class="doc-md-description">
-              <p>Give error bound consistent names between variables. By default the error bounds</p>
+              <p>Give compressors consistent names. They sometimes have suffixes if they are</p>
             </div>
           </li>
           <li class="doc-section-item field-body">
@@ -405,21 +423,46 @@
   </span>
 
 </h2>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>COMPRESSOR2LINEINFO <span style="color: #666">=</span> {
-    <span style="color: #BA2121">&quot;jpeg2000&quot;</span>: (<span style="color: #BA2121">&quot;#EE7733&quot;</span>, <span style="color: #BA2121">&quot;-&quot;</span>),
-    <span style="color: #BA2121">&quot;sperr&quot;</span>: (<span style="color: #BA2121">&quot;#117733&quot;</span>, <span style="color: #BA2121">&quot;:&quot;</span>),
-    <span style="color: #BA2121">&quot;zfp&quot;</span>: (<span style="color: #BA2121">&quot;#EE3377&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
-    <span style="color: #BA2121">&quot;zfp-round&quot;</span>: (<span style="color: #BA2121">&quot;#DDAA33&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
-    <span style="color: #BA2121">&quot;sz3&quot;</span>: (<span style="color: #BA2121">&quot;#CC3311&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>),
-    <span style="color: #BA2121">&quot;bitround-pco-conservative-rel&quot;</span>: (<span style="color: #BA2121">&quot;#0077BB&quot;</span>, <span style="color: #BA2121">&quot;:&quot;</span>),
-    <span style="color: #BA2121">&quot;bitround-conservative-rel&quot;</span>: (<span style="color: #BA2121">&quot;#33BBEE&quot;</span>, <span style="color: #BA2121">&quot;-&quot;</span>),
-    <span style="color: #BA2121">&quot;stochround&quot;</span>: (<span style="color: #BA2121">&quot;#009988&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
-    <span style="color: #BA2121">&quot;stochround-pco&quot;</span>: (<span style="color: #BA2121">&quot;#BBBBBB&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>),
-    <span style="color: #BA2121">&quot;tthresh&quot;</span>: (<span style="color: #BA2121">&quot;#882255&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>),
-}
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>COMPRESSOR2LINEINFO <span style="color: #666">=</span> [
+    (<span style="color: #BA2121">&quot;jpeg2000&quot;</span>, (<span style="color: #BA2121">&quot;#EE7733&quot;</span>, <span style="color: #BA2121">&quot;-&quot;</span>)),
+    (<span style="color: #BA2121">&quot;sperr&quot;</span>, (<span style="color: #BA2121">&quot;#117733&quot;</span>, <span style="color: #BA2121">&quot;:&quot;</span>)),
+    (<span style="color: #BA2121">&quot;zfp-round&quot;</span>, (<span style="color: #BA2121">&quot;#DDAA33&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>)),
+    (<span style="color: #BA2121">&quot;zfp&quot;</span>, (<span style="color: #BA2121">&quot;#EE3377&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>)),
+    (<span style="color: #BA2121">&quot;sz3&quot;</span>, (<span style="color: #BA2121">&quot;#CC3311&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>)),
+    (<span style="color: #BA2121">&quot;bitround-pco&quot;</span>, (<span style="color: #BA2121">&quot;#0077BB&quot;</span>, <span style="color: #BA2121">&quot;:&quot;</span>)),
+    (<span style="color: #BA2121">&quot;bitround&quot;</span>, (<span style="color: #BA2121">&quot;#33BBEE&quot;</span>, <span style="color: #BA2121">&quot;-&quot;</span>)),
+    (<span style="color: #BA2121">&quot;stochround-pco&quot;</span>, (<span style="color: #BA2121">&quot;#BBBBBB&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>)),
+    (<span style="color: #BA2121">&quot;stochround&quot;</span>, (<span style="color: #BA2121">&quot;#009988&quot;</span>, <span style="color: #BA2121">&quot;--&quot;</span>)),
+    (<span style="color: #BA2121">&quot;tthresh&quot;</span>, (<span style="color: #BA2121">&quot;#882255&quot;</span>, <span style="color: #BA2121">&quot;-.&quot;</span>)),
+]
 </code></pre></div>
 
     <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.get_lineinfo" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">get_lineinfo</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>get_lineinfo(compressor: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Get the line color and style for a given compressor.</p>
+
 
     </div>
 
@@ -443,21 +486,46 @@
   </span>
 
 </h2>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>COMPRESSOR2LEGEND_NAME <span style="color: #666">=</span> {
-    <span style="color: #BA2121">&quot;jpeg2000&quot;</span>: <span style="color: #BA2121">&quot;JPEG2000&quot;</span>,
-    <span style="color: #BA2121">&quot;sperr&quot;</span>: <span style="color: #BA2121">&quot;SPERR&quot;</span>,
-    <span style="color: #BA2121">&quot;zfp&quot;</span>: <span style="color: #BA2121">&quot;ZFP&quot;</span>,
-    <span style="color: #BA2121">&quot;zfp-round&quot;</span>: <span style="color: #BA2121">&quot;ZFP-ROUND&quot;</span>,
-    <span style="color: #BA2121">&quot;sz3&quot;</span>: <span style="color: #BA2121">&quot;SZ3&quot;</span>,
-    <span style="color: #BA2121">&quot;bitround-pco-conservative-rel&quot;</span>: <span style="color: #BA2121">&quot;BitRound + PCO&quot;</span>,
-    <span style="color: #BA2121">&quot;bitround-conservative-rel&quot;</span>: <span style="color: #BA2121">&quot;BitRound + Zstd&quot;</span>,
-    <span style="color: #BA2121">&quot;stochround&quot;</span>: <span style="color: #BA2121">&quot;StochRound + Zstd&quot;</span>,
-    <span style="color: #BA2121">&quot;stochround-pco&quot;</span>: <span style="color: #BA2121">&quot;StochRound + PCO&quot;</span>,
-    <span style="color: #BA2121">&quot;tthresh&quot;</span>: <span style="color: #BA2121">&quot;TTHRESH&quot;</span>,
-}
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>COMPRESSOR2LEGEND_NAME <span style="color: #666">=</span> [
+    (<span style="color: #BA2121">&quot;jpeg2000&quot;</span>, <span style="color: #BA2121">&quot;JPEG2000&quot;</span>),
+    (<span style="color: #BA2121">&quot;sperr&quot;</span>, <span style="color: #BA2121">&quot;SPERR&quot;</span>),
+    (<span style="color: #BA2121">&quot;zfp-round&quot;</span>, <span style="color: #BA2121">&quot;ZFP-ROUND&quot;</span>),
+    (<span style="color: #BA2121">&quot;zfp&quot;</span>, <span style="color: #BA2121">&quot;ZFP&quot;</span>),
+    (<span style="color: #BA2121">&quot;sz3&quot;</span>, <span style="color: #BA2121">&quot;SZ3&quot;</span>),
+    (<span style="color: #BA2121">&quot;bitround-pco&quot;</span>, <span style="color: #BA2121">&quot;BitRound + PCO&quot;</span>),
+    (<span style="color: #BA2121">&quot;bitround&quot;</span>, <span style="color: #BA2121">&quot;BitRound + Zstd&quot;</span>),
+    (<span style="color: #BA2121">&quot;stochround-pco&quot;</span>, <span style="color: #BA2121">&quot;StochRound + PCO&quot;</span>),
+    (<span style="color: #BA2121">&quot;stochround&quot;</span>, <span style="color: #BA2121">&quot;StochRound + Zstd&quot;</span>),
+    (<span style="color: #BA2121">&quot;tthresh&quot;</span>, <span style="color: #BA2121">&quot;TTHRESH&quot;</span>),
+]
 </code></pre></div>
 
     <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.get_legend_name" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">get_legend_name</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>get_legend_name(compressor: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Get the legend name for a given compressor.</p>
+
 
     </div>
 
@@ -484,6 +552,7 @@
     exclude_dataset: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [],
     exclude_compressor: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [],
     tiny_datasets: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">False</span>,
+    use_latex: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">True</span>,
 )
 </code></pre></div>
 
@@ -502,18 +571,21 @@
 <div class="doc doc-object doc-function">
 
 
-<h2 id="climatebenchpress.compressor.plotting.plot_metrics.rename_error_bounds" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">rename_error_bounds</span>
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.rename_compressors" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">rename_compressors</span>
 
 
 </h2>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>rename_error_bounds(df, bound_names)
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>rename_compressors(df)
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Give error bound consistent names between variables. By default the error bounds
-have the pattern {variable_name}-{bound_type}={bound_value}.</p>
+        <p>Give compressors consistent names. They sometimes have suffixes if they are
+applied on a converted error bound. The three patterns are:
+- {compressor_name}
+- {compressor_name}-conservative-abs
+- {compressor_name}-conservative-rel</p>
 
 
     </div>
