@@ -1,5 +1,6 @@
 __all__ = ["create_error_bounds"]
 
+import argparse
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -73,9 +74,9 @@ VAR_NAME_TO_ERROR_BOUND = {
 
 def create_error_bounds(
     basepath: Path = Path(),
-    data_loader_base_path: None | Path = None,
+    data_loader_basepath: None | Path = None,
 ):
-    datasets = (data_loader_base_path or basepath) / "datasets"
+    datasets = (data_loader_basepath or basepath) / "datasets"
     datasets_error_bounds = basepath / "datasets-error-bounds"
 
     era5_error_bounds = pd.read_csv(ERROR_BOUNDS)
@@ -255,7 +256,14 @@ def compute_ensemble_spread_bounds(
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Create error bounds for datasets")
+    parser.add_argument("--basepath", type=Path, default=Path())
+    parser.add_argument(
+        "--data-loader-basepath", type=Path, default=Path() / ".." / "data-loader"
+    )
+    args = parser.parse_args()
+
     create_error_bounds(
-        basepath=Path(),
-        data_loader_base_path=Path() / ".." / "data-loader",
+        basepath=args.basepath,
+        data_loader_basepath=args.data_loader_basepath,
     )

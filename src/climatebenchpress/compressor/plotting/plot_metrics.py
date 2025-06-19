@@ -58,7 +58,7 @@ def get_legend_name(compressor: str) -> str:
 
 def plot_metrics(
     basepath: Path = Path(),
-    data_loader_base_path: None | Path = None,
+    data_loader_basepath: None | Path = None,
     bound_names: list[str] = ["low", "mid", "high"],
     normalizer: str = "sz3",
     exclude_dataset: list[str] = [],
@@ -68,7 +68,7 @@ def plot_metrics(
 ):
     metrics_path = basepath / "metrics"
     plots_path = basepath / "plots"
-    datasets = (data_loader_base_path or basepath) / "datasets"
+    datasets = (data_loader_basepath or basepath) / "datasets"
     compressed_datasets = basepath / "compressed-datasets"
 
     df = pd.read_csv(metrics_path / "all_results.csv")
@@ -696,11 +696,17 @@ if __name__ == "__main__":
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
     parser.add_argument("--tiny-datasets", action="store_true", default=False)
     parser.add_argument("--avoid-latex", action="store_true", default=False)
+    parser.add_argument("--basepath", type=Path, default=Path())
+    parser.add_argument(
+        "--data-loader-basepath",
+        type=Path,
+        default=Path() / ".." / "data-loader",
+    )
     args = parser.parse_args()
 
     plot_metrics(
-        basepath=Path(),
-        data_loader_base_path=Path() / ".." / "data-loader",
+        basepath=args.basepath,
+        data_loader_basepath=args.data_loader_basepath,
         exclude_compressor=args.exclude_compressor,
         exclude_dataset=args.exclude_dataset,
         tiny_datasets=args.tiny_datasets,
