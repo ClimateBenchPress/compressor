@@ -1,6 +1,7 @@
 __all__ = [
     "BitRound",
     "BitRoundPco",
+    "FFmpeg",
     "Jpeg2000",
     "Sperr",
     "StochRound",
@@ -14,6 +15,7 @@ __all__ = [
 from . import abc as abc
 from .bitround import BitRound
 from .bitround_pco import BitRoundPco
+from .ffmpeg import FFmpeg
 from .jpeg2000 import Jpeg2000
 from .sperr import Sperr
 from .stochround import StochRound
