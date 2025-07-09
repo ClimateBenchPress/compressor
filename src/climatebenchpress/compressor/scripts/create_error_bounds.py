@@ -62,7 +62,7 @@ REL_ERROR = "rel_error"
 VAR_NAME_TO_ERROR_BOUND = {
     "rlut": REL_ERROR,
     "agb": REL_ERROR,
-    "pr": ABS_ERROR,
+    "pr": REL_ERROR,
     "ta": ABS_ERROR,
     "tos": ABS_ERROR,
     "10m_u_component_of_wind": REL_ERROR,
