@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
 import xarray as xr
 
-from ..scripts.collect_metrics import parse_error_bounds
+from ..scripts.compute_metrics import parse_error_bounds
 from .error_dist_plotter import ErrorDistPlotter
 from .variable_plotters import PLOTTERS
 
