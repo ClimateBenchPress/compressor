@@ -211,7 +211,15 @@ def compute_compressor_metrics(
     metric_list = []
     for name, metric in EVALUATION_METRICS.items():
         for v in ds_new:
-            error = metric(ds[v], ds_new[v])
+            try:
+                error = metric(ds[v], ds_new[v])
+            except Exception as e:
+                print(
+                    f"Error computing metric {name} for variable {v} on "
+                    f"{compressor_metrics.parent.name}: {e}"
+                )
+                error = float("nan")
+
             metric_list.append(
                 {
                     "Metric": name,
@@ -237,7 +245,16 @@ def compute_tests(
     test_list = []
     for name, test in PASSFAIL_TESTS.items():
         for v in ds_new:
-            test_result, test_value = test(ds[v], ds_new[v])
+            try:
+                test_result, test_value = test(ds[v], ds_new[v])
+            except Exception as e:
+                print(
+                    f"Error computing test {name} for variable {v} on "
+                    f"{compressor_metrics.parent.name}: {e}"
+                )
+                test_result = False
+                test_value = float("nan")
+
             test_list.append(
                 {
                     "Test": name,
