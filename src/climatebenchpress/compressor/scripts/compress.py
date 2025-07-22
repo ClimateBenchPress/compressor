@@ -26,10 +26,10 @@ def compress(
     include_dataset: None | Container[str] = None,
     exclude_compressor: Container[str] = tuple(),
     include_compressor: None | Container[str] = None,
-    data_loader_base_path: None | Path = None,
+    data_loader_basepath: None | Path = None,
     progress: bool = True,
 ):
-    datasets = (data_loader_base_path or basepath) / "datasets"
+    datasets = (data_loader_basepath or basepath) / "datasets"
     compressed_datasets = basepath / "compressed-datasets"
     datasets_error_bounds = basepath / "datasets-error-bounds"
 
@@ -187,6 +187,10 @@ if __name__ == "__main__":
     parser.add_argument("--include-dataset", type=str, nargs="+", default=None)
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
     parser.add_argument("--include-compressor", type=str, nargs="+", default=None)
+    parser.add_argument("--basepath", type=Path, default=Path())
+    parser.add_argument(
+        "--data-loader-basepath", type=Path, default=Path() / ".." / "data-loader"
+    )
     args = parser.parse_args()
 
     compress(
@@ -195,6 +199,6 @@ if __name__ == "__main__":
         include_dataset=args.include_dataset,
         exclude_compressor=args.exclude_compressor,
         include_compressor=args.include_compressor,
-        data_loader_base_path=Path() / ".." / "data-loader",
+        data_loader_basepath=args.data_loader_basepath,
         progress=True,
     )
