@@ -46,6 +46,13 @@ COMPRESSOR2LEGEND_NAME = [
     ("tthresh", "TTHRESH"),
 ]
 
+DISTORTION2LEGEND_NAME = {
+    "Relative MAE": "Mean Absolute Error",
+    "Relative DSSIM": "DSSIM",
+    "Relative MaxAbsError": "Max Absolute Error",
+    "Spectral Error": "Spectral Error",
+}
+
 
 def get_legend_name(compressor: str) -> str:
     """Get the legend name for a given compressor."""
@@ -85,6 +92,7 @@ def plot_metrics(
         compressed_datasets=compressed_datasets,
         plots_path=plots_path,
         all_results=df,
+        rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
     )
 
     df = rename_compressors(df)
@@ -95,16 +103,23 @@ def plot_metrics(
     plot_throughput(df, plots_path / "throughput.pdf")
     plot_instruction_count(df, plots_path / "instruction_count.pdf")
 
-    for metric in ["Relative MAE", "Relative DSSIM", "Relative MaxAbsError"]:
+    for metric in [
+        "Relative MAE",
+        "Relative DSSIM",
+        "Relative MaxAbsError",
+        "Spectral Error",
+    ]:
         with plt.rc_context(rc={"text.usetex": use_latex}):
             plot_aggregated_rd_curve(
                 normalized_df,
                 normalizer=normalizer,
                 compression_metric="Relative CR",
                 distortion_metric=metric,
-                outfile=plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
+                outfile=plots_path
+                / f"rd_curve_{metric.lower().replace(' ', '_')}_exclude=ta_tos_pr_rlut.pdf",
                 agg="median",
                 bound_names=bound_names,
+                exclude_vars=["ta", "tos", "pr", "rlut"],
             )
 
 
@@ -192,6 +207,7 @@ def plot_per_variable_metrics(
     compressed_datasets: Path,
     plots_path: Path,
     all_results: pd.DataFrame,
+    rd_curves_metrics: list[str] = ["Max Absolute Error", "MAE"],
 ):
     """Creates all the plots which only depend on a single variable."""
     for dataset in all_results["Dataset"].unique():
@@ -202,7 +218,7 @@ def plot_per_variable_metrics(
         # For each variable and compressor, plot the input, output, and error fields.
         variables = df["Variable"].unique()
         for var in variables:
-            for dist_metric in ["Max Absolute Error", "MAE"]:
+            for dist_metric in rd_curves_metrics:
                 metric_name = dist_metric.lower().replace(" ", "_")
                 if df[df["Variable"] == var][dist_metric].isnull().all():
                     continue
@@ -361,12 +377,12 @@ def plot_aggregated_rd_curve(
     outfile: None | Path = None,
     agg="median",
     bound_names=["low", "mid", "high"],
+    exclude_vars=None,
 ):
     plt.figure(figsize=(8, 6))
-    if distortion_metric == "DSSIM":
-        # For fields with large number of NaNs, the DSSIM values are unreliable
-        # which is why we exclude them here.
-        normalized_df = normalized_df[~normalized_df["Variable"].isin(["ta", "tos"])]
+    if exclude_vars:
+        # Exclude variables that are not relevant for the distortion metric.
+        normalized_df = normalized_df[~normalized_df["Variable"].isin(exclude_vars)]
 
     compressors = normalized_df["Compressor"].unique()
     agg_distortion = normalized_df.groupby(["Error Bound Name", "Compressor"])[
@@ -400,11 +416,6 @@ def plot_aggregated_rd_curve(
         plt.yscale("log")
     plt.ylabel(f"{agg.title()} {distortion_metric}", fontsize=14)
 
-    plt.legend(
-        title="Compressor",
-        fontsize=10,
-        title_fontsize=12,
-    )
     plt.tick_params(
         axis="both",
         which="major",
@@ -422,58 +433,26 @@ def plot_aggregated_rd_curve(
         top=True,
         right=True,
     )
-
     normalizer_label = get_legend_name(normalizer)
-    if "MAE" in distortion_metric:
-        plt.legend(
-            title="Compressor",
-            loc="upper right",
-            bbox_to_anchor=(0.95, 0.7),
-            fontsize=12,
-            title_fontsize=14,
-        )
-        plt.xlabel(
-            rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
-            fontsize=16,
-        )
-        plt.ylabel(
-            rf"Median Mean Absolute Error Relative to {normalizer_label} ($\downarrow$)",
-            fontsize=16,
-        )
-        arrow_color = "black"
-        # Add an arrow pointing into the lower right corner
-        plt.annotate(
-            "",
-            xy=(0.95, 0.05),
-            xycoords="axes fraction",
-            xytext=(-60, 50),
-            textcoords="offset points",
-            arrowprops=dict(
-                arrowstyle="-|>, head_length=0.5, head_width=0.5",
-                color=arrow_color,
-                lw=5,
-            ),
-        )
-        plt.text(
-            0.83,
-            0.08,
-            "Better",
-            transform=plt.gca().transAxes,
-            fontsize=16,
-            fontweight="bold",
-            color=arrow_color,
-            ha="center",
-        )
-    elif "DSSIM" in distortion_metric:
-        plt.xlabel(
-            rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
-            fontsize=16,
-        )
-        plt.ylabel(
-            rf"Median DSSIM to {normalizer_label} ($\downarrow$)",
-            fontsize=16,
-        )
-        arrow_color = "black"
+    plt.xlabel(
+        rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
+        fontsize=16,
+    )
+    metric_name = DISTORTION2LEGEND_NAME.get(distortion_metric, distortion_metric)
+    plt.ylabel(
+        rf"Median {metric_name} Relative to {normalizer_label} ($\downarrow$)",
+        fontsize=16,
+    )
+    plt.legend(
+        title="Compressor",
+        loc="upper right",
+        bbox_to_anchor=(0.95, 0.7),
+        fontsize=12,
+        title_fontsize=14,
+    )
+
+    arrow_color = "black"
+    if "DSSIM" in distortion_metric:
         # Add an arrow pointing into the top right corner
         plt.annotate(
             "",
@@ -499,6 +478,35 @@ def plot_aggregated_rd_curve(
             ha="center",
             va="center",
         )
+    else:
+        # Add an arrow pointing into the lower right corner
+        plt.annotate(
+            "",
+            xy=(0.95, 0.05),
+            xycoords="axes fraction",
+            xytext=(-60, 50),
+            textcoords="offset points",
+            arrowprops=dict(
+                arrowstyle="-|>, head_length=0.5, head_width=0.5",
+                color=arrow_color,
+                lw=5,
+            ),
+        )
+        plt.text(
+            0.83,
+            0.08,
+            "Better",
+            transform=plt.gca().transAxes,
+            fontsize=16,
+            fontweight="bold",
+            color=arrow_color,
+            ha="center",
+        )
+    if (
+        "DSSIM" in distortion_metric
+        or "MaxAbsError" in distortion_metric
+        or "Spectral Error" in distortion_metric
+    ):
         plt.legend().remove()
 
     plt.tight_layout()

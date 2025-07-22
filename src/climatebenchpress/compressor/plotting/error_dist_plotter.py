@@ -53,7 +53,6 @@ class ErrorDistPlotter:
         # does not change the error plot distribution. Hence, we ignore the PCO
         # compressors here.
         compressors = [comp for comp in compressors if "-pco" not in comp]
-
         for j, var in enumerate(variables):
             for comp in compressors:
                 color, linestyle = get_line_info(comp)
@@ -63,8 +62,11 @@ class ErrorDistPlotter:
                     label = "BitRound"
                 elif label.startswith("StochRound"):
                     label = "StochRound"
+                # Filter out inf values
+                error_data = self.errors[var][comp]
+                error_data = error_data[~np.isinf(error_data) & ~np.isnan(error_data)]
                 self.axes[j, col_index].hist(
-                    self.errors[var][comp],
+                    np.float64(error_data),
                     bins=100,
                     density=True,
                     histtype="step",
