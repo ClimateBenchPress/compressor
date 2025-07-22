@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
-    <title>stochround - climatebenchpress.compressor</title>
+    <title>concatenate_metrics - climatebenchpress.compressor</title>
     <link rel="stylesheet" href="../../../../../css/theme.css" />
     <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
         <link href="../../../../../assets/_mkdocstrings.css" rel="stylesheet" />
@@ -13,8 +13,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "stochround";
-        var mkdocs_page_input_path = "_ref/climatebenchpress/compressor/compressors/stochround.md";
+        var mkdocs_page_name = "concatenate_metrics";
+        var mkdocs_page_input_path = "_ref/climatebenchpress/compressor/scripts/concatenate_metrics.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -57,45 +57,33 @@
     <ul class="current">
                 <li class="toctree-l3"><a class="reference internal" href="../../">compressor</a>
                 </li>
-                <li class="toctree-l3 current"><a class="reference internal current" >compressors</a>
-    <ul class="current">
-                <li class="toctree-l4"><a class="reference internal" href="../">compressors</a>
+                <li class="toctree-l3"><a class="reference internal" >compressors</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/">compressors</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../abc/">abc</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/abc/">abc</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../bitround/">bitround</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/bitround/">bitround</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../bitround_pco/">bitround_pco</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/bitround_pco/">bitround_pco</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../jpeg2000/">jpeg2000</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/jpeg2000/">jpeg2000</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../sperr/">sperr</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/sperr/">sperr</a>
                 </li>
-                <li class="toctree-l4 current"><a class="reference internal current" href="#">stochround</a>
-    <ul class="current">
-    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.compressors.stochround.StochRound">StochRound</a>
-        <ul>
-    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.stochround.StochRound.name">name</a>
-    </li>
-    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.stochround.StochRound.description">description</a>
-    </li>
-    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.stochround.StochRound.abs_bound_codec">abs_bound_codec</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/stochround/">stochround</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../stochround_pco/">stochround_pco</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/stochround_pco/">stochround_pco</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../sz3/">sz3</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/sz3/">sz3</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../tthresh/">tthresh</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/tthresh/">tthresh</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../utils/">utils</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/utils/">utils</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../zfp/">zfp</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/zfp/">zfp</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../zfp_round/">zfp_round</a>
+                <li class="toctree-l4"><a class="reference internal" href="../../compressors/zfp_round/">zfp_round</a>
                 </li>
     </ul>
                 </li>
@@ -133,19 +121,23 @@
                 </li>
     </ul>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" >scripts</a>
-    <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/">scripts</a>
+                <li class="toctree-l3 current"><a class="reference internal current" >scripts</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../">scripts</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/compress/">compress</a>
+                <li class="toctree-l4"><a class="reference internal" href="../compress/">compress</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/compute_metrics/">compute_metrics</a>
+                <li class="toctree-l4"><a class="reference internal" href="../compute_metrics/">compute_metrics</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/concatenate_metrics/">concatenate_metrics</a>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">concatenate_metrics</a>
+    <ul class="current">
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.scripts.concatenate_metrics.concatenate_metrics">concatenate_metrics</a>
+    </li>
+    </ul>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/create_error_bounds/">create_error_bounds</a>
+                <li class="toctree-l4"><a class="reference internal" href="../create_error_bounds/">create_error_bounds</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/print_metrics/">print_metrics</a>
+                <li class="toctree-l4"><a class="reference internal" href="../print_metrics/">print_metrics</a>
                 </li>
     </ul>
                 </li>
@@ -185,8 +177,8 @@
           <li class="breadcrumb-item">Documentation</li>
           <li class="breadcrumb-item">climatebenchpress</li>
           <li class="breadcrumb-item">compressor</li>
-          <li class="breadcrumb-item">compressors</li>
-      <li class="breadcrumb-item active">stochround</li>
+          <li class="breadcrumb-item">scripts</li>
+      <li class="breadcrumb-item active">concatenate_metrics</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -195,8 +187,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="stochround"><code>stochround</code></h1>
-<p><code>climatebenchpress.compressor.compressors.stochround</code></p>
+                <h1 id="concatenate_metrics"><code>concatenate_metrics</code></h1>
+<p><code>climatebenchpress.compressor.scripts.concatenate_metrics</code></p>
 
 
 <div class="doc doc-object doc-module">
@@ -213,84 +205,12 @@
 
 
 
-<p><span class="doc-section-title">Classes:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-          <b><code><a class="autorefs autorefs-internal" title="StochRound (climatebenchpress.compressor.compressors.stochround.StochRound)" href="#climatebenchpress.compressor.compressors.stochround.StochRound">StochRound</a></code></b>
-          –
-          <div class="doc-md-description">
-            
-          </div>
-        </li>
-    </ul>
 
 
-
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="climatebenchpress.compressor.compressors.stochround.StochRound" class="doc doc-heading">
-            <span class="doc doc-object-name doc-class-name">StochRound</span>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="Compressor (climatebenchpress.compressor.compressors.abc.Compressor)" href="../abc/#climatebenchpress.compressor.compressors.abc.Compressor">Compressor</a></code></p>
-
-
-
-
-
-
-
-
-
-
-
-<p><span class="doc-section-title">Methods:</span></p>
+<p><span class="doc-section-title">Functions:</span></p>
     <ul>
           <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="abs_bound_codec
-
-
-  
-      staticmethod
-   (climatebenchpress.compressor.compressors.stochround.StochRound.abs_bound_codec)" href="#climatebenchpress.compressor.compressors.stochround.StochRound.abs_bound_codec">abs_bound_codec</a></code></b>
+            <b><code><a class="autorefs autorefs-internal" title="concatenate_metrics (climatebenchpress.compressor.scripts.concatenate_metrics.concatenate_metrics)" href="#climatebenchpress.compressor.scripts.concatenate_metrics.concatenate_metrics">concatenate_metrics</a></code></b>
             –
             <div class="doc-md-description">
               
@@ -301,7 +221,6 @@
 
 
 
-
   <div class="doc doc-children">
 
 
@@ -310,56 +229,24 @@
 
 
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h3 id="climatebenchpress.compressor.compressors.stochround.StochRound.name" class="doc doc-heading">
-            <span class="doc doc-object-name doc-attribute-name">name</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
-      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
-  </span>
-
-</h3>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>name <span style="color: #666">=</span> <span style="color: #BA2121">&#39;stochround&#39;</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-    </div>
-
-</div>
 
 
 
 
 
 
-<div class="doc doc-object doc-attribute">
 
 
 
-<h3 id="climatebenchpress.compressor.compressors.stochround.StochRound.description" class="doc doc-heading">
-            <span class="doc doc-object-name doc-attribute-name">description</span>
 
 
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
-      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
-  </span>
 
-</h3>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>description <span style="color: #666">=</span> <span style="color: #BA2121">&#39;Stochastic Rounding&#39;</span>
-</code></pre></div>
 
-    <div class="doc doc-contents ">
 
-    </div>
 
-</div>
+
+
+
 
 
 
@@ -369,16 +256,12 @@
 <div class="doc doc-object doc-function">
 
 
-<h3 id="climatebenchpress.compressor.compressors.stochround.StochRound.abs_bound_codec" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">abs_bound_codec</span>
+<h2 id="climatebenchpress.compressor.scripts.concatenate_metrics.concatenate_metrics" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">concatenate_metrics</span>
 
 
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
-  </span>
-
-</h3>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>abs_bound_codec(error_bound, <span style="color: #666">**</span>kwargs)
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>concatenate_metrics(basepath: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>())
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -391,11 +274,22 @@
 
 
 
-  </div>
 
-    </div>
 
-</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -409,7 +303,7 @@
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../stochround_pco/" class="btn btn-neutral float-right" title="stochround_pco">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../create_error_bounds/" class="btn btn-neutral float-right" title="create_error_bounds">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -433,7 +327,7 @@
     
     
     
-      <span><a href="../stochround_pco/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../create_error_bounds/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

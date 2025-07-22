@@ -167,9 +167,11 @@
     <ul>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/">scripts</a>
                 </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/collect_metrics/">collect_metrics</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/compress/">compress</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/compute_metrics/">compute_metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../scripts/concatenate_metrics/">concatenate_metrics</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/create_error_bounds/">create_error_bounds</a>
                 </li>
@@ -546,7 +548,7 @@
 </h2>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_metrics(
     basepath: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>(),
-    data_loader_base_path: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_loader_basepath: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
     bound_names: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [<span style="color: #BA2121">&quot;low&quot;</span>, <span style="color: #BA2121">&quot;mid&quot;</span>, <span style="color: #BA2121">&quot;high&quot;</span>],
     normalizer: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> <span style="color: #666">=</span> <span style="color: #BA2121">&quot;sz3&quot;</span>,
     exclude_dataset: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [],
