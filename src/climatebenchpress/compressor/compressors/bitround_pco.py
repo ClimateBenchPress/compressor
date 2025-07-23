@@ -14,10 +14,11 @@ class BitRoundPco(Compressor):
     description = "Bit Rounding + PCodec"
 
     @staticmethod
-    def rel_bound_codec(error_bound, *, dtype=None, **kwargs):
+    def rel_bound_codec(error_bound, *, dtype=None, data_min=None, **kwargs):
         assert dtype is not None, "dtype must be provided"
+        assert data_min is not None, "data_min must be provided"
 
-        keepbits = compute_keepbits(dtype, error_bound)
+        keepbits = compute_keepbits(dtype, error_bound, data_min)
         return CodecStack(
             numcodecs_wasm_bit_round.BitRound(keepbits=keepbits),
             numcodecs_wasm_pco.Pco(
