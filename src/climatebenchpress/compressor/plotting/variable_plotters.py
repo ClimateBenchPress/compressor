@@ -58,13 +58,21 @@ class CmipOceanPlotter(Plotter):
     datasets = ["cmip6-access-tos-tiny", "cmip6-access-tos"]
 
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var):
+        # Calculate shared vmin and vmax for consistent color ranges
+        data_orig = ds.isel(time=0).values.squeeze()
+        data_new = ds_new.isel(time=0).values.squeeze()
+        vmin = min(np.nanmin(data_orig), np.nanmin(data_new))
+        vmax = max(np.nanmax(data_orig), np.nanmax(data_new))
+
         pcm0 = ax[0].pcolormesh(
             ds.longitude.values,
             ds.latitude.values,
-            ds.isel(time=0).values.squeeze(),
+            data_orig,
             transform=ccrs.PlateCarree(),
             shading="auto",
             cmap="coolwarm",
+            vmin=vmin,
+            vmax=vmax,
             rasterized=True,
         )
         fig.colorbar(
@@ -74,10 +82,12 @@ class CmipOceanPlotter(Plotter):
         pcm1 = ax[1].pcolormesh(
             ds_new.longitude.values,
             ds_new.latitude.values,
-            ds_new.isel(time=0).values.squeeze(),
+            data_new,
             transform=ccrs.PlateCarree(),
             shading="auto",
             cmap="coolwarm",
+            vmin=vmin,
+            vmax=vmax,
             rasterized=True,
         )
         fig.colorbar(
