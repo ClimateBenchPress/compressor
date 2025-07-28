@@ -60,15 +60,15 @@ VAR_NAME_TO_ERA5 = {
 ABS_ERROR = "abs_error"
 REL_ERROR = "rel_error"
 VAR_NAME_TO_ERROR_BOUND = {
-    "rlut": REL_ERROR,
+    "rlut": ABS_ERROR,
     "agb": REL_ERROR,
     "pr": REL_ERROR,
     "ta": ABS_ERROR,
     "tos": ABS_ERROR,
-    "10m_u_component_of_wind": REL_ERROR,
-    "10m_v_component_of_wind": REL_ERROR,
+    "10m_u_component_of_wind": ABS_ERROR,
+    "10m_v_component_of_wind": ABS_ERROR,
     "mean_sea_level_pressure": ABS_ERROR,
-    "no2": ABS_ERROR,
+    "no2": REL_ERROR,
 }
 
 
