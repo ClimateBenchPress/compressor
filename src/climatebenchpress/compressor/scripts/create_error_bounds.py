@@ -111,6 +111,19 @@ def create_error_bounds(
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
                     get_agb_bound(datasets, percentiles=[1.00, 0.99, 0.95])
                 )
+            elif v == "no2":
+                low_error_bounds[v] = {
+                    ABS_ERROR: None,
+                    REL_ERROR: 2 ** (-4),
+                }
+                mid_error_bounds[v] = {
+                    ABS_ERROR: None,
+                    REL_ERROR: 2 ** (-7),
+                }
+                high_error_bounds[v] = {
+                    ABS_ERROR: None,
+                    REL_ERROR: 2 ** (-10),
+                }
             else:
                 data_range: float = (ds[v].max() - ds[v].min()).values.item()  # type: ignore
                 low_error_bounds[v] = {
