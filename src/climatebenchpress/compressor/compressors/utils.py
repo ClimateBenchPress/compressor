@@ -12,6 +12,12 @@ MANTISSA_BITS = {
     np.dtype("float16"): 10,
 }
 
+NONMANTISSA_BITS = {
+    np.dtype("float32"): 32 - MANTISSA_BITS[np.dtype("float32")],
+    np.dtype("float64"): 64 - MANTISSA_BITS[np.dtype("float64")],
+    np.dtype("float16"): 16 - MANTISSA_BITS[np.dtype("float16")],
+}
+
 
 def compute_keepbits(dtype: np.dtype, rel_error: float) -> int:
     """

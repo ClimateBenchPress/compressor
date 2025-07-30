@@ -3,20 +3,32 @@ __all__ = ["ZfpRound"]
 import numcodecs_wasm_zfp
 
 from .abc import Compressor
+from .utils import NONMANTISSA_BITS, compute_keepbits
+from .zfp import ZFP_MAX_BITS, ZFP_MIN_BITS
 
 
 class ZfpRound(Compressor):
     name = "zfp-round"
     description = "ZFP-ROUND"
 
-    # NOTE:
-    # ZFP mechanism for strictly supporting relative error bounds is to
-    # truncate the floating point bit representation and then use ZFP's lossless
-    # mode for compression. This is essentially equivalent to the BitRound
-    # compressors we are already implementing (with a difference what the lossless
-    # compression algorithm is).
-    # See https://zfp.readthedocs.io/en/release1.0.1/faq.html#q-relerr for more details.
-
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
         return numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=error_bound)
+
+    # NOTE:
+    # ZFP mechanism for strictly supporting relative error bounds is to
+    # apply bitshaving and then use ZFP's lossless mode for compression.
+    # See https://zfp.readthedocs.io/en/release1.0.1/faq.html#q-relerr for more details.
+    @staticmethod
+    def rel_bound_codec(error_bound, *, dtype=None, **kwargs):
+        assert dtype is not None, "dtype must be provided"
+
+        mantissa_keepbits = compute_keepbits(dtype, error_bound)
+        total_keepbits = mantissa_keepbits + NONMANTISSA_BITS[dtype]
+        return numcodecs_wasm_zfp.Zfp(
+            mode="expert",
+            min_bits=ZFP_MIN_BITS,
+            max_bits=ZFP_MAX_BITS,
+            max_prec=total_keepbits,
+            min_exp=-1075,
+        )
