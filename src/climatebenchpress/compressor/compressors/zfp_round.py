@@ -4,6 +4,7 @@ import numcodecs_wasm_zfp
 
 from .abc import Compressor
 from .utils import NONMANTISSA_BITS, compute_keepbits
+from .zfp import ZFP_MAX_BITS, ZFP_MIN_BITS
 
 
 class ZfpRound(Compressor):
@@ -26,8 +27,8 @@ class ZfpRound(Compressor):
         total_keepbits = mantissa_keepbits + NONMANTISSA_BITS[dtype]
         return numcodecs_wasm_zfp.Zfp(
             mode="expert",
-            min_bits=0,
-            max_bits=0,
+            min_bits=ZFP_MIN_BITS,
+            max_bits=ZFP_MAX_BITS,
             max_prec=total_keepbits,
             min_exp=-1075,
         )
