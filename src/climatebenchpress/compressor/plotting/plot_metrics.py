@@ -272,6 +272,7 @@ def plot_per_variable_metrics(
                         dataset,
                         comp,
                         var,
+                        error_bound_vals[var],
                         outfile=err_bound_path / f"{var}_{comp}.png",
                     )
 
@@ -295,6 +296,7 @@ def plot_variable_error(
     dataset_name: str,
     compressor: str,
     var: str,
+    err_bound: tuple[str, float],
     outfile: None | Path = None,
 ):
     if outfile is not None and outfile.exists():
@@ -304,7 +306,13 @@ def plot_variable_error(
     plotter = PLOTTERS.get(dataset_name, None)
     if plotter:
         plotter().plot(
-            uncompressed_data, compressed_data, dataset_name, compressor, var, outfile
+            uncompressed_data,
+            compressed_data,
+            dataset_name,
+            compressor,
+            var,
+            err_bound,
+            outfile,
         )
     else:
         print(f"No plotter found for dataset {dataset_name}")
