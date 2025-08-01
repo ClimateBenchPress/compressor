@@ -26,6 +26,8 @@ theme:
 
 nav:
   - Home: index.md
+  - Tutorials:
+      - Run the benchmark: run_benchmark.md
   - Links:
       - GitHub: https://github.com/ClimateBenchPress/compressor/
       - PyPI: https://pypi.org/project/climatebenchpress-compressor/
