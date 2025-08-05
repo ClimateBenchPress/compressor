@@ -7,6 +7,13 @@ from .abc import Test
 class ErrorBound(Test):
     """Tests whether the absolute or relative error between two arrays is below a threshold.
 
+    For relative error, we use the formula `|x - y|  <= |x| *threshold` to ensure
+    that the error is also defined when the input `x` is zero. Consequently, the
+    relative error also checks that the input and output have matching 0s.
+
+    Additionally, this test checks that locations of `nan` and `inf` values in
+    `x` and `y` match.
+
     Parameters
     ----------
     error_type : str

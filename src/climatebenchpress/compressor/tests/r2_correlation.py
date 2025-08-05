@@ -10,7 +10,7 @@ class R2(Test):
 
     Default threshold is taken from [1].
 
-    [1] Baker, Allison H., Haiying Xu, Dorit M. Hammerling, Shaomeng Li, and John P. Clyne. "Toward a multi-method approach: Lossy data compression for climate simulation data." In International conference on high Performance computing, pp. 30-42. Cham: Springer International Publishing, 201
+    > [1] Baker, Allison H., Haiying Xu, Dorit M. Hammerling, Shaomeng Li, and John P. Clyne. "Toward a multi-method approach: Lossy data compression for climate simulation data." In International conference on high Performance computing, pp. 30-42. Cham: Springer International Publishing, 201
     """
 
     def __init__(self, threshold: float = 0.99999):
