@@ -6,6 +6,12 @@ from .abc import Compressor
 
 
 class ZfpRound(Compressor):
+    """ZFP-ROUND compressor.
+
+    This is an adjusted version of the ZFP compressor with an improved rounding mechanism
+    for the transform coefficients.
+    """
+
     name = "zfp-round"
     description = "ZFP-ROUND"
 

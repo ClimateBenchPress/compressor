@@ -6,6 +6,8 @@ from .abc import Compressor
 
 
 class Tthresh(Compressor):
+    """Tthresh compressor."""
+
     name = "tthresh"
     description = "tthresh"
 

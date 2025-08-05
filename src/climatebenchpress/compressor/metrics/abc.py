@@ -6,6 +6,8 @@ import xarray as xr
 
 
 class Metric(ABC):
+    """Base class for metrics."""
+
     @abstractmethod
     def __call__(self, x: xr.DataArray, y: xr.DataArray) -> float:
         """

@@ -9,6 +9,12 @@ from .abc import Compressor
 
 
 class StochRound(Compressor):
+    """Stochastic Rounding + PCodec compressor.
+
+    This compressor first applies stochastic rounding to the data, which adds noise to the data
+    while rounding it. After that, it uses Zstandard for further compression.
+    """
+
     name = "stochround"
     description = "Stochastic Rounding"
 

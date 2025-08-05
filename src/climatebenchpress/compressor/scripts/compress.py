@@ -29,6 +29,28 @@ def compress(
     data_loader_basepath: None | Path = None,
     progress: bool = True,
 ):
+    """Compress datasets with compressors.
+
+    Parameters
+    ----------
+    basepath : Path
+        Compressed dataset will be stored in `basepath / compressed-datasets`.
+    exclude_dataset : Container[str]
+        Datasets to exclude from compression.
+    include_dataset : None | Container[str]
+        Datasets to include in compression. If `None`, all datasets are included.
+        If specified, only datasets in `include_dataset` will be compressed.
+    exclude_compressor : Container[str]
+        Compressors to exclude from compression.
+    include_compressor : None | Container[str]
+        Compressors to include in compression. If `None`, all compressors are included.
+        If specified, only compressors in `include_compressor` will be used.
+    data_loader_basepath : None | Path
+        Base path for the data loader datasets. If `None`, defaults to `basepath / .. / data-loader`.
+        Input datasets will be loaded from `data_loader_basepath / datasets`.
+    progress : bool
+        Whether to show a progress bar during compression.
+    """
     datasets = (data_loader_basepath or basepath) / "datasets"
     compressed_datasets = basepath / "compressed-datasets"
     datasets_error_bounds = basepath / "datasets-error-bounds"

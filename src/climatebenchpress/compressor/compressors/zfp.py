@@ -6,6 +6,8 @@ from .abc import Compressor
 
 
 class Zfp(Compressor):
+    """ZFP compressor."""
+
     name = "zfp"
     description = "ZFP"
 

@@ -5,7 +5,17 @@ from .abc import Test
 
 
 class ErrorBound(Test):
-    def __init__(self, error_type: str, threshold: float = 0.05):
+    """Tests whether the absolute or relative error between two arrays is below a threshold.
+
+    Parameters
+    ----------
+    error_type : str
+        Either "abs_error" for absolute error or "rel_error" for relative error.
+    threshold : float
+        The threshold value for the error.
+    """
+
+    def __init__(self, error_type: str, threshold: float):
         self.threshold = threshold
         assert error_type in [
             "abs_error",

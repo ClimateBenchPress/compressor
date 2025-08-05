@@ -4,6 +4,8 @@ import xarray as xr
 
 
 class Test(ABC):
+    """Base class for pass/fail tests for compressors."""
+
     @abstractmethod
     def __call__(self, x: xr.DataArray, y: xr.DataArray) -> tuple[bool, float]:
         """
