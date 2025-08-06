@@ -115,11 +115,10 @@ def plot_metrics(
                 normalizer=normalizer,
                 compression_metric="Relative CR",
                 distortion_metric=metric,
-                outfile=plots_path
-                / f"rd_curve_{metric.lower().replace(' ', '_')}_exclude=ta_tos_pr_rlut.pdf",
+                outfile=plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
                 agg="median",
                 bound_names=bound_names,
-                exclude_vars=["ta", "tos", "pr", "rlut"],
+                # exclude_vars=["ta", "tos", "pr", "rlut"],
             )
 
 
@@ -285,9 +284,12 @@ def plot_per_variable_metrics(
                 get_lineinfo,
             )
 
-        fig, _ = error_dist_plotter.get_final_figure()
-        savefig(dataset_plots_path / f"error_histograms_{dataset}.pdf")
-        plt.close(fig)
+        figs, _ = error_dist_plotter.get_final_figure()
+        for var, fig in figs.items():
+            savefig(
+                dataset_plots_path / f"error_histograms_{dataset}_{var}.pdf", fig=fig
+            )
+            plt.close(fig)
 
 
 def plot_variable_error(
@@ -540,6 +542,7 @@ def plot_throughput(df, outfile: None | Path = None):
         grouped_df,
         title="",
         ylabel="Throughput [s / MB]",
+        logy=True,
         outfile=outfile,
     )
 
@@ -552,6 +555,7 @@ def plot_instruction_count(df, outfile: None | Path = None):
         grouped_df,
         title="",
         ylabel="Instructions [# / raw B]",
+        logy=True,
         outfile=outfile,
     )
 
@@ -581,7 +585,7 @@ def get_median_and_quantiles(df, encode_column, decode_column):
     )
 
 
-def plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None):
+def plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None, logy=False):
     fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharex=True, sharey=True)
 
     # Bar width
@@ -626,20 +630,21 @@ def plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None):
 
         # Add labels and title
         ax.set_xticks([p + bar_width / 2 for p in x_positions])
-        ax.set_xticklabels(x_labels, rotation=45, ha="right")
-        ax.set_title(f"{error_bound.capitalize()} Error Bound")
+        ax.set_xticklabels(x_labels, rotation=45, ha="right", fontsize=14)
+        ax.set_yscale("log" if logy else "linear")
+        ax.set_title(f"{error_bound.capitalize()} Error Bound", fontsize=14)
         ax.grid(axis="y", linestyle="--", alpha=0.7)
         if i == 0:
-            ax.legend()
-            ax.set_ylabel(ylabel)
+            ax.legend(fontsize=14)
+            ax.set_ylabel(ylabel, fontsize=14)
             ax.annotate(
                 "Better",
-                xy=(0.05, 0.8),
+                xy=(0.1, 0.8),
                 xycoords="axes fraction",
-                xytext=(0.05, 0.95),
+                xytext=(0.1, 0.95),
                 textcoords="axes fraction",
                 arrowprops=dict(arrowstyle="->", lw=3, color="black"),
-                fontsize=12,
+                fontsize=14,
                 ha="center",
                 va="bottom",
             )
@@ -694,16 +699,17 @@ def plot_bound_violations(df, bound_names, outfile: None | Path = None):
     plt.close()
 
 
-def savefig(outfile: Path):
+def savefig(outfile: Path, fig=None):
     ispdf = outfile.suffix == ".pdf"
+    fig = fig if fig is not None else plt.gcf()
     if ispdf:
         # Saving a PDF with the alternative code below leads to a corrupted file.
         # Hence, we use the default savefig method.
         # NOTE: This means passing a virtual UPath is only supported for non-PDF files.
-        plt.savefig(outfile, dpi=300)
+        fig.savefig(outfile, dpi=300)
     else:
         with outfile.open("wb") as f:
-            plt.savefig(f, dpi=300)
+            fig.savefig(f, dpi=300)
 
 
 if __name__ == "__main__":

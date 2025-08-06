@@ -33,16 +33,16 @@ class Plotter(ABC):
         fig, ax = plt.subplots(
             nrows=1,
             ncols=3,
-            figsize=(20, 7),
+            figsize=(18, 6),
             subplot_kw={"projection": self.projection},
         )
         self.plot_fields(fig, ax, ds, ds_new, dataset_name, var, err_bound)
         ax[0].coastlines()
         ax[1].coastlines()
         ax[2].coastlines()
-        ax[0].set_title("Original Dataset")
-        ax[1].set_title("Compressed Dataset")
-        ax[2].set_title(self.error_title)
+        ax[0].set_title("Original Dataset", fontsize=14)
+        ax[1].set_title("Compressed Dataset", fontsize=14)
+        ax[2].set_title(self.error_title, fontsize=14)
         # fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
         fig.tight_layout()
         if outfile is not None:
@@ -106,6 +106,7 @@ class CmipOceanPlotter(Plotter):
                 "fraction": 0.046,
                 "pad": 0.04,
                 "label": "degC",
+                "shrink": 0.6,
             },
         )
 
@@ -123,6 +124,7 @@ class CmipOceanPlotter(Plotter):
                 "fraction": 0.046,
                 "pad": 0.04,
                 "label": "degC",
+                "shrink": 0.6,
             },
         )
 
@@ -143,6 +145,7 @@ class CmipOceanPlotter(Plotter):
                 "fraction": 0.046,
                 "pad": 0.04,
                 "label": "degC",
+                "shrink": 0.6,
                 "ticks": [-bound_value, 0, bound_value],
             },
         )
