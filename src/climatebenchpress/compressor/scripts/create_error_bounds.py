@@ -17,6 +17,49 @@ import xarray as xr
 # derived from the ERA5 ensembles.
 ERROR_BOUNDS = "https://gist.githubusercontent.com/juntyr/bbe2780256e5f91d8f2cb2f606b7935f/raw/table-raw.csv"
 
+# Bitwise real information for no2 data computed from the CAMS dataset.
+# The numbers are taken from the supplementary material of:
+# https://www.nature.com/articles/s43588-021-00156-2
+# "Compressing atmospheric data into its real information content"
+# Milan Klöwer, Miha Razinger, Juan J. Dominguez, Peter D. Düben & Tim N. Palmer
+# Exact data was extracted from the CSV file at:
+# https://static-content.springer.com/esm/art%3A10.1038%2Fs43588-021-00156-2/MediaObjects/43588_2021_156_MOESM2_ESM.zip
+# Accessed on: 29/08/2025.
+NO2_REAL_INFORMATION = [
+    0.0,
+    0.0,
+    0.0,
+    0.82609236,
+    0.82609236,
+    0.8401368,
+    0.7781777,
+    0.65409344,
+    0.47173682,
+    0.2915112,
+    0.16627097,
+    0.08410827,
+    0.03733299,
+    0.015123328,
+    0.0058184885,
+    0.0020212175,
+    0.00053772517,
+    9.423521e-5,
+    8.782874e-6,
+    5.8530753e-7,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+]
+
 
 VAR_NAME_TO_ERA5 = {
     # NextGEMS Icon Outgoing Longwave Radiation (OLR).
@@ -60,15 +103,15 @@ VAR_NAME_TO_ERA5 = {
 ABS_ERROR = "abs_error"
 REL_ERROR = "rel_error"
 VAR_NAME_TO_ERROR_BOUND = {
-    "rlut": REL_ERROR,
+    "rlut": ABS_ERROR,
     "agb": REL_ERROR,
     "pr": REL_ERROR,
     "ta": ABS_ERROR,
     "tos": ABS_ERROR,
-    "10m_u_component_of_wind": REL_ERROR,
-    "10m_v_component_of_wind": REL_ERROR,
+    "10m_u_component_of_wind": ABS_ERROR,
+    "10m_v_component_of_wind": ABS_ERROR,
     "mean_sea_level_pressure": ABS_ERROR,
-    "no2": ABS_ERROR,
+    "no2": REL_ERROR,
 }
 
 
@@ -110,6 +153,10 @@ def create_error_bounds(
             elif v == "agb":
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
                     get_agb_bound(datasets, percentiles=[1.00, 0.99, 0.95])
+                )
+            elif v == "no2":
+                low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
+                    get_no2_bounds(percentiles=[1.00, 0.99, 0.95])
                 )
             else:
                 data_range: float = (ds[v].max() - ds[v].min()).values.item()  # type: ignore
@@ -175,6 +222,33 @@ def get_error_bounds(
             raise ValueError(f"Unknown error bound type: {error_bound_type}")
 
     return var_ebs
+
+
+def get_no2_bounds(percentiles=[1.00, 0.99, 0.95]) -> list[dict[str, Optional[float]]]:
+    # First we need to transform the bitwise real information into a cumulative
+    # distribution function.
+    real_information_dist = np.cumsum(NO2_REAL_INFORMATION) / np.sum(
+        NO2_REAL_INFORMATION
+    )
+    no2_bounds = []
+    for p in percentiles:
+        # Find the first position where cumulative distribution exceeds p.
+        # Add one for 1-based indexing.
+        keepbits = np.argmax(real_information_dist > p) + 1
+        # There are 9 non-mantissa bits in the 32-bit floating point representation.
+        mantissa_keepbits = max(int(keepbits - 9), 0)
+        # 2^(-mantissa_keepbits) indicates the spacing between representable values.
+        # 2^(-mantissa_keepbits) / 2 = 2 ** (-mantissa_keepbits - 1)
+        # then is the maximum rounding error.
+        # See: https://en.wikipedia.org/wiki/Machine_epsilon
+        rel_error = 2 ** (-mantissa_keepbits - 1)
+        no2_bounds.append(
+            {
+                "abs_error": None,
+                "rel_error": float(rel_error),
+            }
+        )
+    return no2_bounds
 
 
 def get_agb_bound(
