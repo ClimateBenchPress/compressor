@@ -335,6 +335,18 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 <div class="doc doc-object doc-class">
 
 
@@ -349,8 +361,8 @@
 
 </h2>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>NamedPerVariableCodec(
-    name: <span title="ErrorBoundName">ErrorBoundName</span>,
-    codecs: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3.12/library/typing.html#typing.Callable">Callable</a>[[], <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>]],
+    name: <span title="climatebenchpress.compressor.compressors.abc.ErrorBoundName">ErrorBoundName</span>,
+    codecs: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3.12/library/typing.html#typing.Callable">Callable</a>[[], <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>]],
 )
 </code></pre></div>
 
@@ -392,7 +404,7 @@
   </span>
 
 </h3>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>name: <span title="ErrorBoundName">ErrorBoundName</span>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>name: <span title="climatebenchpress.compressor.compressors.abc.ErrorBoundName">ErrorBoundName</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -419,7 +431,7 @@
   </span>
 
 </h3>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>codecs: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3.12/library/typing.html#typing.Callable">Callable</a>[[], <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>]]
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>codecs: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3.12/library/typing.html#typing.Callable">Callable</a>[[], <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>]]
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -790,18 +802,18 @@
 
 </h3>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>build(
-    dtypes: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>],
-    data_abs_min: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
-    data_abs_max: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
-    data_min: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
-    data_max: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
-    error_bounds: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-internal" title="ErrorBound
+    dtypes: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>],
+    data_abs_min: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
+    data_abs_max: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
+    data_min: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
+    data_max: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
+    error_bounds: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-internal" title="ErrorBound
 
 
   
       dataclass
    (climatebenchpress.compressor.compressors.abc.ErrorBound)" href="#climatebenchpress.compressor.compressors.abc.ErrorBound">ErrorBound</a>]],
-) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariantName">VariantName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-internal" title="NamedPerVariableCodec
+) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariantName">VariantName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-internal" title="NamedPerVariableCodec
 
 
   
@@ -832,7 +844,7 @@ error bound.</p>
         <ul class="first simple">
             <li>
               <b><code>dtypes</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">numpy</a>.<a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>]</code>)
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">numpy</a>.<a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>]</code>)
               –
               <div class="doc-md-description">
                 <p>Dict mapping from variable name to data type of the input data.</p>
@@ -840,7 +852,7 @@ error bound.</p>
             </li>
             <li>
               <b><code>data_abs_min</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
               –
               <div class="doc-md-description">
                 <p>Dict mapping from variable name to minimum absolute value for the variable.</p>
@@ -848,7 +860,7 @@ error bound.</p>
             </li>
             <li>
               <b><code>data_abs_max</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
               –
               <div class="doc-md-description">
                 <p>Dict mapping from variable name to maximum absolute value for the variable.</p>
@@ -856,7 +868,7 @@ error bound.</p>
             </li>
             <li>
               <b><code>data_min</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
               –
               <div class="doc-md-description">
                 <p>Dict mapping from variable name to minimum value for the variable.</p>
@@ -864,7 +876,7 @@ error bound.</p>
             </li>
             <li>
               <b><code>data_max</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
               –
               <div class="doc-md-description">
                 <p>Dict mapping from variable name to maximum value for the variable.</p>
@@ -872,7 +884,7 @@ error bound.</p>
             </li>
             <li>
               <b><code>error_bounds</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariableName">VariableName</span>, <a class="autorefs autorefs-internal" title="ErrorBound
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-internal" title="ErrorBound
 
 
   
@@ -900,7 +912,7 @@ error bound.</p>
       <td class="field-body">
         <ul class="first simple">
             <li>
-                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="VariantName">VariantName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-internal" title="NamedPerVariableCodec
+                  <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariantName">VariantName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-internal" title="NamedPerVariableCodec
 
 
   
