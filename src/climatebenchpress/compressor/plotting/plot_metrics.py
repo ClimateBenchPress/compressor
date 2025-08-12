@@ -67,7 +67,6 @@ def plot_metrics(
     basepath: Path = Path(),
     data_loader_basepath: None | Path = None,
     bound_names: list[str] = ["low", "mid", "high"],
-    normalizer: str = "sz3",
     exclude_dataset: list[str] = [],
     exclude_compressor: list[str] = [],
     tiny_datasets: bool = False,
@@ -96,7 +95,7 @@ def plot_metrics(
     )
 
     df = rename_compressors(df)
-    normalized_df = normalize(df, bound_normalize="mid", normalizer=normalizer)
+    normalized_df = normalize(df)
     plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
@@ -107,18 +106,27 @@ def plot_metrics(
         "Relative MAE",
         "Relative DSSIM",
         "Relative MaxAbsError",
-        "Spectral Error",
+        "Relative SpectralError",
     ]:
         with plt.rc_context(rc={"text.usetex": use_latex}):
             plot_aggregated_rd_curve(
                 normalized_df,
-                normalizer=normalizer,
                 compression_metric="Relative CR",
                 distortion_metric=metric,
                 outfile=plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
-                agg="median",
+                agg="mean",
                 bound_names=bound_names,
-                # exclude_vars=["ta", "tos", "pr", "rlut"],
+            )
+
+            plot_aggregated_rd_curve(
+                normalized_df,
+                compression_metric="Relative CR",
+                distortion_metric=metric,
+                outfile=plots_path
+                / f"full_rd_curve_{metric.lower().replace(' ', '_')}.pdf",
+                agg="mean",
+                bound_names=bound_names,
+                remove_outliers=False,
             )
 
 
@@ -150,51 +158,32 @@ def sort_error_bounds(error_bounds: list[str]) -> list[str]:
     )
 
 
-def normalize(data, bound_normalize="mid", normalizer=None):
-    """Generate normalized metrics for each compressor and variable. The normalization
-    is done either with respect to either a user provided compressor or the
-    compressor with the highest average rank over all variables (ranked by
-    compression ratio).
-
-    For each metric, the normalization is done by dividing the metric by the value of the
-    normalizer for the same variable and error bound, i.e.:
-    normalized_metric = metric[compressor, variable] / metric[normalizer, variable].
-    """
-    if normalizer is None:
-        # Group by Variable and rank compressors within each variable
-        ranked = data.copy()
-        ranked = ranked[ranked["Error Bound Name"] == bound_normalize]
-        ranked["CompRatio_Rank"] = ranked.groupby("Variable")[
-            "Compression Ratio [raw B / enc B]"
-        ].rank(ascending=False)
-
-        # Calculate average rank for each compressor across all variables
-        avg_ranks = ranked.groupby("Compressor")["CompRatio_Rank"].mean().reset_index()
-        avg_ranks.columns = ["Compressor", "Average_Rank"]
-        avg_ranks = avg_ranks.sort_values("Average_Rank")
-
-        normalizer = avg_ranks.iloc[0]["Compressor"]
-
+def normalize(data):
     normalized = data.copy()
     normalize_vars = [
         ("Compression Ratio [raw B / enc B]", "Relative CR"),
         ("MAE", "Relative MAE"),
         ("DSSIM", "Relative DSSIM"),
         ("Max Absolute Error", "Relative MaxAbsError"),
+        ("Spectral Error", "Relative SpectralError"),
     ]
-    # Avoid negative values. By default, DSSIM is in the range [-1, 1].
-    normalized["DSSIM"] = normalized["DSSIM"] + 1.0
 
-    def get_normalizer(row):
-        return normalized[
-            (data["Compressor"] == normalizer)
-            & (data["Variable"] == row["Variable"])
-            & (data["Error Bound Name"] == bound_normalize)
-        ][col].item()
+    variables = normalized["Variable"].unique()
+
+    dssim_unreliable = normalized["Variable"].isin(["ta", "tos"])
+    normalized.loc[dssim_unreliable, "DSSIM"] = np.nan
 
     for col, new_col in normalize_vars:
+        mean_std = dict()
+        for var in variables:
+            mean = normalized[normalized["Variable"] == var][col].mean()
+            std = normalized[normalized["Variable"] == var][col].std()
+            mean_std[var] = (mean, std)
+
+        # Normalize each variable by its mean and std
         normalized[new_col] = normalized.apply(
-            lambda x: x[col] / get_normalizer(x),
+            lambda x: (x[col] - mean_std[x["Variable"]][0])
+            / mean_std[x["Variable"]][1],
             axis=1,
         )
 
@@ -320,17 +309,23 @@ def plot_variable_error(
         print(f"No plotter found for dataset {dataset_name}")
 
 
-def plot_variable_rd_curve(df, distortion_metric, outfile: None | Path = None):
+def plot_variable_rd_curve(
+    df, distortion_metric, bounds=["low", "mid", "high"], outfile: None | Path = None
+):
     plt.figure(figsize=(8, 6))
     compressors = df["Compressor"].unique()
     for comp in compressors:
         compressor_data = df[df["Compressor"] == comp]
-        sorting_ixs = np.argsort(compressor_data["Compression Ratio [raw B / enc B]"])
-        compr_ratio = [
-            compressor_data["Compression Ratio [raw B / enc B]"].iloc[i]
-            for i in sorting_ixs
+        assert len(compressor_data) == len(bounds)
+        bound_ixs = [
+            compressor_data[compressor_data["Error Bound Name"] == bound].index[0]
+            for bound in bounds
         ]
-        distortion = [compressor_data[distortion_metric].iloc[i] for i in sorting_ixs]
+        compr_ratio = [
+            compressor_data["Compression Ratio [raw B / enc B]"].loc[i]
+            for i in bound_ixs
+        ]
+        distortion = [compressor_data[distortion_metric].loc[i] for i in bound_ixs]
         color, linestyle = get_lineinfo(comp)
         plt.plot(
             compr_ratio,
@@ -381,13 +376,13 @@ def plot_variable_rd_curve(df, distortion_metric, outfile: None | Path = None):
 
 def plot_aggregated_rd_curve(
     normalized_df,
-    normalizer,
     compression_metric,
     distortion_metric,
     outfile: None | Path = None,
     agg="median",
     bound_names=["low", "mid", "high"],
     exclude_vars=None,
+    remove_outliers=True,
 ):
     plt.figure(figsize=(8, 6))
     if exclude_vars:
@@ -398,6 +393,7 @@ def plot_aggregated_rd_curve(
     agg_distortion = normalized_df.groupby(["Error Bound Name", "Compressor"])[
         [compression_metric, distortion_metric]
     ].agg(agg)
+
     for comp in compressors:
         compr_ratio = [
             agg_distortion.loc[(bound, comp), compression_metric]
@@ -419,11 +415,34 @@ def plot_aggregated_rd_curve(
             markersize=8,
         )
 
+    if remove_outliers:
+        # SZ3 and JPEG2000 often give outlier values and violate the bounds.
+        exclude_compressors = ["sz3", "jpeg2000"]
+        filtered_agg = agg_distortion[
+            ~agg_distortion.index.get_level_values("Compressor").isin(
+                exclude_compressors
+            )
+        ]
+        cr_mean, cr_std = (
+            filtered_agg[compression_metric].mean(),
+            filtered_agg[compression_metric].std(),
+        )
+        distortion_mean, distortion_std = (
+            filtered_agg[distortion_metric].mean(),
+            filtered_agg[distortion_metric].std(),
+        )
+
+        # Adjust the plot limits
+        xlims = plt.xlim()
+        xlims_min = max(xlims[0], cr_mean - 4 * cr_std)
+        xlims_max = min(xlims[1], cr_mean + 4 * cr_std)
+        plt.xlim(xlims_min, xlims_max)
+        ylims = plt.ylim()
+        ylims_min = max(ylims[0], distortion_mean - 4 * distortion_std)
+        ylims_max = min(ylims[1], distortion_mean + 4 * distortion_std)
+        plt.ylim(ylims_min, ylims_max)
+
     plt.xlabel(f"{agg.title()} {compression_metric}", fontsize=14)
-    plt.xscale("log")
-    if "PSNR" not in distortion_metric:
-        # PSNR is already on log scale.
-        plt.yscale("log")
     plt.ylabel(f"{agg.title()} {distortion_metric}", fontsize=14)
 
     plt.tick_params(
@@ -443,20 +462,19 @@ def plot_aggregated_rd_curve(
         top=True,
         right=True,
     )
-    normalizer_label = get_legend_name(normalizer)
     plt.xlabel(
-        rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
+        r"Mean Normalized Compression Ratio ($\uparrow$)",
         fontsize=16,
     )
     metric_name = DISTORTION2LEGEND_NAME.get(distortion_metric, distortion_metric)
     plt.ylabel(
-        rf"Median {metric_name} Relative to {normalizer_label} ($\downarrow$)",
+        rf"Mean Normalized {metric_name} ($\downarrow$)",
         fontsize=16,
     )
     plt.legend(
         title="Compressor",
         loc="upper right",
-        bbox_to_anchor=(0.95, 0.7),
+        bbox_to_anchor=(0.8, 0.99),
         fontsize=12,
         title_fontsize=14,
     )
@@ -488,6 +506,11 @@ def plot_aggregated_rd_curve(
             ha="center",
             va="center",
         )
+        # Correct the y-label to point upwards
+        plt.ylabel(
+            rf"Mean Normalized {metric_name} ($\uparrow$)",
+            fontsize=16,
+        )
     else:
         # Add an arrow pointing into the lower right corner
         plt.annotate(
@@ -515,7 +538,7 @@ def plot_aggregated_rd_curve(
     if (
         "DSSIM" in distortion_metric
         or "MaxAbsError" in distortion_metric
-        or "Spectral Error" in distortion_metric
+        or "SpectralError" in distortion_metric
     ):
         plt.legend().remove()
 
