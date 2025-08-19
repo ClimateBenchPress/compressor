@@ -41,8 +41,23 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#downloading-the-data">Downloading the Data</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#using-the-benchmark">Using the Benchmark</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#funding">Funding</a>
+    </li>
     </ul>
                 </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="run_benchmark/">Run the benchmark</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Links</span></p>
               <ul>
@@ -57,12 +72,8 @@
     <ul>
                 <li class="toctree-l2"><a class="reference internal" >compressor</a>
     <ul>
-                <li class="toctree-l3"><a class="reference internal" href="_ref/climatebenchpress/compressor/">compressor</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >compressors</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/compressors/">compressors</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/compressors/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/compressors/bitround/">bitround</a>
@@ -91,8 +102,6 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >metrics</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/metrics/">metrics</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/metrics/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/metrics/dssim/">dssim</a>
@@ -109,24 +118,14 @@
                 </li>
     </ul>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="_ref/climatebenchpress/compressor/monitor/">monitor</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >plotting</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/plotting/">plotting</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/plotting/error_dist_plotter/">error_dist_plotter</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/plotting/plot_metrics/">plot_metrics</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/plotting/variable_plotters/">variable_plotters</a>
                 </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >scripts</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/scripts/">scripts</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/scripts/compress/">compress</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/scripts/compute_metrics/">compute_metrics</a>
@@ -141,8 +140,6 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >tests</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/tests/">tests</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/tests/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="_ref/climatebenchpress/compressor/tests/error_bound/">error_bound</a>
@@ -181,12 +178,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="compressor">compressor</h1>
+                <h1 id="climatebenchpress">ClimateBenchPress</h1>
+<p>This repository contains the main functionality for the ClimateBenchPress compression benchmark.</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>This project uses the uv package manager to handle dependencies. If you don't already have it installed follow the instructions at <a href="https://docs.astral.sh/uv/getting-started/installation/">https://docs.astral.sh/uv/getting-started/installation/</a>.</p>
+<p>Next, clone this repository and within the project directory install all the necessary dependencies with:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>uv<span style="color: #BBB"> </span>sync
+uv<span style="color: #BBB"> </span>pip<span style="color: #BBB"> </span>install<span style="color: #BBB"> </span>-e<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;.&quot;</span>
+</code></pre></div></p>
+<h3 id="downloading-the-data">Downloading the Data</h3>
+<p>Make sure you have all the necessary data downloaded by following the instructions at <a href="https://github.com/ClimateBenchPress/data-loader">https://github.com/ClimateBenchPress/data-loader</a>.</p>
+<h2 id="using-the-benchmark">Using the Benchmark</h2>
+<p>Further details on how to run the benchmark evaluation code.</p>
+<h2 id="funding">Funding</h2>
+<p>ClimateBenchPress has been developed as part of <a href="https://embed2scale.eu/">Embed2Scale</a> and <a href="https://www.esiwace.eu/">ESiWACE3</a>.</p>
+<p>Funded by the European Union. This work has received funding from the European High Performance Computing Joint Undertaking (JU) under grant agreement No 101093054 and EU’s Horizon Europe program under grant agreement number 101131841. This work also received funding from <a href="https://www.ukri.org/">UK Research and Innovation (UKRI)</a>.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="_ref/climatebenchpress/compressor/" class="btn btn-neutral float-right" title="compressor">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="run_benchmark/" class="btn btn-neutral float-right" title="Run the benchmark">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -210,7 +221,7 @@
     
     
     
-      <span><a href="_ref/climatebenchpress/compressor/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="run_benchmark/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
@@ -233,5 +244,5 @@
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-08-06 09:19:29.074290+00:00
+Build Date UTC : 2025-08-19 07:17:11.815731+00:00
 -->

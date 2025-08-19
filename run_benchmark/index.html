@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Run the benchmark - climatebenchpress.compressor</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Run the benchmark";
+        var mkdocs_page_input_path = "run_benchmark.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]--> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> climatebenchpress.compressor
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Run the benchmark</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#create-error-bounds">Create Error Bounds</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#compress-input-datasets">Compress Input Datasets</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#compute-metrics">Compute Metrics</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#optional-create-plots">Optional: Create Plots</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Links</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="https://github.com/ClimateBenchPress/compressor/">GitHub</a>
+                  </li>
+                  <li class="toctree-l1"><a class="" href="https://pypi.org/project/climatebenchpress-compressor/">PyPI</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >climatebenchpress</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >compressor</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >compressors</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/bitround/">bitround</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/bitround_pco/">bitround_pco</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/jpeg2000/">jpeg2000</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/sperr/">sperr</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/stochround/">stochround</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/stochround_pco/">stochround_pco</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/sz3/">sz3</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/tthresh/">tthresh</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/utils/">utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/zfp/">zfp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/compressors/zfp_round/">zfp_round</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >metrics</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/metrics/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/metrics/dssim/">dssim</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/metrics/mae/">mae</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/metrics/max_abs_error/">max_abs_error</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/metrics/max_rel_error/">max_rel_error</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/metrics/psnr/">psnr</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/metrics/spectral_error/">spectral_error</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >plotting</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/plotting/plot_metrics/">plot_metrics</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >scripts</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/scripts/compress/">compress</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/scripts/compute_metrics/">compute_metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/scripts/concatenate_metrics/">concatenate_metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/scripts/create_error_bounds/">create_error_bounds</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/scripts/print_metrics/">print_metrics</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >tests</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/tests/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/tests/error_bound/">error_bound</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/tests/r2_correlation/">r2_correlation</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../_ref/climatebenchpress/compressor/tests/spatial_relative_error/">spatial_relative_error</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">climatebenchpress.compressor</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Tutorials</li>
+      <li class="breadcrumb-item active">Run the benchmark</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="evaluating-the-benchmark-results">Evaluating the Benchmark Results</h1>
+<p>To evaluate the benchmark results, ensure you have data at <code>path/to/data-loader/datasets</code>, which should be downloaded using the <a href="https://github.com/ClimateBenchPress/data-loader">data loader</a>.</p>
+<p>On a high-level the benchmark evaluation pipeline progresses in the following steps:</p>
+<ol>
+<li>Compute three error bound levels for each input dataset.</li>
+<li>Compress each input dataset with all the benchmark compressors for all three error bounds.</li>
+<li>Compute compressor performance metrics for evaluation purposes.</li>
+<li>Optional: Create summary plots of the benchmark results.</li>
+</ol>
+<p>We will now go through each of these steps in more detail. As you work through these steps, the pipeline will progressively populate the directories <code>datasets-error-bounds</code>, <code>compressed-datasets</code>, <code>metrics</code>, and <code>plots</code>.</p>
+<h2 id="create-error-bounds">Create Error Bounds</h2>
+<p>Begin by creating the error bounds for each dataset using the following command:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>uv<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>python<span style="color: #BBB"> </span>-m<span style="color: #BBB">  </span>climatebenchpress.compressor.scripts.create_error_bounds<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">    </span>--data-loader-basepath<span style="color: #666">=</span>path/to/data-loader
+</code></pre></div>
+This step creates three error bounds for each variable in the datasets and stores the information in the <code>datasets-error-bounds</code> directory.</p>
+<h2 id="compress-input-datasets">Compress Input Datasets</h2>
+<p>Next, compress all the input datasets by running:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>uv<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>python<span style="color: #BBB"> </span>-m<span style="color: #BBB"> </span>climatebenchpress.compressor.scripts.compress<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">    </span>--data-loader-basepath<span style="color: #666">=</span>path/to/data-loader
+</code></pre></div>
+This command will populate the <code>compressed-datasets</code> directory with the following structure:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>compressed-datasets/
+    dataset1/
+        {var_name}-{err_bound_type}={low_err_bound_val}_{var_name2}-{err_bound_type2}={low_err_bound_val2}
+            compressor1/
+                decompressed.zarr
+                measurements.json
+            compressor2/
+                ...
+        {var_name}-{err_bound_type}={mid_err_bound_val}_{var_name2}-{err_bound_type2}={mid_err_bound_val2}/
+            ...
+        {var_name}-{err_bound_type}={high_err_bound_val}_{var_name2}-{err_bound_type2}={high_err_bound_val2}/
+            ...
+    dataset2/
+        ...
+    ...
+</code></pre></div>
+For each dataset, the results for the three different error bounds are stored in different directories. The <code>var_name</code> indicates the variable(s) in the dataset that are being compressed, while <code>err_bound_type</code> will be either <code>abs_error</code> or <code>rel_error</code>.</p>
+<p>You can use additional arguments to control which compressors and datasets are processed: <code>--exclude-compressor</code> and <code>--exclude-dataset</code> to avoid using certain compressors and datasets, or <code>--include-compressor</code> and <code>--include-dataset</code> to only use selected compressors on selected datasets.
+For example, the command
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>uv<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>python<span style="color: #BBB"> </span>-m<span style="color: #BBB"> </span>climatebenchpress.compressor.scripts.compress<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">    </span>--data-loader-basepath<span style="color: #666">=</span>path/to/data-loader<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">    </span>--include-compressor<span style="color: #BBB"> </span>sz3<span style="color: #BBB"> </span>jpeg2000<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">    </span>--include-dataset<span style="color: #BBB"> </span>era5
+</code></pre></div>
+compresses the era5 data with the compressors SZ3 and JPEG2000.
+These arguments are particularly useful if you wish to parallelize the benchmark evaluation using tools such as <code>xargs</code>.</p>
+<h2 id="compute-metrics">Compute Metrics</h2>
+<p>After compression, evaluate compression metrics on the compressed datasets using:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>uv<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>python<span style="color: #BBB"> </span>-m<span style="color: #BBB"> </span>climatebenchpress.compressor.scripts.compute_metrics<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">    </span>--data-loader-basepath<span style="color: #666">=</span>path/to/data-loader
+</code></pre></div>
+You can apply the same filtering options with <code>--exclude-compressor</code>, <code>--exclude-dataset</code>, <code>--include-compressor</code> and <code>--include-dataset</code> arguments as used in the compression step.</p>
+<p>Once the metrics are computed, combine all the metrics into a single CSV file by running:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>uv<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>python<span style="color: #BBB"> </span>-m<span style="color: #BBB"> </span>climatebenchpress.compressor.scripts.concatenate_metrics
+</code></pre></div>
+This will create the <code>metrics/all_results.csv</code> file which contains all the results.</p>
+<h2 id="optional-create-plots">Optional: Create Plots</h2>
+<p>Finally, generate visualization plots with the following command:
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>uv<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>python<span style="color: #BBB"> </span>-m<span style="color: #BBB"> </span>climatebenchpress.compressor.plotting.plot_metrics<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">    </span>--data-loader-basepath<span style="color: #666">=</span>path/to/data-loader
+</code></pre></div>
+This will create plots in the <code>plots</code> directory. By default, this assumes access to a LaTeX compiler. If you do not have one on your system, you can add the <code>--avoid-latex</code> flag to this command.</p>
+<p>Note that the full plotting process can take quite a lot of time because it generates individual plots for each error bound-compressor-dataset combination. If you want to avoid generating individual plots for certain datasets, you can do so with the <code>--exclude-dataset</code> command line option.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../_ref/climatebenchpress/compressor/compressors/abc/" class="btn btn-neutral float-right" title="abc">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="../_ref/climatebenchpress/compressor/compressors/abc/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../js/katex.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

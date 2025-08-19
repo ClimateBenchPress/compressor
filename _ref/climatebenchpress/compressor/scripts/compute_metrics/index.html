@@ -42,6 +42,11 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
                 </li>
               </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../run_benchmark/">Run the benchmark</a>
+                  </li>
+              </ul>
               <p class="caption"><span class="caption-text">Links</span></p>
               <ul>
                   <li class="toctree-l1"><a class="" href="https://github.com/ClimateBenchPress/compressor/">GitHub</a>
@@ -55,12 +60,8 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" >compressor</a>
     <ul class="current">
-                <li class="toctree-l3"><a class="reference internal" href="../../">compressor</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >compressors</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../compressors/">compressors</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../compressors/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../compressors/bitround/">bitround</a>
@@ -89,8 +90,6 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >metrics</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../metrics/">metrics</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../metrics/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../metrics/dssim/">dssim</a>
@@ -107,24 +106,14 @@
                 </li>
     </ul>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="../../monitor/">monitor</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >plotting</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/">plotting</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/error_dist_plotter/">error_dist_plotter</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../plotting/plot_metrics/">plot_metrics</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/variable_plotters/">variable_plotters</a>
                 </li>
     </ul>
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" >scripts</a>
     <ul class="current">
-                <li class="toctree-l4"><a class="reference internal" href="../">scripts</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../compress/">compress</a>
                 </li>
                 <li class="toctree-l4 current"><a class="reference internal current" href="#">compute_metrics</a>
@@ -143,8 +132,6 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >tests</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../tests/">tests</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../tests/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../tests/error_bound/">error_bound</a>
@@ -202,21 +189,6 @@
 
 
 
-
-
-
-
-
-<p><span class="doc-section-title">Functions:</span></p>
-    <ul>
-          <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="compute_metrics (climatebenchpress.compressor.scripts.compute_metrics.compute_metrics)" href="#climatebenchpress.compressor.scripts.compute_metrics.compute_metrics">compute_metrics</a></code></b>
-            –
-            <div class="doc-md-description">
-              
-            </div>
-          </li>
-    </ul>
 
 
 
@@ -285,18 +257,92 @@
 
     <div class="doc doc-contents ">
 
+        <p>Compute evaluation metrics for compressors.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>basepath</code></b>
+                  (<code><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a></code>, default:
+                      <code><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>()</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Assumes the compressed datasets are stored in <code>basepath / compressed-datasets</code>.
+Computed metrics will be stored in <code>basepath / metrics</code>.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data_loader_basepath</code></b>
+                  (<code>None | <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Base path for the data loader datasets. If <code>None</code>, defaults to <code>basepath / .. / data-loader</code>.
+Input datasets will be loaded from <code>data_loader_basepath / datasets</code>.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>exclude_dataset</code></b>
+                  (<code><a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>()</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Datasets to exclude from evaluation.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>include_dataset</code></b>
+                  (<code>None | <a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Datasets to include in evaluation. If <code>None</code>, all datasets are included.
+If specified, only datasets in <code>include_dataset</code> will be evaluated.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>exclude_compressor</code></b>
+                  (<code><a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
+                      <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>()</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Compressors to exclude from evaluation.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>include_compressor</code></b>
+                  (<code>None | <a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Compressors to include in evaluation. If <code>None</code>, all compressors are included.
+If specified, only compressors in <code>include_compressor</code> will be evaluated.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
     </div>
 
 </div>
-
-
-
-
-
-
-
-
 
 
 

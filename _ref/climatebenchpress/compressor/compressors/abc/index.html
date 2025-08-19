@@ -42,6 +42,11 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
                 </li>
               </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../run_benchmark/">Run the benchmark</a>
+                  </li>
+              </ul>
               <p class="caption"><span class="caption-text">Links</span></p>
               <ul>
                   <li class="toctree-l1"><a class="" href="https://github.com/ClimateBenchPress/compressor/">GitHub</a>
@@ -55,12 +60,8 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" >compressor</a>
     <ul class="current">
-                <li class="toctree-l3"><a class="reference internal" href="../../">compressor</a>
-                </li>
                 <li class="toctree-l3 current"><a class="reference internal current" >compressors</a>
     <ul class="current">
-                <li class="toctree-l4"><a class="reference internal" href="../">compressors</a>
-                </li>
                 <li class="toctree-l4 current"><a class="reference internal current" href="#">abc</a>
     <ul class="current">
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec">NamedPerVariableCodec</a>
@@ -127,8 +128,6 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >metrics</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../metrics/">metrics</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../metrics/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../metrics/dssim/">dssim</a>
@@ -145,24 +144,14 @@
                 </li>
     </ul>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="../../monitor/">monitor</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >plotting</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/">plotting</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/error_dist_plotter/">error_dist_plotter</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../plotting/plot_metrics/">plot_metrics</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/variable_plotters/">variable_plotters</a>
                 </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >scripts</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/">scripts</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/compress/">compress</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/compute_metrics/">compute_metrics</a>
@@ -177,8 +166,6 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >tests</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../tests/">tests</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../tests/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../tests/error_bound/">error_bound</a>
@@ -234,45 +221,6 @@
 
 
 
-
-
-
-
-
-<p><span class="doc-section-title">Classes:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-          <b><code><a class="autorefs autorefs-internal" title="NamedPerVariableCodec
-
-
-  
-      dataclass
-   (climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec)" href="#climatebenchpress.compressor.compressors.abc.NamedPerVariableCodec">NamedPerVariableCodec</a></code></b>
-          –
-          <div class="doc-md-description">
-            
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-          <b><code><a class="autorefs autorefs-internal" title="ErrorBound
-
-
-  
-      dataclass
-   (climatebenchpress.compressor.compressors.abc.ErrorBound)" href="#climatebenchpress.compressor.compressors.abc.ErrorBound">ErrorBound</a></code></b>
-          –
-          <div class="doc-md-description">
-            
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-          <b><code><a class="autorefs autorefs-internal" title="Compressor (climatebenchpress.compressor.compressors.abc.Compressor)" href="#climatebenchpress.compressor.compressors.abc.Compressor">Compressor</a></code></b>
-          –
-          <div class="doc-md-description">
-            
-          </div>
-        </li>
-    </ul>
 
 
 
@@ -369,9 +317,41 @@
     <div class="doc doc-contents ">
 
 
+        <p>Dataclass representing a codec for one dataset and compressor.</p>
 
 
-
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Attributes:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>name</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>)
+              –
+              <div class="doc-md-description">
+                <p>Name of the error bound used to create the codecs, a combination of variable
+names and error bounds.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>codecs</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="typing.Callable" href="https://docs.python.org/3.12/library/typing.html#typing.Callable">Callable</a>[[], <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>]]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Dictionary mapping variable names to codec constructors.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 
 
@@ -476,9 +456,41 @@
     <div class="doc doc-contents ">
 
 
+        <p>Dataclass representing an error bound for a variable.</p>
+<p>Can only have one of <code>abs_error</code> or <code>rel_error</code> set, not both.</p>
 
 
-
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Attributes:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>abs_error</code></b>
+                  (<code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Absolute error bound for the variable.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rel_error</code></b>
+                  (<code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Relative error bound for the variable.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 
 
@@ -583,77 +595,12 @@
               Bases: <code><a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3.12/library/abc.html#abc.ABC">ABC</a></code></p>
 
 
+        <p>Abstract base class for compressors.</p>
 
 
 
 
 
-
-
-
-
-<p><span class="doc-section-title">Methods:</span></p>
-    <ul>
-          <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="abs_bound_codec
-
-
-  
-      abstractmethod
-      staticmethod
-   (climatebenchpress.compressor.compressors.abc.Compressor.abs_bound_codec)" href="#climatebenchpress.compressor.compressors.abc.Compressor.abs_bound_codec">abs_bound_codec</a></code></b>
-            –
-            <div class="doc-md-description">
-              
-            </div>
-          </li>
-          <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="rel_bound_codec
-
-
-  
-      abstractmethod
-      staticmethod
-   (climatebenchpress.compressor.compressors.abc.Compressor.rel_bound_codec)" href="#climatebenchpress.compressor.compressors.abc.Compressor.rel_bound_codec">rel_bound_codec</a></code></b>
-            –
-            <div class="doc-md-description">
-              
-            </div>
-          </li>
-          <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="build
-
-
-  
-      classmethod
-   (climatebenchpress.compressor.compressors.abc.Compressor.build)" href="#climatebenchpress.compressor.compressors.abc.Compressor.build">build</a></code></b>
-            –
-            <div class="doc-md-description">
-              <p>Constructs a dictionary of codecs based on the provided error bounds.</p>
-            </div>
-          </li>
-          <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="registry (climatebenchpress.compressor.compressors.abc.Compressor.registry)" href="#climatebenchpress.compressor.compressors.abc.Compressor.registry">registry</a></code></b>
-            –
-            <div class="doc-md-description">
-              
-            </div>
-          </li>
-          <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="has_abs_error_impl (climatebenchpress.compressor.compressors.abc.Compressor.has_abs_error_impl)" href="#climatebenchpress.compressor.compressors.abc.Compressor.has_abs_error_impl">has_abs_error_impl</a></code></b>
-            –
-            <div class="doc-md-description">
-              
-            </div>
-          </li>
-          <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="has_rel_error_impl (climatebenchpress.compressor.compressors.abc.Compressor.has_rel_error_impl)" href="#climatebenchpress.compressor.compressors.abc.Compressor.has_rel_error_impl">has_rel_error_impl</a></code></b>
-            –
-            <div class="doc-md-description">
-              
-            </div>
-          </li>
-    </ul>
 
 
 
@@ -745,6 +692,8 @@
 
     <div class="doc doc-contents ">
 
+        <p>Create a codec with an absolute error bound.</p>
+
 
     </div>
 
@@ -778,6 +727,8 @@
 </code></pre></div>
 
     <div class="doc doc-contents ">
+
+        <p>Create a codec with a relative error bound.</p>
 
 
     </div>

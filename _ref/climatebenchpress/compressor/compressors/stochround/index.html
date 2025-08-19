@@ -42,6 +42,11 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
                 </li>
               </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../run_benchmark/">Run the benchmark</a>
+                  </li>
+              </ul>
               <p class="caption"><span class="caption-text">Links</span></p>
               <ul>
                   <li class="toctree-l1"><a class="" href="https://github.com/ClimateBenchPress/compressor/">GitHub</a>
@@ -55,12 +60,8 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" >compressor</a>
     <ul class="current">
-                <li class="toctree-l3"><a class="reference internal" href="../../">compressor</a>
-                </li>
                 <li class="toctree-l3 current"><a class="reference internal current" >compressors</a>
     <ul class="current">
-                <li class="toctree-l4"><a class="reference internal" href="../">compressors</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../bitround/">bitround</a>
@@ -101,8 +102,6 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >metrics</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../metrics/">metrics</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../metrics/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../metrics/dssim/">dssim</a>
@@ -119,24 +118,14 @@
                 </li>
     </ul>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="../../monitor/">monitor</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >plotting</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/">plotting</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/error_dist_plotter/">error_dist_plotter</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../plotting/plot_metrics/">plot_metrics</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/variable_plotters/">variable_plotters</a>
                 </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >scripts</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/">scripts</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/compress/">compress</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/compute_metrics/">compute_metrics</a>
@@ -151,8 +140,6 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >tests</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../tests/">tests</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../tests/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../tests/error_bound/">error_bound</a>
@@ -213,21 +200,6 @@
 
 
 
-<p><span class="doc-section-title">Classes:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-          <b><code><a class="autorefs autorefs-internal" title="StochRound (climatebenchpress.compressor.compressors.stochround.StochRound)" href="#climatebenchpress.compressor.compressors.stochround.StochRound">StochRound</a></code></b>
-          –
-          <div class="doc-md-description">
-            
-          </div>
-        </li>
-    </ul>
-
-
-
-
-
 
   <div class="doc doc-children">
 
@@ -273,30 +245,14 @@
               Bases: <code><a class="autorefs autorefs-internal" title="Compressor (climatebenchpress.compressor.compressors.abc.Compressor)" href="../abc/#climatebenchpress.compressor.compressors.abc.Compressor">Compressor</a></code></p>
 
 
+        <p>Stochastic Rounding + PCodec compressor.</p>
+<p>This compressor first applies stochastic rounding to the data, which adds noise to the data
+while rounding it. After that, it uses Zstandard for further compression.</p>
 
 
 
 
 
-
-
-
-
-<p><span class="doc-section-title">Methods:</span></p>
-    <ul>
-          <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="abs_bound_codec
-
-
-  
-      staticmethod
-   (climatebenchpress.compressor.compressors.stochround.StochRound.abs_bound_codec)" href="#climatebenchpress.compressor.compressors.stochround.StochRound.abs_bound_codec">abs_bound_codec</a></code></b>
-            –
-            <div class="doc-md-description">
-              
-            </div>
-          </li>
-    </ul>
 
 
 

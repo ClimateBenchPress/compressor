@@ -42,6 +42,11 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../../../..">Home</a>
                 </li>
               </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../run_benchmark/">Run the benchmark</a>
+                  </li>
+              </ul>
               <p class="caption"><span class="caption-text">Links</span></p>
               <ul>
                   <li class="toctree-l1"><a class="" href="https://github.com/ClimateBenchPress/compressor/">GitHub</a>
@@ -55,12 +60,8 @@
     <ul class="current">
                 <li class="toctree-l2 current"><a class="reference internal current" >compressor</a>
     <ul class="current">
-                <li class="toctree-l3"><a class="reference internal" href="../../">compressor</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >compressors</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../compressors/">compressors</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../compressors/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../compressors/bitround/">bitround</a>
@@ -89,8 +90,6 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >metrics</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../metrics/">metrics</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../metrics/abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../metrics/dssim/">dssim</a>
@@ -107,24 +106,14 @@
                 </li>
     </ul>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="../../monitor/">monitor</a>
-                </li>
                 <li class="toctree-l3"><a class="reference internal" >plotting</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/">plotting</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/error_dist_plotter/">error_dist_plotter</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../plotting/plot_metrics/">plot_metrics</a>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="../../plotting/variable_plotters/">variable_plotters</a>
                 </li>
     </ul>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >scripts</a>
     <ul>
-                <li class="toctree-l4"><a class="reference internal" href="../../scripts/">scripts</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/compress/">compress</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../scripts/compute_metrics/">compute_metrics</a>
@@ -139,8 +128,6 @@
                 </li>
                 <li class="toctree-l3 current"><a class="reference internal current" >tests</a>
     <ul class="current">
-                <li class="toctree-l4"><a class="reference internal" href="../">tests</a>
-                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../abc/">abc</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../error_bound/">error_bound</a>
@@ -213,21 +200,6 @@
 
 
 
-<p><span class="doc-section-title">Classes:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-          <b><code><a class="autorefs autorefs-internal" title="SRE (climatebenchpress.compressor.tests.spatial_relative_error.SRE)" href="#climatebenchpress.compressor.tests.spatial_relative_error.SRE">SRE</a></code></b>
-          –
-          <div class="doc-md-description">
-            
-          </div>
-        </li>
-    </ul>
-
-
-
-
-
 
   <div class="doc doc-children">
 
@@ -266,25 +238,54 @@
               Bases: <code><a class="autorefs autorefs-internal" title="Test (climatebenchpress.compressor.tests.abc.Test)" href="../abc/#climatebenchpress.compressor.tests.abc.Test">Test</a></code></p>
 
 
+        <p>Test whether the spatial relative error between two arrays exceeds a threshold.</p>
+<p>The spatial relative error is defined as the percentage of grid points where the relative error
+exceeds a given delta, i.e. <span class="arithmatex">\(\frac{1}{N} \sum_i \mathbb{I}[|x_i - y_i| / |x_i| &gt; \delta]\)</span>.</p>
+<p>Default threshold and delta is taken from [1].</p>
+<blockquote>
+<p>[1] Baker, Allison H., Haiying Xu, Dorit M. Hammerling, Shaomeng Li, and John P. Clyne. "Toward a multi-method approach: Lossy data compression for climate simulation data." In International conference on high Performance computing, pp. 30-42. Cham: Springer International Publishing, 201</p>
+</blockquote>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>delta</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a></code>, default:
+                      <code>0.0001</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The relative error threshold for each grid point.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>threshold</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a></code>, default:
+                      <code>0.05</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>The maximum proportion of grid points that can exceed the relative error threshold.</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 
 
 
-
-
-
-
-
-<p><span class="doc-section-title">Methods:</span></p>
-    <ul>
-          <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="__call__ (climatebenchpress.compressor.tests.spatial_relative_error.SRE.__call__)" href="#climatebenchpress.compressor.tests.spatial_relative_error.SRE.__call__">__call__</a></code></b>
-            –
-            <div class="doc-md-description">
-              
-            </div>
-          </li>
-    </ul>
 
 
 
