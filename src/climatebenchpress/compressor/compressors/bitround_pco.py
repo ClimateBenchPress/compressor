@@ -10,6 +10,12 @@ from .utils import compute_keepbits
 
 
 class BitRoundPco(Compressor):
+    """Bit Rounding + PCodec compressor.
+
+    This compressor first applies bit rounding to the data, which reduces the precision of the data
+    while preserving its overall structure. After that, it uses PCodec for further compression.
+    """
+
     name = "bitround-pco"
     description = "Bit Rounding + PCodec"
 

@@ -12,6 +12,21 @@ from .abc import Compressor
 
 
 class Jpeg2000(Compressor):
+    """JPEG2000 compressor.
+
+    Note that JPEG2000 does not guarantee pointwise error bounds, but only average error bounds
+    through specifying a target Peak Signal to Noise Ratio (PSNR). We convert
+    the absolute error bound to a PSNR value using the formula:
+    ```
+    PSNR = 20 * (log10(data_range) - log10(error_bound))
+    ```
+    where `data_range = max(data) - min(data)`.
+
+    Additionally, JPEG2000 expects integer data, not floating point, so we linearly quantize the
+    data into integers ranging between 0 and 2**25 - 1, with 2**25-1 the maximum integer
+    value accepted by JPEG2000.
+    """
+
     name = "jpeg2000"
     description = "JPEG 2000"
 

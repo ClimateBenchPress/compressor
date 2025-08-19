@@ -119,6 +119,17 @@ def create_error_bounds(
     basepath: Path = Path(),
     data_loader_basepath: None | Path = None,
 ):
+    """Create three error bounds for all datasets and the variables in them.
+
+    Parameters
+    ----------
+    basepath : Path
+        The base path where the error bounds will be stored.
+        The error bounds will be stored in `basepath / datasets-error-bounds`.
+    data_loader_basepath : Path, optional
+        The base path where the datasets are stored. If not provided, it defaults to `basepath / .. / data-loader`.
+        The datasets will be loaded from `data_loader_basepath / datasets`.
+    """
     datasets = (data_loader_basepath or basepath) / "datasets"
     datasets_error_bounds = basepath / "datasets-error-bounds"
 

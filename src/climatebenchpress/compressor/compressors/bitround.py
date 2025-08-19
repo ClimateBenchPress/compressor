@@ -9,6 +9,13 @@ from .utils import compute_keepbits
 
 
 class BitRound(Compressor):
+    """Bit Rounding compressor.
+
+    This compressor applies bit rounding to the data, which reduces the precision of the data
+    while preserving its overall structure. It then applies the Zstandard lossless codec
+    for further compression.
+    """
+
     name = "bitround"
     description = "Bit Rounding"
 

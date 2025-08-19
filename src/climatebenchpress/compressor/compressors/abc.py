@@ -3,8 +3,8 @@ __all__ = ["Compressor", "NamedPerVariableCodec", "ErrorBound"]
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from collections.abc import Mapping
-from functools import partial
 from dataclasses import dataclass
+from functools import partial
 from types import MappingProxyType
 from typing import Callable, Optional
 
@@ -19,12 +19,35 @@ type VariantName = str
 
 @dataclass
 class NamedPerVariableCodec:
+    """Dataclass representing a codec for one dataset and compressor.
+
+    Attributes
+    ----------
+    name : str
+        Name of the error bound used to create the codecs, a combination of variable
+        names and error bounds.
+    codecs : dict[VariableName, Callable[[], Codec]]
+        Dictionary mapping variable names to codec constructors.
+    """
+
     name: ErrorBoundName
     codecs: dict[VariableName, Callable[[], Codec]]
 
 
 @dataclass
 class ErrorBound:
+    """Dataclass representing an error bound for a variable.
+
+    Can only have one of `abs_error` or `rel_error` set, not both.
+
+    Attributes
+    ----------
+    abs_error : Optional[float]
+        Absolute error bound for the variable.
+    rel_error : Optional[float]
+        Relative error bound for the variable.
+    """
+
     abs_error: Optional[float] = None
     rel_error: Optional[float] = None
 
@@ -52,7 +75,8 @@ class VariantErrorBoundPerVariable:
 
 
 class Compressor(ABC):
-    # Abstract interface, must be implemented by subclasses
+    """Abstract base class for compressors."""
+
     name: str
     description: str
 
@@ -65,6 +89,7 @@ class Compressor(ABC):
         data_min: Optional[float] = None,
         data_max: Optional[float] = None,
     ) -> Codec:
+        """Create a codec with an absolute error bound."""
         pass
 
     @staticmethod
@@ -76,6 +101,7 @@ class Compressor(ABC):
         data_min: Optional[float] = None,
         data_max: Optional[float] = None,
     ) -> Codec:
+        """Create a codec with a relative error bound."""
         pass
 
     @classmethod
