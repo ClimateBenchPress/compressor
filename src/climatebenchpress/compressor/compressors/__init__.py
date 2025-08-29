@@ -2,6 +2,8 @@ __all__ = [
     "BitRound",
     "BitRoundPco",
     "Jpeg2000",
+    "RP",
+    "RPDct",
     "Sperr",
     "StochRound",
     "StochRoundPco",
@@ -15,6 +17,8 @@ from . import abc as abc
 from .bitround import BitRound
 from .bitround_pco import BitRoundPco
 from .jpeg2000 import Jpeg2000
+from .rp import RP
+from .rp_dct import RPDct
 from .sperr import Sperr
 from .stochround import StochRound
 from .stochround_pco import StochRoundPco
