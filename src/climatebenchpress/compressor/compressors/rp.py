@@ -16,6 +16,6 @@ class RP(Compressor):
         return CodecStack(
             numcodecs_wasm_swizzle_reshape.SwizzleReshape(axes=[[0, 1, 2], [3, 4]]),
             numcodecs_random_projection.RPCodec(
-                mae=error_bound, method="gaussian", seed=42
+                mae=error_bound, method="gaussian", seed=42, debug=True
             ),
         )

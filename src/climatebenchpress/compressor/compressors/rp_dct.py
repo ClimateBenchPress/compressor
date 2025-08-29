@@ -15,5 +15,7 @@ class RPDct(Compressor):
     def abs_bound_codec(error_bound, **kwargs):
         return CodecStack(
             numcodecs_wasm_swizzle_reshape.SwizzleReshape(axes=[[0, 1, 2], [3, 4]]),
-            numcodecs_random_projection.RPCodec(mae=error_bound, method="dct", seed=0),
+            numcodecs_random_projection.RPCodec(
+                mae=error_bound, method="dct", seed=0, debug=True
+            ),
         )
