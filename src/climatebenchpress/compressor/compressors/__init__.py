@@ -5,6 +5,7 @@ __all__ = [
     "SafeguardsSperr",
     "SafeguardsSz3",
     "SafeguardsZero",
+    "SafeguardsZeroDssim",
     "SafeguardsZfpRound",
     "Sperr",
     "StochRound",
@@ -23,6 +24,7 @@ from .safeguards import (
     SafeguardsSperr,
     SafeguardsSz3,
     SafeguardsZero,
+    SafeguardsZeroDssim,
     SafeguardsZfpRound,
 )
 from .sperr import Sperr
