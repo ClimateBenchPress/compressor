@@ -16,7 +16,7 @@ uv pip install -e "."
 
 Make sure you have all the necessary data downloaded by following the instructions at <https://github.com/ClimateBenchPress/data-loader>.
 
-## Funding
+## Funding
 
 ClimateBenchPress has been developed as part of [Embed2Scale](https://embed2scale.eu/) and [ESiWACE3](https://www.esiwace.eu/).
 
