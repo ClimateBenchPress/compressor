@@ -22,5 +22,5 @@ class Zfp(Compressor):
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
         return numcodecs_wasm_zfp_classic.ZfpClassic(
-            mode="fixed-accuracy", tolerance=error_bound
+            mode="fixed-accuracy", tolerance=error_bound, non_finite="allow-unsafe"
         )
