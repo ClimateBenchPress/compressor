@@ -3,11 +3,12 @@ __all__ = ["compress"]
 import argparse
 import json
 import traceback
-from collections.abc import Container
+from collections.abc import Container, Mapping
 from pathlib import Path
 from typing import Callable
 
 import numcodecs_observers
+import numpy as np
 import xarray as xr
 from numcodecs.abc import Codec
 from numcodecs_combinators.stack import CodecStack
@@ -68,24 +69,24 @@ def compress(
             continue
 
         ds = xr.open_dataset(dataset, chunks=dict(), engine="zarr")
-        ds_dtypes, ds_abs_mins, ds_abs_maxs, ds_mins, ds_maxs = (
-            dict(),
-            dict(),
-            dict(),
-            dict(),
-            dict(),
-        )
+        ds_dtypes: dict[str, np.dtype] = dict()
+        ds_abs_mins: dict[str, float] = dict()
+        ds_abs_maxs: dict[str, float] = dict()
+        ds_mins: dict[str, float] = dict()
+        ds_maxs: dict[str, float] = dict()
         for v in ds:
+            vs: str = str(v)
             abs_vals = xr.ufuncs.abs(ds[v])
+            ds_dtypes[vs] = ds[v].dtype
             # Take minimum of non-zero absolute values to avoid division by zero.
-            ds_abs_mins[v] = abs_vals.where(abs_vals > 0).min().values.item()
-            ds_abs_maxs[v] = abs_vals.max().values.item()
-            ds_mins[v] = ds[v].min().values.item()
-            ds_maxs[v] = ds[v].max().values.item()
-            ds_dtypes[v] = ds[v].dtype
+            ds_abs_mins[vs] = abs_vals.where(abs_vals > 0).min().values.item()
+            ds_abs_maxs[vs] = abs_vals.max().values.item()
+            ds_mins[vs] = ds[v].min().values.item()
+            ds_maxs[vs] = ds[v].max().values.item()
 
         error_bounds = get_error_bounds(datasets_error_bounds, dataset.parent.name)
-        for compressor in Compressor.registry.values():
+        registry: Mapping[str, type[Compressor]] = Compressor.registry  # type: ignore
+        for compressor in registry.values():
             if compressor.name in exclude_compressor:
                 continue
             if include_compressor and compressor.name not in include_compressor:

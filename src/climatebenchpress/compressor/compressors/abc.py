@@ -196,7 +196,7 @@ class Compressor(ABC):
 
     # Class interface
     @classproperty
-    def registry(cls) -> Mapping:
+    def registry(cls) -> Mapping[str, type["Compressor"]]:
         return MappingProxyType(Compressor._registry)
 
     # Implementation details
@@ -247,11 +247,13 @@ class Compressor(ABC):
         converted_bounds: dict[VariableName, dict[VariantName, ErrorBound]] = dict()
         variant_names = {cls.name}
         for var, error_bound in error_bounds.items():
+            cls_has_abs_error_impl: bool = cls.has_abs_error_impl  # type: ignore
             abs_bound_codec = (
-                error_bound.abs_error is not None and cls.has_abs_error_impl
+                error_bound.abs_error is not None and cls_has_abs_error_impl
             )
+            cls_has_rel_error_impl: bool = cls.has_rel_error_impl  # type: ignore
             rel_bound_codec = (
-                error_bound.rel_error is not None and cls.has_rel_error_impl
+                error_bound.rel_error is not None and cls_has_rel_error_impl
             )
             if abs_bound_codec or rel_bound_codec:
                 # If codec is compatible with the error bound no transformation
