@@ -11,6 +11,7 @@ import xarray.plot.utils as xplot_utils
 
 class Plotter(ABC):
     datasets: list[str]
+    title_fontsize = 22
 
     def __init__(self):
         self.projection = ccrs.Robinson()
@@ -40,9 +41,9 @@ class Plotter(ABC):
         ax[0].coastlines()
         ax[1].coastlines()
         ax[2].coastlines()
-        ax[0].set_title("Original Dataset", fontsize=14)
-        ax[1].set_title("Compressed Dataset", fontsize=14)
-        ax[2].set_title(self.error_title, fontsize=14)
+        ax[0].set_title("Original Dataset", fontsize=self.title_fontsize)
+        ax[1].set_title("Compressed Dataset", fontsize=self.title_fontsize)
+        ax[2].set_title(self.error_title, fontsize=self.title_fontsize)
         # fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
         fig.tight_layout()
         if outfile is not None:
@@ -86,6 +87,9 @@ class CmipAtmosPlotter(Plotter):
 
 class CmipOceanPlotter(Plotter):
     datasets = ["cmip6-access-tos-tiny", "cmip6-access-tos"]
+
+    cbar_label_fontsize = 20
+    cbar_tick_fontsize = 16
 
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var, err_bound):
         # Calculate shared vmin and vmax for consistent color ranges
@@ -149,11 +153,22 @@ class CmipOceanPlotter(Plotter):
                 "ticks": [-bound_value, 0, bound_value],
             },
         )
+        for a in ax:
+            a.collections[0].colorbar.ax.set_ylabel(
+                "degC", fontsize=self.cbar_label_fontsize
+            )
+            a.collections[0].colorbar.ax.tick_params(labelsize=self.cbar_tick_fontsize)
+        ax[2].collections[0].colorbar.ax.yaxis.get_offset_text().set(
+            size=self.cbar_tick_fontsize
+        )
         self.error_title = "Absolute Error"
 
 
 class Era5Plotter(Plotter):
     datasets = ["era5-tiny", "era5"]
+
+    cbar_label_fontsize = 18
+    cbar_tick_fontsize = 14
 
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var, err_bound):
         selector = dict(time=0)
@@ -215,6 +230,8 @@ class Era5Plotter(Plotter):
             cbar = fig.colorbar(c, ax=ax[i], shrink=0.6, extend=extend, label=label)
             if i == 2:
                 cbar.ax.set_yticks([-bound_value, 0, bound_value])
+            cbar.ax.tick_params(labelsize=self.cbar_tick_fontsize)
+            cbar.ax.set_ylabel(label, fontsize=self.cbar_label_fontsize)
 
 
 class NextGEMSPlotter(Plotter):
