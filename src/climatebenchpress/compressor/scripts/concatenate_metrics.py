@@ -189,4 +189,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     concatenate_metrics(basepath=args.basepath)
-    concatenate_metrics(basepath=args.basepath)
