@@ -217,7 +217,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     compress(
-        basepath=Path(),
+        basepath=args.basepath,
         exclude_dataset=args.exclude_dataset,
         include_dataset=args.include_dataset,
         exclude_compressor=args.exclude_compressor,
