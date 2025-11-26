@@ -58,7 +58,7 @@ class Jpeg2000(Compressor):
             # increase precision for better rounding during linear quantization
             numcodecs.astype.AsType(
                 encode_dtype="float64",
-                decode_dtype=str(dtype),
+                decode_dtype=dtype.name,
             ),
             # remap from [min, max] to [0, max_pixel_val]
             numcodecs_wasm_fixed_offset_scale.FixedOffsetScale(
