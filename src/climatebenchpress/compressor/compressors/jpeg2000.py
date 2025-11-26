@@ -36,10 +36,12 @@ class Jpeg2000(Compressor):
         *,
         data_min=None,
         data_max=None,
+        dtype=None,
         **kwargs,
     ):
         assert data_min is not None, "data_min must be provided"
         assert data_max is not None, "data_max must be provided"
+        assert dtype is not None, "dtype must be provided"
 
         max_pixel_val = 2**25 - 1  # maximum pixel value for our integer encoding.
 
@@ -56,7 +58,7 @@ class Jpeg2000(Compressor):
             # increase precision for better rounding during linear quantization
             numcodecs.astype.AsType(
                 encode_dtype="float64",
-                decode_dtype="float32",
+                decode_dtype=dtype.name,
             ),
             # remap from [min, max] to [0, max_pixel_val]
             numcodecs_wasm_fixed_offset_scale.FixedOffsetScale(
