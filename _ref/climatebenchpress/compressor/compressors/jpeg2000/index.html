@@ -254,6 +254,7 @@
               Bases: <code><a class="autorefs autorefs-internal" title="Compressor (climatebenchpress.compressor.compressors.abc.Compressor)" href="../abc/#climatebenchpress.compressor.compressors.abc.Compressor">Compressor</a></code></p>
 
 
+
         <p>JPEG2000 compressor.</p>
 <p>Note that JPEG2000 does not guarantee pointwise error bounds, but only average error bounds
 through specifying a target Peak Signal to Noise Ratio (PSNR). We convert
@@ -264,7 +265,6 @@ where <code>data_range = max(data) - min(data)</code>.</p>
 <p>Additionally, JPEG2000 expects integer data, not floating point, so we linearly quantize the
 data into integers ranging between 0 and 2<strong>25 - 1, with 2</strong>25-1 the maximum integer
 value accepted by JPEG2000.</p>
-
 
 
 
@@ -352,7 +352,12 @@ value accepted by JPEG2000.</p>
 
 </h3>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>abs_bound_codec(
-    error_bound, <span style="color: #666">*</span>, data_min<span style="color: #666">=</span><span style="color: #008000; font-weight: bold">None</span>, data_max<span style="color: #666">=</span><span style="color: #008000; font-weight: bold">None</span>, <span style="color: #666">**</span>kwargs
+    error_bound,
+    <span style="color: #666">*</span>,
+    data_min<span style="color: #666">=</span><span style="color: #008000; font-weight: bold">None</span>,
+    data_max<span style="color: #666">=</span><span style="color: #008000; font-weight: bold">None</span>,
+    dtype<span style="color: #666">=</span><span style="color: #008000; font-weight: bold">None</span>,
+    <span style="color: #666">**</span>kwargs,
 )
 </code></pre></div>
 
@@ -369,6 +374,7 @@ value accepted by JPEG2000.</p>
   </div>
 
     </div>
+
 
 </div>
 
