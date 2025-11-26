@@ -28,7 +28,11 @@ def concatenate_metrics(basepath: Path = Path()):
         if not dataset.is_dir():
             continue
 
-        with (error_bounds_dir / dataset.name / "error_bounds.json").open() as f:
+        dataset_name = dataset.name
+        if dataset.name.endswith("-chunked"):
+            dataset_name = dataset_name.removesuffix("-chunked")
+
+        with (error_bounds_dir / dataset_name / "error_bounds.json").open() as f:
             error_bound_list = json.load(f)
 
         for error_bound in dataset.iterdir():

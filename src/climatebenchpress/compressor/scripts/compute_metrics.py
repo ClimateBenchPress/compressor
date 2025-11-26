@@ -85,7 +85,12 @@ def compute_metrics(
                     / compressor.stem
                 )
                 compressed_dataset_path = compressed_dataset / "decompressed.zarr"
-                uncompressed_dataset = datasets / dataset.name / "standardized.zarr"
+                uncompressed_dataset_name = dataset.name
+                if dataset.name.endswith("-chunked"):
+                    uncompressed_dataset_name = dataset.name.removesuffix("-chunked")
+                uncompressed_dataset = (
+                    datasets / uncompressed_dataset_name / "standardized.zarr"
+                )
                 if not compressed_dataset_path.exists():
                     print(f"No compressed dataset at {compressed_dataset_path}")
                     continue
