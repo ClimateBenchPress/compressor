@@ -239,7 +239,10 @@ def plot_per_variable_metrics(
                     / comp
                     / "decompressed.zarr"
                 )
-                input = datasets / dataset / "standardized.zarr"
+                input_dataset_name = dataset
+                if dataset.endswith("-chunked"):
+                    input_dataset_name = dataset.removesuffix("-chunked")
+                input = datasets / input_dataset_name / "standardized.zarr"
 
                 ds = xr.open_dataset(input, chunks=dict(), engine="zarr")
                 ds_new = xr.open_dataset(compressed, chunks=dict(), engine="zarr")
@@ -294,6 +297,7 @@ def plot_variable_error(
         # These plots can be quite expensive to generate, so we skip if they already exist.
         return
 
+    dataset_name = dataset_name.removesuffix("-chunked")
     plotter = PLOTTERS.get(dataset_name, None)
     if plotter:
         plotter().plot(
