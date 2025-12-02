@@ -97,6 +97,17 @@ class ErrorDistPlotter:
                 -2 * error_bound_value, 2 * error_bound_value
             )
 
+            self.axes[var][col_index].axvline(
+                -error_bound_value,
+                color="black",
+                linestyle="--",
+                linewidth=2,
+                alpha=0.7,
+            )
+            self.axes[var][col_index].axvline(
+                error_bound_value, color="black", linestyle="--", linewidth=2, alpha=0.7
+            )
+
             err_bound_type = (
                 "Abs. Error" if error_bound_name == "abs_error" else "Rel. Error"
             )

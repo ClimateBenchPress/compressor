@@ -70,6 +70,7 @@ def plot_metrics(
     exclude_dataset: list[str] = [],
     exclude_compressor: list[str] = [],
     tiny_datasets: bool = False,
+    chunked_datasets: bool = False,
     use_latex: bool = True,
 ):
     metrics_path = basepath / "metrics"
@@ -85,6 +86,9 @@ def plot_metrics(
     is_tiny = df["Dataset"].str.endswith("-tiny")
     filter_tiny = is_tiny if tiny_datasets else ~is_tiny
     df = df[filter_tiny]
+    is_chunked = df["Dataset"].str.endswith("-chunked")
+    filter_chunked = is_chunked if chunked_datasets else ~is_chunked
+    df = df[filter_chunked]
 
     plot_per_variable_metrics(
         datasets=datasets,

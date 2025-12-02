@@ -153,6 +153,18 @@ class CmipOceanPlotter(Plotter):
                 "ticks": [-bound_value, 0, bound_value],
             },
         )
+
+        bad_vals = np.isnan(ds.isel(time=0)) & ~np.isnan(ds_new.isel(time=0))
+        bad_vals = bad_vals.where(bad_vals)
+        bad_vals.plot(
+            ax=ax[2],
+            x="longitude",
+            y="latitude",
+            transform=ccrs.PlateCarree(),
+            add_colorbar=False,
+            cmap=plt.cm.colors.ListedColormap(["yellow"]),
+        )
+
         for a in ax:
             a.collections[0].colorbar.ax.set_ylabel(
                 "degC", fontsize=self.cbar_label_fontsize
@@ -160,6 +172,39 @@ class CmipOceanPlotter(Plotter):
             a.collections[0].colorbar.ax.tick_params(labelsize=self.cbar_tick_fontsize)
         ax[2].collections[0].colorbar.ax.yaxis.get_offset_text().set(
             size=self.cbar_tick_fontsize
+        )
+        self.error_title = "Absolute Error"
+
+
+class IFSHumidityPlotter(Plotter):
+    datasets = ["ifs-humidity"]
+
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var, err_bound):
+        selector = dict(time=0, level=3)
+        # Calculate shared vmin and vmax for consistent color ranges
+        data_orig = ds.isel(**selector)
+        data_new = ds_new.isel(**selector)
+        vmin = np.nanmin(data_orig.values.squeeze())
+        vmax = np.nanmax(data_orig.values.squeeze())
+
+        data_orig.plot(ax=ax[0], transform=ccrs.PlateCarree(), vmin=vmin, vmax=vmax)
+        data_new.plot(
+            ax=ax[1], transform=ccrs.PlateCarree(), robust=True, vmin=vmin, vmax=vmax
+        )
+        error = data_orig - data_new
+        error.attrs["long_name"] = data_orig.attrs.get("long_name", "")
+        error.attrs["units"] = data_orig.attrs.get("units", "")
+
+        _, bound_value = err_bound
+        vmin_error, vmax_error = -bound_value, bound_value
+        error.plot(
+            ax=ax[2],
+            transform=ccrs.PlateCarree(),
+            rasterized=True,
+            vmin=vmin_error,
+            vmax=vmax_error,
+            cbar_kwargs={"ticks": [-bound_value, 0, bound_value]},
+            cmap="seismic",
         )
         self.error_title = "Absolute Error"
 
