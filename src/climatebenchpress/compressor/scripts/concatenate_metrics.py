@@ -11,6 +11,14 @@ from .compute_metrics import parse_error_bounds
 
 
 def concatenate_metrics(basepath: Path = Path()):
+    """Concatenate metrics from all datasets and compressors into a single CSV file.
+
+    Parameters
+    ----------
+    basepath : Path
+        Assumes that the metrics are stored in `basepath / metrics`. The script will
+        create a `basepath / metrics / all_results.csv` file containing the concatenated results.
+    """
     compressed_datasets = basepath / "compressed-datasets"
     error_bounds_dir = basepath / "datasets-error-bounds"
     metrics_dir = basepath / "metrics"
@@ -180,5 +188,4 @@ if __name__ == "__main__":
     parser.add_argument("--basepath", type=Path, default=Path())
     args = parser.parse_args()
 
-    concatenate_metrics(basepath=args.basepath)
     concatenate_metrics(basepath=args.basepath)

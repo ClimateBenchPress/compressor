@@ -26,6 +26,8 @@ theme:
 
 nav:
   - Home: index.md
+  - Tutorials:
+      - Run the benchmark: run_benchmark.md
   - Links:
       - GitHub: https://github.com/ClimateBenchPress/compressor/
       - PyPI: https://pypi.org/project/climatebenchpress-compressor/
@@ -40,7 +42,7 @@ plugins:
       source_dirs:
         - nav_heading: [Documentation]
           base: src
-          ignore: ["cf.py"]
+          ignore: ["cf.py", "monitor.py", "variable_plotters.py", "error_dist_plotter.py", "__init__.py"]
   - mkdocstrings:
       enable_inventory: true
       handlers:
@@ -49,7 +51,7 @@ plugins:
             docstring_section_style: list
             docstring_style: numpy
             show_if_no_docstring: true
-            filters: ["!^_$", "!^_[^_]", "!^__", "__init__", "__call__", "!^cf$"]
+            filters: ["!^_$", "!^_[^_]", "!^__", "__init__", "__call__", "!^cf$", "!^parser$", "!^args$"]
             members_order: source
             group_by_category: false
             show_source: false
@@ -59,11 +61,7 @@ plugins:
             show_root_toc_entry: false
             merge_init_into_class: true
             annotations_path: source
-            summary:
-              attributes: false
-              classes: true
-              functions: true
-              modules: true
+            summary: false
           inventories:
             - https://docs.python.org/3.12/objects.inv
             - https://numpy.org/doc/2.2/objects.inv

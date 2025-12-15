@@ -3,11 +3,12 @@ __all__ = ["compress"]
 import argparse
 import json
 import traceback
-from collections.abc import Container
+from collections.abc import Container, Mapping
 from pathlib import Path
 from typing import Callable
 
 import numcodecs_observers
+import numpy as np
 import xarray as xr
 from numcodecs.abc import Codec
 from numcodecs_combinators.stack import CodecStack
@@ -29,6 +30,28 @@ def compress(
     data_loader_basepath: None | Path = None,
     progress: bool = True,
 ):
+    """Compress datasets with compressors.
+
+    Parameters
+    ----------
+    basepath : Path
+        Compressed dataset will be stored in `basepath / compressed-datasets`.
+    exclude_dataset : Container[str]
+        Datasets to exclude from compression.
+    include_dataset : None | Container[str]
+        Datasets to include in compression. If `None`, all datasets are included.
+        If specified, only datasets in `include_dataset` will be compressed.
+    exclude_compressor : Container[str]
+        Compressors to exclude from compression.
+    include_compressor : None | Container[str]
+        Compressors to include in compression. If `None`, all compressors are included.
+        If specified, only compressors in `include_compressor` will be used.
+    data_loader_basepath : None | Path
+        Base path for the data loader datasets. If `None`, defaults to `basepath / .. / data-loader`.
+        Input datasets will be loaded from `data_loader_basepath / datasets`.
+    progress : bool
+        Whether to show a progress bar during compression.
+    """
     datasets = (data_loader_basepath or basepath) / "datasets"
     compressed_datasets = basepath / "compressed-datasets"
     datasets_error_bounds = basepath / "datasets-error-bounds"
@@ -46,24 +69,24 @@ def compress(
             continue
 
         ds = xr.open_dataset(dataset, chunks=dict(), engine="zarr")
-        ds_dtypes, ds_abs_mins, ds_abs_maxs, ds_mins, ds_maxs = (
-            dict(),
-            dict(),
-            dict(),
-            dict(),
-            dict(),
-        )
+        ds_dtypes: dict[str, np.dtype] = dict()
+        ds_abs_mins: dict[str, float] = dict()
+        ds_abs_maxs: dict[str, float] = dict()
+        ds_mins: dict[str, float] = dict()
+        ds_maxs: dict[str, float] = dict()
         for v in ds:
+            vs: str = str(v)
             abs_vals = xr.ufuncs.abs(ds[v])
+            ds_dtypes[vs] = ds[v].dtype
             # Take minimum of non-zero absolute values to avoid division by zero.
-            ds_abs_mins[v] = abs_vals.where(abs_vals > 0).min().values.item()
-            ds_abs_maxs[v] = abs_vals.max().values.item()
-            ds_mins[v] = ds[v].min().values.item()
-            ds_maxs[v] = ds[v].max().values.item()
-            ds_dtypes[v] = ds[v].dtype
+            ds_abs_mins[vs] = abs_vals.where(abs_vals > 0).min().values.item()
+            ds_abs_maxs[vs] = abs_vals.max().values.item()
+            ds_mins[vs] = ds[v].min().values.item()
+            ds_maxs[vs] = ds[v].max().values.item()
 
         error_bounds = get_error_bounds(datasets_error_bounds, dataset.parent.name)
-        for compressor in Compressor.registry.values():
+        registry: Mapping[str, type[Compressor]] = Compressor.registry  # type: ignore
+        for compressor in registry.values():
             if compressor.name in exclude_compressor:
                 continue
             if include_compressor and compressor.name not in include_compressor:
@@ -194,7 +217,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     compress(
-        basepath=Path(),
+        basepath=args.basepath,
         exclude_dataset=args.exclude_dataset,
         include_dataset=args.include_dataset,
         exclude_compressor=args.exclude_compressor,

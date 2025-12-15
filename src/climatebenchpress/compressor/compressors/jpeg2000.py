@@ -12,6 +12,21 @@ from .abc import Compressor
 
 
 class Jpeg2000(Compressor):
+    """JPEG2000 compressor.
+
+    Note that JPEG2000 does not guarantee pointwise error bounds, but only average error bounds
+    through specifying a target Peak Signal to Noise Ratio (PSNR). We convert
+    the absolute error bound to a PSNR value using the formula:
+    ```
+    PSNR = 20 * (log10(data_range) - log10(error_bound))
+    ```
+    where `data_range = max(data) - min(data)`.
+
+    Additionally, JPEG2000 expects integer data, not floating point, so we linearly quantize the
+    data into integers ranging between 0 and 2**25 - 1, with 2**25-1 the maximum integer
+    value accepted by JPEG2000.
+    """
+
     name = "jpeg2000"
     description = "JPEG 2000"
 
@@ -21,10 +36,12 @@ class Jpeg2000(Compressor):
         *,
         data_min=None,
         data_max=None,
+        dtype=None,
         **kwargs,
     ):
         assert data_min is not None, "data_min must be provided"
         assert data_max is not None, "data_max must be provided"
+        assert dtype is not None, "dtype must be provided"
 
         max_pixel_val = 2**25 - 1  # maximum pixel value for our integer encoding.
 
@@ -41,7 +58,7 @@ class Jpeg2000(Compressor):
             # increase precision for better rounding during linear quantization
             numcodecs.astype.AsType(
                 encode_dtype="float64",
-                decode_dtype="float32",
+                decode_dtype=dtype.name,
             ),
             # remap from [min, max] to [0, max_pixel_val]
             numcodecs_wasm_fixed_offset_scale.FixedOffsetScale(

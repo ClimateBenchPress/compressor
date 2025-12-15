@@ -5,7 +5,24 @@ from .abc import Test
 
 
 class ErrorBound(Test):
-    def __init__(self, error_type: str, threshold: float = 0.05):
+    """Tests whether the absolute or relative error between two arrays is below a threshold.
+
+    For relative error, we use the formula `|x - y|  <= |x| *threshold` to ensure
+    that the error is also defined when the input `x` is zero. Consequently, the
+    relative error also checks that the input and output have matching 0s.
+
+    Additionally, this test checks that locations of `nan` and `inf` values in
+    `x` and `y` match.
+
+    Parameters
+    ----------
+    error_type : str
+        Either "abs_error" for absolute error or "rel_error" for relative error.
+    threshold : float
+        The threshold value for the error.
+    """
+
+    def __init__(self, error_type: str, threshold: float):
         self.threshold = threshold
         assert error_type in [
             "abs_error",

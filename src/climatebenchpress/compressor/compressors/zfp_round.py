@@ -6,6 +6,12 @@ from .abc import Compressor
 
 
 class ZfpRound(Compressor):
+    """ZFP-ROUND compressor.
+
+    This is an adjusted version of the ZFP compressor with an improved rounding mechanism
+    for the transform coefficients.
+    """
+
     name = "zfp-round"
     description = "ZFP-ROUND"
 
@@ -19,4 +25,6 @@ class ZfpRound(Compressor):
 
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
-        return numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=error_bound)
+        return numcodecs_wasm_zfp.Zfp(
+            mode="fixed-accuracy", tolerance=error_bound, non_finite="allow-unsafe"
+        )

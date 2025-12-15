@@ -34,6 +34,27 @@ def compute_metrics(
     exclude_compressor: Iterable[str] = tuple(),
     include_compressor: None | Iterable[str] = None,
 ):
+    """Compute evaluation metrics for compressors.
+
+    Parameters
+    ----------
+    basepath : Path
+        Assumes the compressed datasets are stored in `basepath / compressed-datasets`.
+        Computed metrics will be stored in `basepath / metrics`.
+    data_loader_basepath : None | Path
+        Base path for the data loader datasets. If `None`, defaults to `basepath / .. / data-loader`.
+        Input datasets will be loaded from `data_loader_basepath / datasets`.
+    exclude_dataset : Iterable[str]
+        Datasets to exclude from evaluation.
+    include_dataset : None | Iterable[str]
+        Datasets to include in evaluation. If `None`, all datasets are included.
+        If specified, only datasets in `include_dataset` will be evaluated.
+    exclude_compressor : Iterable[str]
+        Compressors to exclude from evaluation.
+    include_compressor : None | Iterable[str]
+        Compressors to include in evaluation. If `None`, all compressors are included.
+        If specified, only compressors in `include_compressor` will be evaluated.
+    """
     exclude_compressor = add_compressor_suffixes(exclude_compressor)
     include_compressor = add_compressor_suffixes(include_compressor)
 
