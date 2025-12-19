@@ -108,6 +108,8 @@
     <ul class="current">
                 <li class="toctree-l4 current"><a class="reference internal current" href="#">plot_metrics</a>
     <ul class="current">
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.DISTORTION2LEGEND_NAME">DISTORTION2LEGEND_NAME</a>
+    </li>
     <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_metrics">plot_metrics</a>
     </li>
     </ul>
@@ -240,6 +242,38 @@
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="climatebenchpress.compressor.plotting.plot_metrics.DISTORTION2LEGEND_NAME" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">DISTORTION2LEGEND_NAME</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>DISTORTION2LEGEND_NAME <span style="color: #666">=</span> {
+    <span style="color: #BA2121">&quot;Relative MAE&quot;</span>: <span style="color: #BA2121">&quot;Mean Absolute Error&quot;</span>,
+    <span style="color: #BA2121">&quot;Relative DSSIM&quot;</span>: <span style="color: #BA2121">&quot;DSSIM&quot;</span>,
+    <span style="color: #BA2121">&quot;Relative MaxAbsError&quot;</span>: <span style="color: #BA2121">&quot;Max Absolute Error&quot;</span>,
+    <span style="color: #BA2121">&quot;Spectral Error&quot;</span>: <span style="color: #BA2121">&quot;Spectral Error&quot;</span>,
+}
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
 <div class="doc doc-object doc-function">
 
 
@@ -252,10 +286,10 @@
     basepath: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>(),
     data_loader_basepath: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
     bound_names: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [<span style="color: #BA2121">&quot;low&quot;</span>, <span style="color: #BA2121">&quot;mid&quot;</span>, <span style="color: #BA2121">&quot;high&quot;</span>],
-    normalizer: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> <span style="color: #666">=</span> <span style="color: #BA2121">&quot;sz3&quot;</span>,
     exclude_dataset: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [],
     exclude_compressor: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [],
     tiny_datasets: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">False</span>,
+    chunked_datasets: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">False</span>,
     use_latex: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">True</span>,
 )
 </code></pre></div>
@@ -305,16 +339,6 @@ If None, uses <code>basepath / datasets</code>.</p>
               –
               <div class="doc-md-description">
                 <p>Names of the error bounds to use for plotting.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>normalizer</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a></code>, default:
-                      <code>&#39;sz3&#39;</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>Compressor to use for normalization of the metrics.</p>
               </div>
             </li>
             <li>
