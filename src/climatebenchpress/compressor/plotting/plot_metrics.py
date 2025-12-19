@@ -46,6 +46,13 @@ _COMPRESSOR2LEGEND_NAME = [
     ("tthresh", "TTHRESH"),
 ]
 
+DISTORTION2LEGEND_NAME = {
+    "Relative MAE": "Mean Absolute Error",
+    "Relative DSSIM": "DSSIM",
+    "Relative MaxAbsError": "Max Absolute Error",
+    "Spectral Error": "Spectral Error",
+}
+
 
 def _get_legend_name(compressor: str) -> str:
     """Get the legend name for a given compressor."""
@@ -60,10 +67,10 @@ def plot_metrics(
     basepath: Path = Path(),
     data_loader_basepath: None | Path = None,
     bound_names: list[str] = ["low", "mid", "high"],
-    normalizer: str = "sz3",
     exclude_dataset: list[str] = [],
     exclude_compressor: list[str] = [],
     tiny_datasets: bool = False,
+    chunked_datasets: bool = False,
     use_latex: bool = True,
 ):
     """Create diagnostic plots for the metrics computed by the compressors.
@@ -102,32 +109,51 @@ def plot_metrics(
     is_tiny = df["Dataset"].str.endswith("-tiny")
     filter_tiny = is_tiny if tiny_datasets else ~is_tiny
     df = df[filter_tiny]
+    is_chunked = df["Dataset"].str.endswith("-chunked")
+    filter_chunked = is_chunked if chunked_datasets else ~is_chunked
+    df = df[filter_chunked]
 
     _plot_per_variable_metrics(
         datasets=datasets,
         compressed_datasets=compressed_datasets,
         plots_path=plots_path,
         all_results=df,
+        rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
     )
 
     df = _rename_compressors(df)
-    normalized_df = _normalize(df, bound_normalize="mid", normalizer=normalizer)
+    normalized_df = _normalize(df)
     _plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
     _plot_throughput(df, plots_path / "throughput.pdf")
     _plot_instruction_count(df, plots_path / "instruction_count.pdf")
 
-    for metric in ["Relative MAE", "Relative DSSIM", "Relative MaxAbsError"]:
+    for metric in [
+        "Relative MAE",
+        "Relative DSSIM",
+        "Relative MaxAbsError",
+        "Relative SpectralError",
+    ]:
         with plt.rc_context(rc={"text.usetex": use_latex}):
             _plot_aggregated_rd_curve(
                 normalized_df,
-                normalizer=normalizer,
                 compression_metric="Relative CR",
                 distortion_metric=metric,
                 outfile=plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
-                agg="median",
+                agg="mean",
                 bound_names=bound_names,
+            )
+
+            _plot_aggregated_rd_curve(
+                normalized_df,
+                compression_metric="Relative CR",
+                distortion_metric=metric,
+                outfile=plots_path
+                / f"full_rd_curve_{metric.lower().replace(' ', '_')}.pdf",
+                agg="mean",
+                bound_names=bound_names,
+                remove_outliers=False,
             )
 
 
@@ -159,51 +185,32 @@ def _sort_error_bounds(error_bounds: list[str]) -> list[str]:
     )
 
 
-def _normalize(data, bound_normalize="mid", normalizer=None):
-    """Generate normalized metrics for each compressor and variable. The normalization
-    is done either with respect to either a user provided compressor or the
-    compressor with the highest average rank over all variables (ranked by
-    compression ratio).
-
-    For each metric, the normalization is done by dividing the metric by the value of the
-    normalizer for the same variable and error bound, i.e.:
-    normalized_metric = metric[compressor, variable] / metric[normalizer, variable].
-    """
-    if normalizer is None:
-        # Group by Variable and rank compressors within each variable
-        ranked = data.copy()
-        ranked = ranked[ranked["Error Bound Name"] == bound_normalize]
-        ranked["CompRatio_Rank"] = ranked.groupby("Variable")[
-            "Compression Ratio [raw B / enc B]"
-        ].rank(ascending=False)
-
-        # Calculate average rank for each compressor across all variables
-        avg_ranks = ranked.groupby("Compressor")["CompRatio_Rank"].mean().reset_index()
-        avg_ranks.columns = ["Compressor", "Average_Rank"]
-        avg_ranks = avg_ranks.sort_values("Average_Rank")
-
-        normalizer = avg_ranks.iloc[0]["Compressor"]
-
+def _normalize(data):
     normalized = data.copy()
     normalize_vars = [
         ("Compression Ratio [raw B / enc B]", "Relative CR"),
         ("MAE", "Relative MAE"),
         ("DSSIM", "Relative DSSIM"),
         ("Max Absolute Error", "Relative MaxAbsError"),
+        ("Spectral Error", "Relative SpectralError"),
     ]
-    # Avoid negative values. By default, DSSIM is in the range [-1, 1].
-    normalized["DSSIM"] = normalized["DSSIM"] + 1.0
 
-    def get_normalizer(row):
-        return normalized[
-            (data["Compressor"] == normalizer)
-            & (data["Variable"] == row["Variable"])
-            & (data["Error Bound Name"] == bound_normalize)
-        ][col].item()
+    variables = normalized["Variable"].unique()
+
+    dssim_unreliable = normalized["Variable"].isin(["ta", "tos"])
+    normalized.loc[dssim_unreliable, "DSSIM"] = np.nan
 
     for col, new_col in normalize_vars:
+        mean_std = dict()
+        for var in variables:
+            mean = normalized[normalized["Variable"] == var][col].mean()
+            std = normalized[normalized["Variable"] == var][col].std()
+            mean_std[var] = (mean, std)
+
+        # Normalize each variable by its mean and std
         normalized[new_col] = normalized.apply(
-            lambda x: x[col] / get_normalizer(x),
+            lambda x: (x[col] - mean_std[x["Variable"]][0])
+            / mean_std[x["Variable"]][1],
             axis=1,
         )
 
@@ -215,6 +222,7 @@ def _plot_per_variable_metrics(
     compressed_datasets: Path,
     plots_path: Path,
     all_results: pd.DataFrame,
+    rd_curves_metrics: list[str] = ["Max Absolute Error", "MAE"],
 ):
     """Creates all the plots which only depend on a single variable."""
     for dataset in all_results["Dataset"].unique():
@@ -225,7 +233,7 @@ def _plot_per_variable_metrics(
         # For each variable and compressor, plot the input, output, and error fields.
         variables = df["Variable"].unique()
         for var in variables:
-            for dist_metric in ["Max Absolute Error", "MAE"]:
+            for dist_metric in rd_curves_metrics:
                 metric_name = dist_metric.lower().replace(" ", "_")
                 if df[df["Variable"] == var][dist_metric].isnull().all():
                     continue
@@ -258,7 +266,10 @@ def _plot_per_variable_metrics(
                     / comp
                     / "decompressed.zarr"
                 )
-                input = datasets / dataset / "standardized.zarr"
+                input_dataset_name = dataset
+                if dataset.endswith("-chunked"):
+                    input_dataset_name = dataset.removesuffix("-chunked")
+                input = datasets / input_dataset_name / "standardized.zarr"
 
                 ds = xr.open_dataset(input, chunks=dict(), engine="zarr")
                 ds_new = xr.open_dataset(compressed, chunks=dict(), engine="zarr")
@@ -279,6 +290,7 @@ def _plot_per_variable_metrics(
                         dataset,
                         comp,
                         var,
+                        error_bound_vals[var],
                         outfile=err_bound_path / f"{var}_{comp}.png",
                     )
 
@@ -291,9 +303,12 @@ def _plot_per_variable_metrics(
                 _get_lineinfo,
             )
 
-        fig, _ = error_dist_plotter.get_final_figure()
-        _savefig(dataset_plots_path / f"error_histograms_{dataset}.pdf")
-        plt.close(fig)
+        figs, _ = error_dist_plotter.get_final_figure()
+        for var, fig in figs.items():
+            _savefig(
+                dataset_plots_path / f"error_histograms_{dataset}_{var}.pdf", fig=fig
+            )
+            plt.close(fig)
 
 
 def _plot_variable_error(
@@ -302,32 +317,46 @@ def _plot_variable_error(
     dataset_name: str,
     compressor: str,
     var: str,
+    err_bound: tuple[str, float],
     outfile: None | Path = None,
 ):
     if outfile is not None and outfile.exists():
         # These plots can be quite expensive to generate, so we skip if they already exist.
         return
 
+    dataset_name = dataset_name.removesuffix("-chunked")
     plotter = PLOTTERS.get(dataset_name, None)
     if plotter:
         plotter().plot(
-            uncompressed_data, compressed_data, dataset_name, compressor, var, outfile
+            uncompressed_data,
+            compressed_data,
+            dataset_name,
+            compressor,
+            var,
+            err_bound,
+            outfile,
         )
     else:
         print(f"No plotter found for dataset {dataset_name}")
 
 
-def _plot_variable_rd_curve(df, distortion_metric, outfile: None | Path = None):
+def _plot_variable_rd_curve(
+    df, distortion_metric, bounds=["low", "mid", "high"], outfile: None | Path = None
+):
     plt.figure(figsize=(8, 6))
     compressors = df["Compressor"].unique()
     for comp in compressors:
         compressor_data = df[df["Compressor"] == comp]
-        sorting_ixs = np.argsort(compressor_data["Compression Ratio [raw B / enc B]"])
-        compr_ratio = [
-            compressor_data["Compression Ratio [raw B / enc B]"].iloc[i]
-            for i in sorting_ixs
+        assert len(compressor_data) == len(bounds)
+        bound_ixs = [
+            compressor_data[compressor_data["Error Bound Name"] == bound].index[0]
+            for bound in bounds
         ]
-        distortion = [compressor_data[distortion_metric].iloc[i] for i in sorting_ixs]
+        compr_ratio = [
+            compressor_data["Compression Ratio [raw B / enc B]"].loc[i]
+            for i in bound_ixs
+        ]
+        distortion = [compressor_data[distortion_metric].loc[i] for i in bound_ixs]
         color, linestyle = _get_lineinfo(comp)
         plt.plot(
             compr_ratio,
@@ -378,23 +407,24 @@ def _plot_variable_rd_curve(df, distortion_metric, outfile: None | Path = None):
 
 def _plot_aggregated_rd_curve(
     normalized_df,
-    normalizer,
     compression_metric,
     distortion_metric,
     outfile: None | Path = None,
     agg="median",
     bound_names=["low", "mid", "high"],
+    exclude_vars=None,
+    remove_outliers=True,
 ):
     plt.figure(figsize=(8, 6))
-    if distortion_metric == "DSSIM":
-        # For fields with large number of NaNs, the DSSIM values are unreliable
-        # which is why we exclude them here.
-        normalized_df = normalized_df[~normalized_df["Variable"].isin(["ta", "tos"])]
+    if exclude_vars:
+        # Exclude variables that are not relevant for the distortion metric.
+        normalized_df = normalized_df[~normalized_df["Variable"].isin(exclude_vars)]
 
     compressors = normalized_df["Compressor"].unique()
     agg_distortion = normalized_df.groupby(["Error Bound Name", "Compressor"])[
         [compression_metric, distortion_metric]
     ].agg(agg)
+
     for comp in compressors:
         compr_ratio = [
             agg_distortion.loc[(bound, comp), compression_metric]
@@ -416,18 +446,36 @@ def _plot_aggregated_rd_curve(
             markersize=8,
         )
 
+    if remove_outliers:
+        # SZ3 and JPEG2000 often give outlier values and violate the bounds.
+        exclude_compressors = ["sz3", "jpeg2000"]
+        filtered_agg = agg_distortion[
+            ~agg_distortion.index.get_level_values("Compressor").isin(
+                exclude_compressors
+            )
+        ]
+        cr_mean, cr_std = (
+            filtered_agg[compression_metric].mean(),
+            filtered_agg[compression_metric].std(),
+        )
+        distortion_mean, distortion_std = (
+            filtered_agg[distortion_metric].mean(),
+            filtered_agg[distortion_metric].std(),
+        )
+
+        # Adjust the plot limits
+        xlims = plt.xlim()
+        xlims_min = max(xlims[0], cr_mean - 4 * cr_std)
+        xlims_max = min(xlims[1], cr_mean + 4 * cr_std)
+        plt.xlim(xlims_min, xlims_max)
+        ylims = plt.ylim()
+        ylims_min = max(ylims[0], distortion_mean - 4 * distortion_std)
+        ylims_max = min(ylims[1], distortion_mean + 4 * distortion_std)
+        plt.ylim(ylims_min, ylims_max)
+
     plt.xlabel(f"{agg.title()} {compression_metric}", fontsize=14)
-    plt.xscale("log")
-    if "PSNR" not in distortion_metric:
-        # PSNR is already on log scale.
-        plt.yscale("log")
     plt.ylabel(f"{agg.title()} {distortion_metric}", fontsize=14)
 
-    plt.legend(
-        title="Compressor",
-        fontsize=10,
-        title_fontsize=12,
-    )
     plt.tick_params(
         axis="both",
         which="major",
@@ -445,58 +493,25 @@ def _plot_aggregated_rd_curve(
         top=True,
         right=True,
     )
+    plt.xlabel(
+        r"Mean Normalized Compression Ratio ($\uparrow$)",
+        fontsize=16,
+    )
+    metric_name = DISTORTION2LEGEND_NAME.get(distortion_metric, distortion_metric)
+    plt.ylabel(
+        rf"Mean Normalized {metric_name} ($\downarrow$)",
+        fontsize=16,
+    )
+    plt.legend(
+        title="Compressor",
+        loc="upper right",
+        bbox_to_anchor=(0.8, 0.99),
+        fontsize=12,
+        title_fontsize=14,
+    )
 
-    normalizer_label = _get_legend_name(normalizer)
-    if "MAE" in distortion_metric:
-        plt.legend(
-            title="Compressor",
-            loc="upper right",
-            bbox_to_anchor=(0.95, 0.7),
-            fontsize=12,
-            title_fontsize=14,
-        )
-        plt.xlabel(
-            rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
-            fontsize=16,
-        )
-        plt.ylabel(
-            rf"Median Mean Absolute Error Relative to {normalizer_label} ($\downarrow$)",
-            fontsize=16,
-        )
-        arrow_color = "black"
-        # Add an arrow pointing into the lower right corner
-        plt.annotate(
-            "",
-            xy=(0.95, 0.05),
-            xycoords="axes fraction",
-            xytext=(-60, 50),
-            textcoords="offset points",
-            arrowprops=dict(
-                arrowstyle="-|>, head_length=0.5, head_width=0.5",
-                color=arrow_color,
-                lw=5,
-            ),
-        )
-        plt.text(
-            0.83,
-            0.08,
-            "Better",
-            transform=plt.gca().transAxes,
-            fontsize=16,
-            fontweight="bold",
-            color=arrow_color,
-            ha="center",
-        )
-    elif "DSSIM" in distortion_metric:
-        plt.xlabel(
-            rf"Median Compression Ratio Relative to {normalizer_label} ($\uparrow$)",
-            fontsize=16,
-        )
-        plt.ylabel(
-            rf"Median DSSIM to {normalizer_label} ($\downarrow$)",
-            fontsize=16,
-        )
-        arrow_color = "black"
+    arrow_color = "black"
+    if "DSSIM" in distortion_metric:
         # Add an arrow pointing into the top right corner
         plt.annotate(
             "",
@@ -522,6 +537,40 @@ def _plot_aggregated_rd_curve(
             ha="center",
             va="center",
         )
+        # Correct the y-label to point upwards
+        plt.ylabel(
+            rf"Mean Normalized {metric_name} ($\uparrow$)",
+            fontsize=16,
+        )
+    else:
+        # Add an arrow pointing into the lower right corner
+        plt.annotate(
+            "",
+            xy=(0.95, 0.05),
+            xycoords="axes fraction",
+            xytext=(-60, 50),
+            textcoords="offset points",
+            arrowprops=dict(
+                arrowstyle="-|>, head_length=0.5, head_width=0.5",
+                color=arrow_color,
+                lw=5,
+            ),
+        )
+        plt.text(
+            0.83,
+            0.08,
+            "Better",
+            transform=plt.gca().transAxes,
+            fontsize=16,
+            fontweight="bold",
+            color=arrow_color,
+            ha="center",
+        )
+    if (
+        "DSSIM" in distortion_metric
+        or "MaxAbsError" in distortion_metric
+        or "SpectralError" in distortion_metric
+    ):
         plt.legend().remove()
 
     plt.tight_layout()
@@ -547,6 +596,7 @@ def _plot_throughput(df, outfile: None | Path = None):
         grouped_df,
         title="",
         ylabel="Throughput [s / MB]",
+        logy=True,
         outfile=outfile,
     )
 
@@ -559,6 +609,7 @@ def _plot_instruction_count(df, outfile: None | Path = None):
         grouped_df,
         title="",
         ylabel="Instructions [# / raw B]",
+        logy=True,
         outfile=outfile,
     )
 
@@ -588,7 +639,9 @@ def _get_median_and_quantiles(df, encode_column, decode_column):
     )
 
 
-def _plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None):
+def _plot_grouped_df(
+    grouped_df, title, ylabel, outfile: None | Path = None, logy=False
+):
     fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharex=True, sharey=True)
 
     # Bar width
@@ -633,20 +686,21 @@ def _plot_grouped_df(grouped_df, title, ylabel, outfile: None | Path = None):
 
         # Add labels and title
         ax.set_xticks([p + bar_width / 2 for p in x_positions])
-        ax.set_xticklabels(x_labels, rotation=45, ha="right")
-        ax.set_title(f"{error_bound.capitalize()} Error Bound")
+        ax.set_xticklabels(x_labels, rotation=45, ha="right", fontsize=14)
+        ax.set_yscale("log" if logy else "linear")
+        ax.set_title(f"{error_bound.capitalize()} Error Bound", fontsize=14)
         ax.grid(axis="y", linestyle="--", alpha=0.7)
         if i == 0:
-            ax.legend()
-            ax.set_ylabel(ylabel)
+            ax.legend(fontsize=14)
+            ax.set_ylabel(ylabel, fontsize=14)
             ax.annotate(
                 "Better",
-                xy=(0.05, 0.8),
+                xy=(0.1, 0.8),
                 xycoords="axes fraction",
-                xytext=(0.05, 0.95),
+                xytext=(0.1, 0.95),
                 textcoords="axes fraction",
                 arrowprops=dict(arrowstyle="->", lw=3, color="black"),
-                fontsize=12,
+                fontsize=14,
                 ha="center",
                 va="bottom",
             )
@@ -701,16 +755,17 @@ def _plot_bound_violations(df, bound_names, outfile: None | Path = None):
     plt.close()
 
 
-def _savefig(outfile: Path):
+def _savefig(outfile: Path, fig=None):
     ispdf = outfile.suffix == ".pdf"
+    fig = fig if fig is not None else plt.gcf()
     if ispdf:
         # Saving a PDF with the alternative code below leads to a corrupted file.
         # Hence, we use the default savefig method.
         # NOTE: This means passing a virtual UPath is only supported for non-PDF files.
-        plt.savefig(outfile, dpi=300)
+        fig.savefig(outfile, dpi=300)
     else:
         with outfile.open("wb") as f:
-            plt.savefig(f, dpi=300)
+            fig.savefig(f, dpi=300)
 
 
 if __name__ == "__main__":
