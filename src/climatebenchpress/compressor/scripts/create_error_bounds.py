@@ -91,12 +91,19 @@ VAR_NAME_TO_ERA5 = {
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/165
     # Units will match because data source is ERA5.
     "10m_u_component_of_wind": "u10",
+    "10u": "u10",
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/166
     # Units will match because data source is ERA5.
     "10m_v_component_of_wind": "v10",
+    "10v": "v10",
     # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/151
     # Units will match because data source is ERA5.
     "mean_sea_level_pressure": "msl",
+    "msl": "msl",
+    # Humidity
+    # ERA5 documentation: https://codes.ecmwf.int/grib/param-db/133
+    # Units will match because data source is ERA5.
+    "q": "q",
 }
 
 
@@ -109,9 +116,13 @@ VAR_NAME_TO_ERROR_BOUND = {
     "ta": ABS_ERROR,
     "tos": ABS_ERROR,
     "10m_u_component_of_wind": ABS_ERROR,
+    "10u": ABS_ERROR,
     "10m_v_component_of_wind": ABS_ERROR,
+    "10v": ABS_ERROR,
     "mean_sea_level_pressure": ABS_ERROR,
+    "msl": ABS_ERROR,
     "no2": REL_ERROR,
+    "q": REL_ERROR,
 }
 
 
