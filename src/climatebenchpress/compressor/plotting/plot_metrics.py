@@ -85,8 +85,6 @@ def plot_metrics(
         If None, uses `basepath / datasets`.
     bound_names: list[str]
         Names of the error bounds to use for plotting.
-    normalizer: str
-        Compressor to use for normalization of the metrics.
     exclude_dataset: list[str]
         List of dataset names to exclude from the plotting.
     exclude_compressor: list[str]
