@@ -97,7 +97,6 @@ def compress(
                     ds[v], TARGET_CHUNK_SIZE, word_size=word_size
                 )
                 ds[v] = ds[v].chunk(optimal_chunks)
-            # ds = ds.unify_chunks()
 
         error_bounds = get_error_bounds(datasets_error_bounds, dataset.parent.name)
         registry: Mapping[str, type[Compressor]] = Compressor.registry  # type: ignore
