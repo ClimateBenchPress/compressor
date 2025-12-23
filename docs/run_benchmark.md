@@ -15,7 +15,7 @@ We will now go through each of these steps in more detail. As you work through t
 
 Begin by creating the error bounds for each dataset using the following command:
 ```bash
-uv run python -m  climatebenchpress.compressor.scripts.create_error_bounds \
+uv run python -m climatebenchpress.compressor.scripts.create_error_bounds \
     --data-loader-basepath=path/to/data-loader
 ```
 This step creates three error bounds for each variable in the datasets and stores the information in the `datasets-error-bounds` directory.

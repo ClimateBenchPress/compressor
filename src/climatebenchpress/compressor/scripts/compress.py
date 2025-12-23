@@ -30,6 +30,8 @@ def compress(
     include_dataset: None | Container[str] = None,
     exclude_compressor: Container[str] = tuple(),
     include_compressor: None | Container[str] = None,
+    exclude_variable: Container[str] = tuple(),
+    include_variable: None | Container[str] = None,
     data_loader_basepath: None | Path = None,
     chunked: bool = False,
     progress: bool = True,
@@ -50,6 +52,11 @@ def compress(
     include_compressor : None | Container[str]
         Compressors to include in compression. If `None`, all compressors are included.
         If specified, only compressors in `include_compressor` will be used.
+    exclude_variable : Container[str]
+        Variables to exclude from compression.
+    include_variable : None | Container[str]
+        Variables to include in compression. If `None`, all variables are included.
+        If specified, only variables in `include_variable` will be compressed.
     data_loader_basepath : None | Path
         Base path for the data loader datasets. If `None`, defaults to `basepath / .. / data-loader`.
         Input datasets will be loaded from `data_loader_basepath / datasets`.
@@ -136,7 +143,10 @@ def compress(
 
                     try:
                         ds_new, measurements = compress_decompress(
-                            named_codec.codecs, ds
+                            named_codec.codecs,
+                            ds,
+                            exclude_variable=exclude_variable,
+                            include_variable=include_variable,
                         )
                     except Exception as e:
                         print(
@@ -159,11 +169,18 @@ def compress(
 def compress_decompress(
     codecs: dict[str, Callable[[], Codec]],
     ds: xr.Dataset,
+    exclude_variable: Container[str] = tuple(),
+    include_variable: None | Container[str] = None,
 ) -> tuple[xr.Dataset, dict]:
     variables = dict()
     measurements = dict()
 
     for v in ds:
+        if v in exclude_variable:
+            continue
+        if include_variable and v not in include_variable:
+            continue
+
         nbytes = BytesizeObserver()
         timing = WalltimeObserver()
         instructions = WasmCodecInstructionCounterObserver()
@@ -383,6 +400,8 @@ if __name__ == "__main__":
     parser.add_argument("--include-dataset", type=str, nargs="+", default=None)
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
     parser.add_argument("--include-compressor", type=str, nargs="+", default=None)
+    parser.add_argument("--exclude-variable", type=str, nargs="+", default=[])
+    parser.add_argument("--include-variable", type=str, nargs="+", default=None)
     parser.add_argument("--basepath", type=Path, default=Path())
     parser.add_argument(
         "--data-loader-basepath", type=Path, default=Path() / ".." / "data-loader"
@@ -396,6 +415,8 @@ if __name__ == "__main__":
         include_dataset=args.include_dataset,
         exclude_compressor=args.exclude_compressor,
         include_compressor=args.include_compressor,
+        exclude_variable=args.exclude_variable,
+        include_variable=args.include_variable,
         data_loader_basepath=args.data_loader_basepath,
         chunked=args.chunked,
         progress=True,
