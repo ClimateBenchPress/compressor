@@ -187,7 +187,7 @@
 <p>We will now go through each of these steps in more detail. As you work through these steps, the pipeline will progressively populate the directories <code>datasets-error-bounds</code>, <code>compressed-datasets</code>, <code>metrics</code>, and <code>plots</code>.</p>
 <h2 id="create-error-bounds">Create Error Bounds</h2>
 <p>Begin by creating the error bounds for each dataset using the following command:
-<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>uv<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>python<span style="color: #BBB"> </span>-m<span style="color: #BBB">  </span>climatebenchpress.compressor.scripts.create_error_bounds<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>uv<span style="color: #BBB"> </span>run<span style="color: #BBB"> </span>python<span style="color: #BBB"> </span>-m<span style="color: #BBB"> </span>climatebenchpress.compressor.scripts.create_error_bounds<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
 <span style="color: #BBB">    </span>--data-loader-basepath<span style="color: #666">=</span>path/to/data-loader
 </code></pre></div>
 This step creates three error bounds for each variable in the datasets and stores the information in the <code>datasets-error-bounds</code> directory.</p>
