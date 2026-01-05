@@ -47,7 +47,7 @@ jobs:
         run: uv python install
 
       - name: Install the package
-        run: uv sync --refresh && uv pip install .
+        run: uv sync && uv pip install .
 
       - name: Typecheck the package
         run: uv run mypy -p climatebenchpress.compressor
