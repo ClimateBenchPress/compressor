@@ -32,3 +32,19 @@ class SafeguardsZfpRound(Compressor):
                 dict(kind="eb", type="abs", eb=error_bound, equal_nan=True),
             ],
         )
+
+    @staticmethod
+    def rel_bound_codec(error_bound, *, data_abs_min=None, **kwargs):
+        assert data_abs_min is not None, "data_abs_min must be provided"
+
+        return numcodecs_safeguards.SafeguardsCodec(
+            # conservative rel->abs error bound transformation,
+            #  same as convert_rel_error_to_abs_error
+            # so that we can inform the safeguards of the rel bound
+            codec=numcodecs_wasm_zfp.Zfp(
+                mode="fixed-accuracy", tolerance=error_bound * data_abs_min
+            ),
+            safeguards=[
+                dict(kind="eb", type="rel", eb=error_bound, equal_nan=True),
+            ],
+        )

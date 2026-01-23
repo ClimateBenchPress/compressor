@@ -167,6 +167,8 @@ class Compressor(ABC):
                         dtype=dtypes[var],
                         data_min=data_min[var],
                         data_max=data_max[var],
+                        data_abs_min=data_abs_min[var],
+                        data_abs_max=data_abs_max[var],
                     )
                 elif eb.rel_error is not None and cls.has_rel_error_impl:
                     new_codecs[var] = partial(
@@ -175,6 +177,8 @@ class Compressor(ABC):
                         dtype=dtypes[var],
                         data_min=data_min[var],
                         data_max=data_max[var],
+                        data_abs_min=data_abs_min[var],
+                        data_abs_max=data_abs_max[var],
                     )
                 else:
                     # This should never happen as we have already transformed the error bounds.

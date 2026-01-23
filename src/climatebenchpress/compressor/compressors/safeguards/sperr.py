@@ -1,7 +1,10 @@
 __all__ = ["SafeguardsSperr"]
 
+import numcodecs
 import numcodecs_safeguards
 import numcodecs_wasm_sperr
+import numpy as np
+from numcodecs_combinators.stack import CodecStack
 
 from ..abc import Compressor
 
@@ -15,8 +18,38 @@ class SafeguardsSperr(Compressor):
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
         return numcodecs_safeguards.SafeguardsCodec(
-            codec=numcodecs_wasm_sperr.Sperr(mode="pwe", pwe=error_bound),
+            codec=CodecStack(
+                NaNToZero(),
+                numcodecs_wasm_sperr.Sperr(mode="pwe", pwe=error_bound),
+            ),
             safeguards=[
                 dict(kind="eb", type="abs", eb=error_bound, equal_nan=True),
             ],
         )
+
+    @staticmethod
+    def rel_bound_codec(error_bound, *, data_abs_min=None, **kwargs):
+        assert data_abs_min is not None, "data_abs_min must be provided"
+
+        return numcodecs_safeguards.SafeguardsCodec(
+            codec=CodecStack(
+                NaNToZero(),
+                # conservative rel->abs error bound transformation,
+                #  same as convert_rel_error_to_abs_error
+                # so that we can inform the safeguards of the rel bound
+                numcodecs_wasm_sperr.Sperr(mode="pwe", pwe=error_bound * data_abs_min),
+            ),
+            safeguards=[
+                dict(kind="eb", type="rel", eb=error_bound, equal_nan=True),
+            ],
+        )
+
+
+class NaNToZero(numcodecs.abc.Codec):
+    codec_id = "nan-to-zero"
+
+    def encode(self, buf):
+        return np.nan_to_num(buf, nan=0, posinf=np.inf, neginf=-np.inf)
+
+    def decode(self, buf, out=None):
+        return numcodecs.compat.ndarray_copy(buf, out)
