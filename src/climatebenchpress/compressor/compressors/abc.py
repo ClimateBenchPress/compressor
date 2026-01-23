@@ -88,6 +88,8 @@ class Compressor(ABC):
         dtype: Optional[np.dtype] = None,
         data_min: Optional[float] = None,
         data_max: Optional[float] = None,
+        data_abs_min: Optional[float] = None,
+        data_abs_max: Optional[float] = None,
     ) -> Codec:
         """Create a codec with an absolute error bound."""
         pass
@@ -100,6 +102,8 @@ class Compressor(ABC):
         dtype: Optional[np.dtype] = None,
         data_min: Optional[float] = None,
         data_max: Optional[float] = None,
+        data_abs_min: Optional[float] = None,
+        data_abs_max: Optional[float] = None,
     ) -> Codec:
         """Create a codec with a relative error bound."""
         pass
