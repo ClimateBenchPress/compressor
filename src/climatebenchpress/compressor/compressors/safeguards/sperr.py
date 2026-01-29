@@ -19,7 +19,7 @@ class SafeguardsSperr(Compressor):
     def abs_bound_codec(error_bound, **kwargs):
         return numcodecs_safeguards.SafeguardsCodec(
             codec=CodecStack(
-                NaNToZero(),
+                NaNToMean(),
                 numcodecs_wasm_sperr.Sperr(mode="pwe", pwe=error_bound),
             ),
             safeguards=[
@@ -33,7 +33,7 @@ class SafeguardsSperr(Compressor):
 
         return numcodecs_safeguards.SafeguardsCodec(
             codec=CodecStack(
-                NaNToZero(),
+                NaNToMean(),
                 # conservative rel->abs error bound transformation,
                 #  same as convert_rel_error_to_abs_error
                 # so that we can inform the safeguards of the rel bound
@@ -45,11 +45,14 @@ class SafeguardsSperr(Compressor):
         )
 
 
-class NaNToZero(numcodecs.abc.Codec):
-    codec_id = "nan-to-zero"
+# inspired by H5Z-SPERR's treatment of NaN values:
+# https://github.com/NCAR/H5Z-SPERR/blob/72ebcb00e382886c229c5ef5a7e237fe451d5fb8/src/h5z-sperr.c#L464-L473
+# https://github.com/NCAR/H5Z-SPERR/blob/72ebcb00e382886c229c5ef5a7e237fe451d5fb8/src/h5zsperr_helper.cpp#L179-L212
+class NaNToMean(numcodecs.abc.Codec):
+    codec_id = "nan-to-mean"
 
     def encode(self, buf):
-        return np.nan_to_num(buf, nan=0, posinf=np.inf, neginf=-np.inf)
+        return np.nan_to_num(buf, nan=np.nanmean(buf), posinf=np.inf, neginf=-np.inf)
 
     def decode(self, buf, out=None):
         return numcodecs.compat.ndarray_copy(buf, out)
