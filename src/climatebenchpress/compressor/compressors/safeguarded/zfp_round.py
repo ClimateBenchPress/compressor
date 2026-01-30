@@ -1,4 +1,4 @@
-__all__ = ["SafeguardsZfpRound"]
+__all__ = ["SafeguardedZfpRound"]
 
 import numcodecs_safeguards
 import numcodecs_wasm_zfp
@@ -6,15 +6,15 @@ import numcodecs_wasm_zfp
 from ..abc import Compressor
 
 
-class SafeguardsZfpRound(Compressor):
+class SafeguardedZfpRound(Compressor):
     """Safeguarded ZFP-ROUND compressor.
 
     This is an adjusted version of the ZFP compressor with an improved rounding mechanism
     for the transform coefficients.
     """
 
-    name = "safeguards-zfp-round"
-    description = "Safeguards(ZFP-ROUND)"
+    name = "safeguarded-zfp-round"
+    description = "Safeguarded(ZFP-ROUND)"
 
     # NOTE:
     # ZFP mechanism for strictly supporting relative error bounds is to
@@ -27,7 +27,9 @@ class SafeguardsZfpRound(Compressor):
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
         return numcodecs_safeguards.SafeguardsCodec(
-            codec=numcodecs_wasm_zfp.Zfp(mode="fixed-accuracy", tolerance=error_bound),
+            codec=numcodecs_wasm_zfp.Zfp(
+                mode="fixed-accuracy", tolerance=error_bound, non_finite="allow-unsafe"
+            ),
             safeguards=[
                 dict(kind="eb", type="abs", eb=error_bound, equal_nan=True),
             ],
@@ -42,7 +44,9 @@ class SafeguardsZfpRound(Compressor):
             #  same as convert_rel_error_to_abs_error
             # so that we can inform the safeguards of the rel bound
             codec=numcodecs_wasm_zfp.Zfp(
-                mode="fixed-accuracy", tolerance=error_bound * data_abs_min
+                mode="fixed-accuracy",
+                tolerance=error_bound * data_abs_min,
+                non_finite="allow-unsafe",
             ),
             safeguards=[
                 dict(kind="eb", type="rel", eb=error_bound, equal_nan=True),

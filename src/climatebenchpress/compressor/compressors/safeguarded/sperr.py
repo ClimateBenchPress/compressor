@@ -1,4 +1,4 @@
-__all__ = ["SafeguardsSperr"]
+__all__ = ["SafeguardedSperr"]
 
 import numcodecs
 import numcodecs_safeguards
@@ -9,11 +9,11 @@ from numcodecs_combinators.stack import CodecStack
 from ..abc import Compressor
 
 
-class SafeguardsSperr(Compressor):
+class SafeguardedSperr(Compressor):
     """Safeguarded SPERR compressor."""
 
-    name = "safeguards-sperr"
-    description = "Safeguards(SPERR)"
+    name = "safeguarded-sperr"
+    description = "Safeguarded(SPERR)"
 
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
@@ -49,7 +49,7 @@ class SafeguardsSperr(Compressor):
 # https://github.com/NCAR/H5Z-SPERR/blob/72ebcb00e382886c229c5ef5a7e237fe451d5fb8/src/h5z-sperr.c#L464-L473
 # https://github.com/NCAR/H5Z-SPERR/blob/72ebcb00e382886c229c5ef5a7e237fe451d5fb8/src/h5zsperr_helper.cpp#L179-L212
 class NaNToMean(numcodecs.abc.Codec):
-    codec_id = "nan-to-mean"
+    codec_id = "nan-to-mean"  # type: ignore
 
     def encode(self, buf):
         return np.nan_to_num(buf, nan=np.nanmean(buf), posinf=np.inf, neginf=-np.inf)

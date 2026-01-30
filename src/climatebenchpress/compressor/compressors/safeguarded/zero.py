@@ -1,4 +1,4 @@
-__all__ = ["SafeguardsZero"]
+__all__ = ["SafeguardedZero"]
 
 import numcodecs_safeguards
 import numcodecs_zero
@@ -6,11 +6,11 @@ import numcodecs_zero
 from ..abc import Compressor
 
 
-class SafeguardsZero(Compressor):
+class SafeguardedZero(Compressor):
     """Safeguarded all-zero compressor."""
 
-    name = "safeguards-zero"
-    description = "Safeguards(0)"
+    name = "safeguarded-zero"
+    description = "Safeguarded(0)"
 
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
