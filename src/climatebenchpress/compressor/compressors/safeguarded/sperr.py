@@ -1,6 +1,8 @@
 __all__ = ["SafeguardedSperr"]
 
 import numcodecs
+import numcodecs.abc
+import numcodecs.compat
 import numcodecs_safeguards
 import numcodecs_wasm_sperr
 import numpy as np

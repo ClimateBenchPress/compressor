@@ -2,6 +2,7 @@ __all__ = [
     "BitRound",
     "BitRoundPco",
     "Jpeg2000",
+    "SafeguardedBitRoundPco",
     "SafeguardedSperr",
     "SafeguardedSz3",
     "SafeguardedZero",
@@ -21,6 +22,7 @@ from .bitround import BitRound
 from .bitround_pco import BitRoundPco
 from .jpeg2000 import Jpeg2000
 from .safeguarded import (
+    SafeguardedBitRoundPco,
     SafeguardedSperr,
     SafeguardedSz3,
     SafeguardedZero,
