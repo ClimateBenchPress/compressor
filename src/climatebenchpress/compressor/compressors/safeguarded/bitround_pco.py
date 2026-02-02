@@ -29,7 +29,7 @@ class SafeguardedBitRoundPco(Compressor):
         # so that we can inform the safeguards of the abs bound
         keepbits = compute_keepbits(dtype, error_bound / data_abs_max)
 
-        return numcodecs_safeguards.SafeguardsCodec(
+        return numcodecs_safeguards.SafeguardedCodec(
             codec=numcodecs_wasm_bit_round.BitRound(keepbits=keepbits),
             lossless=numcodecs_safeguards.lossless.Lossless(
                 for_codec=numcodecs_wasm_pco.Pco(
@@ -50,7 +50,7 @@ class SafeguardedBitRoundPco(Compressor):
 
         keepbits = compute_keepbits(dtype, error_bound)
 
-        return numcodecs_safeguards.SafeguardsCodec(
+        return numcodecs_safeguards.SafeguardedCodec(
             codec=numcodecs_wasm_bit_round.BitRound(keepbits=keepbits),
             lossless=numcodecs_safeguards.lossless.Lossless(
                 for_codec=numcodecs_wasm_pco.Pco(

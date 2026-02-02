@@ -19,7 +19,7 @@ class SafeguardedSperr(Compressor):
 
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
-        return numcodecs_safeguards.SafeguardsCodec(
+        return numcodecs_safeguards.SafeguardedCodec(
             codec=CodecStack(
                 NaNToMean(),
                 numcodecs_wasm_sperr.Sperr(mode="pwe", pwe=error_bound),
@@ -33,7 +33,7 @@ class SafeguardedSperr(Compressor):
     def rel_bound_codec(error_bound, *, data_abs_min=None, **kwargs):
         assert data_abs_min is not None, "data_abs_min must be provided"
 
-        return numcodecs_safeguards.SafeguardsCodec(
+        return numcodecs_safeguards.SafeguardedCodec(
             codec=CodecStack(
                 NaNToMean(),
                 # conservative rel->abs error bound transformation,

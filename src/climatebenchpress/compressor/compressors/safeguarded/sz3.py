@@ -14,7 +14,7 @@ class SafeguardedSz3(Compressor):
 
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
-        return numcodecs_safeguards.SafeguardsCodec(
+        return numcodecs_safeguards.SafeguardedCodec(
             codec=numcodecs_wasm_sz3.Sz3(eb_mode="abs", eb_abs=error_bound),
             safeguards=[
                 dict(kind="eb", type="abs", eb=error_bound, equal_nan=True),
@@ -23,7 +23,7 @@ class SafeguardedSz3(Compressor):
 
     @staticmethod
     def rel_bound_codec(error_bound, **kwargs):
-        return numcodecs_safeguards.SafeguardsCodec(
+        return numcodecs_safeguards.SafeguardedCodec(
             codec=numcodecs_wasm_sz3.Sz3(eb_mode="rel", eb_rel=error_bound),
             safeguards=[
                 dict(kind="eb", type="rel", eb=error_bound, equal_nan=True),

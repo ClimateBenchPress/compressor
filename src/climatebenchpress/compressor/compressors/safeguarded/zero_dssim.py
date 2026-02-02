@@ -17,7 +17,7 @@ class SafeguardedZeroDssim(Compressor):
         assert data_min is not None, "data_min must be provided"
         assert data_max is not None, "data_max must be provided"
 
-        return numcodecs_safeguards.SafeguardsCodec(
+        return numcodecs_safeguards.SafeguardedCodec(
             codec=numcodecs_zero.ZeroCodec(),
             safeguards=[
                 dict(kind="eb", type="abs", eb=error_bound, equal_nan=True),
@@ -55,7 +55,7 @@ class SafeguardedZeroDssim(Compressor):
         assert data_min is not None, "data_min must be provided"
         assert data_max is not None, "data_max must be provided"
 
-        return numcodecs_safeguards.SafeguardsCodec(
+        return numcodecs_safeguards.SafeguardedCodec(
             codec=numcodecs_zero.ZeroCodec(),
             safeguards=[
                 dict(kind="eb", type="rel", eb=error_bound, equal_nan=True),
