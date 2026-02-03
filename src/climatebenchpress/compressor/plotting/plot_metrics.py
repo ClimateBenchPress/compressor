@@ -13,15 +13,21 @@ from .variable_plotters import PLOTTERS
 
 _COMPRESSOR2LINEINFO = [
     ("jpeg2000", ("#EE7733", "-")),
-    ("sperr", ("#117733", ":")),
-    ("zfp-round", ("#DDAA33", "--")),
+    ("sperr", ("#117733", "-")),
+    ("zfp-round", ("#DDAA33", "-")),
     ("zfp", ("#EE3377", "--")),
-    ("sz3", ("#CC3311", "-.")),
-    ("bitround-pco", ("#0077BB", ":")),
+    ("sz3", ("#CC3311", "-")),
+    ("bitround-pco", ("#0077BB", "-")),
     ("bitround", ("#33BBEE", "-")),
     ("stochround-pco", ("#BBBBBB", "--")),
     ("stochround", ("#009988", "--")),
     ("tthresh", ("#882255", "-.")),
+    ("safeguarded-sperr", ("#117733", ":")),
+    ("safeguarded-zfp-round", ("#DDAA33", ":")),
+    ("safeguarded-sz3", ("#CC3311", ":")),
+    ("safeguarded-zero-dssim", ("#9467BD", "--")),
+    ("safeguarded-zero", ("#9467BD", ":")),
+    ("safeguarded-bitround-pco", ("#0077BB", ":")),
 ]
 
 
@@ -44,6 +50,25 @@ _COMPRESSOR2LEGEND_NAME = [
     ("stochround-pco", "StochRound + PCO"),
     ("stochround", "StochRound + Zstd"),
     ("tthresh", "TTHRESH"),
+    ("safeguarded-sperr", "Safeguarded(SPERR)"),
+    ("safeguarded-zfp-round", "Safeguarded(ZFP-ROUND)"),
+    ("safeguarded-sz3", "Safeguarded(SZ3)"),
+    ("safeguarded-zero-dssim", "Safeguarded(0, dSSIM)"),
+    ("safeguarded-zero", "Safeguarded(0)"),
+    ("safeguarded-bitround-pco", "Safeguarded(BitRound + PCO)"),
+]
+
+_COMPRESSOR_ORDER = [
+    "BitRound + PCO",
+    "Safeguarded(BitRound + PCO)",
+    "ZFP-ROUND",
+    "Safeguarded(ZFP-ROUND)",
+    "SZ3",
+    "Safeguarded(SZ3)",
+    "SPERR",
+    "Safeguarded(SPERR)",
+    "Safeguarded(0)",
+    "Safeguarded(0, dSSIM)",
 ]
 
 DISTORTION2LEGEND_NAME = {
@@ -102,6 +127,7 @@ def plot_metrics(
     df = pd.read_csv(metrics_path / "all_results.csv")
 
     # Filter out excluded datasets and compressors
+    # bitround jpeg2000-conservative-abs stochround-conservative-abs stochround-pco-conservative-abs zfp-conservative-abs bitround-conservative-rel stochround-pco stochround zfp jpeg2000
     df = df[~df["Compressor"].isin(exclude_compressor)]
     df = df[~df["Dataset"].isin(exclude_dataset)]
     is_tiny = df["Dataset"].str.endswith("-tiny")
@@ -111,13 +137,13 @@ def plot_metrics(
     filter_chunked = is_chunked if chunked_datasets else ~is_chunked
     df = df[filter_chunked]
 
-    _plot_per_variable_metrics(
-        datasets=datasets,
-        compressed_datasets=compressed_datasets,
-        plots_path=plots_path,
-        all_results=df,
-        rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
-    )
+    # _plot_per_variable_metrics(
+    #     datasets=datasets,
+    #     compressed_datasets=compressed_datasets,
+    #     plots_path=plots_path,
+    #     all_results=df,
+    #     rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
+    # )
 
     df = _rename_compressors(df)
     normalized_df = _normalize(df)
@@ -419,7 +445,10 @@ def _plot_aggregated_rd_curve(
         # Exclude variables that are not relevant for the distortion metric.
         normalized_df = normalized_df[~normalized_df["Variable"].isin(exclude_vars)]
 
-    compressors = normalized_df["Compressor"].unique()
+    compressors = sorted(
+        normalized_df["Compressor"].unique(),
+        key=lambda k: _COMPRESSOR_ORDER.index(_get_legend_name(k)),
+    )
     agg_distortion = normalized_df.groupby(["Error Bound Name", "Compressor"])[
         [compression_metric, distortion_metric]
     ].agg(agg)
@@ -503,8 +532,8 @@ def _plot_aggregated_rd_curve(
     )
     plt.legend(
         title="Compressor",
-        loc="upper right",
-        bbox_to_anchor=(0.8, 0.99),
+        loc="upper left",
+        # bbox_to_anchor=(0.8, 0.99),
         fontsize=12,
         title_fontsize=14,
     )
@@ -614,27 +643,32 @@ def _plot_instruction_count(df, outfile: None | Path = None):
 
 
 def _get_median_and_quantiles(df, encode_column, decode_column):
-    return df.groupby(["Compressor", "Error Bound Name"])[
-        [encode_column, decode_column]
-    ].agg(
-        encode_median=pd.NamedAgg(
-            column=encode_column, aggfunc=lambda x: x.quantile(0.5)
-        ),
-        encode_lower_quantile=pd.NamedAgg(
-            column=encode_column, aggfunc=lambda x: x.quantile(0.25)
-        ),
-        encode_upper_quantile=pd.NamedAgg(
-            column=encode_column, aggfunc=lambda x: x.quantile(0.75)
-        ),
-        decode_median=pd.NamedAgg(
-            column=decode_column, aggfunc=lambda x: x.quantile(0.5)
-        ),
-        decode_lower_quantile=pd.NamedAgg(
-            column=decode_column, aggfunc=lambda x: x.quantile(0.25)
-        ),
-        decode_upper_quantile=pd.NamedAgg(
-            column=decode_column, aggfunc=lambda x: x.quantile(0.75)
-        ),
+    return (
+        df.groupby(["Compressor", "Error Bound Name"])[[encode_column, decode_column]]
+        .agg(
+            encode_median=pd.NamedAgg(
+                column=encode_column, aggfunc=lambda x: x.quantile(0.5)
+            ),
+            encode_lower_quantile=pd.NamedAgg(
+                column=encode_column, aggfunc=lambda x: x.quantile(0.25)
+            ),
+            encode_upper_quantile=pd.NamedAgg(
+                column=encode_column, aggfunc=lambda x: x.quantile(0.75)
+            ),
+            decode_median=pd.NamedAgg(
+                column=decode_column, aggfunc=lambda x: x.quantile(0.5)
+            ),
+            decode_lower_quantile=pd.NamedAgg(
+                column=decode_column, aggfunc=lambda x: x.quantile(0.25)
+            ),
+            decode_upper_quantile=pd.NamedAgg(
+                column=decode_column, aggfunc=lambda x: x.quantile(0.75)
+            ),
+        )
+        .sort_index(
+            level=0,
+            key=lambda ks: [_COMPRESSOR_ORDER.index(_get_legend_name(k)) for k in ks],
+        )
     )
 
 
@@ -645,7 +679,10 @@ def _plot_grouped_df(
 
     # Bar width
     bar_width = 0.35
-    compressors = grouped_df.index.levels[0].tolist()
+    compressors = sorted(
+        grouped_df.index.levels[0].tolist(),
+        key=lambda k: _COMPRESSOR_ORDER.index(_get_legend_name(k)),
+    )
     x_labels = [_get_legend_name(c) for c in compressors]
     x_positions = range(len(x_labels))
 
@@ -653,7 +690,10 @@ def _plot_grouped_df(
 
     for i, error_bound in enumerate(error_bounds):
         ax = axes[i]
-        bound_data = grouped_df.xs(error_bound, level="Error Bound Name")
+        bound_data = grouped_df.xs(error_bound, level="Error Bound Name").sort_index(
+            level=0,
+            key=lambda ks: [_COMPRESSOR_ORDER.index(_get_legend_name(k)) for k in ks],
+        )
 
         # Plot encode throughput
         ax.bar(
@@ -720,11 +760,11 @@ def _plot_bound_violations(df, bound_names, outfile: None | Path = None):
         df_bound["Compressor"] = df_bound["Compressor"].map(_get_legend_name)
         pass_fail = df_bound.pivot(
             index="Compressor", columns="Variable", values="Satisfies Bound (Passed)"
-        )
+        ).sort_index(key=lambda ks: [_COMPRESSOR_ORDER.index(k) for k in ks])
         pass_fail = pass_fail.astype(np.float32)
         fraction_fail = df_bound.pivot(
             index="Compressor", columns="Variable", values="Satisfies Bound (Value)"
-        )
+        ).sort_index(key=lambda ks: [_COMPRESSOR_ORDER.index(k) for k in ks])
         annotations = fraction_fail.map(
             lambda x: "{:.2f}".format(x * 100) if x * 100 >= 0.01 else "<0.01"
         )
