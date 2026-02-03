@@ -42,27 +42,27 @@ def _get_lineinfo(compressor: str) -> tuple[str, str]:
 _COMPRESSOR2LEGEND_NAME = [
     ("jpeg2000", "JPEG2000"),
     ("sperr", "SPERR"),
-    ("zfp-round", "ZFP-ROUND"),
+    ("zfp-round", "ZFP"),
     ("zfp", "ZFP"),
     ("sz3", "SZ3"),
-    ("bitround-pco", "BitRound + PCO"),
+    ("bitround-pco", "BitRound"),
     ("bitround", "BitRound + Zstd"),
     ("stochround-pco", "StochRound + PCO"),
     ("stochround", "StochRound + Zstd"),
     ("tthresh", "TTHRESH"),
     ("safeguarded-sperr", "Safeguarded(SPERR)"),
-    ("safeguarded-zfp-round", "Safeguarded(ZFP-ROUND)"),
+    ("safeguarded-zfp-round", "Safeguarded(ZFP)"),
     ("safeguarded-sz3", "Safeguarded(SZ3)"),
     ("safeguarded-zero-dssim", "Safeguarded(0, dSSIM)"),
     ("safeguarded-zero", "Safeguarded(0)"),
-    ("safeguarded-bitround-pco", "Safeguarded(BitRound + PCO)"),
+    ("safeguarded-bitround-pco", "Safeguarded(BitRound)"),
 ]
 
 _COMPRESSOR_ORDER = [
-    "BitRound + PCO",
-    "Safeguarded(BitRound + PCO)",
-    "ZFP-ROUND",
-    "Safeguarded(ZFP-ROUND)",
+    "BitRound",
+    "Safeguarded(BitRound)",
+    "ZFP",
+    "Safeguarded(ZFP)",
     "SZ3",
     "Safeguarded(SZ3)",
     "SPERR",
@@ -476,7 +476,13 @@ def _plot_aggregated_rd_curve(
 
     if remove_outliers:
         # SZ3 and JPEG2000 often give outlier values and violate the bounds.
-        exclude_compressors = ["sz3", "jpeg2000"]
+        exclude_compressors = [
+            "sz3",
+            "jpeg2000",
+            "safeguarded-zero-dssim",
+            "safeguarded-zero",
+            "safeguarded-sz3",
+        ]
         filtered_agg = agg_distortion[
             ~agg_distortion.index.get_level_values("Compressor").isin(
                 exclude_compressors
