@@ -13,9 +13,9 @@ class SafeguardedZeroDssim(Compressor):
     description = "Safeguarded(0, dSSIM)"
 
     @staticmethod
-    def abs_bound_codec(error_bound, data_min=None, data_max=None, **kwargs):
-        assert data_min is not None, "data_min must be provided"
-        assert data_max is not None, "data_max must be provided"
+    def abs_bound_codec(error_bound, data_min_2d=None, data_max_2d=None, **kwargs):
+        assert data_min_2d is not None, "data_min_2d must be provided"
+        assert data_max_2d is not None, "data_max_2d must be provided"
 
         return numcodecs_safeguards.SafeguardedCodec(
             codec=numcodecs_zero.ZeroCodec(),
@@ -46,14 +46,15 @@ class SafeguardedZeroDssim(Compressor):
                     eb=0,
                 ),
             ],
-            # use data_min instead of $x_min to allow for chunking
-            fixed_constants=dict(x_min=data_min, x_max=data_max),
+            # use data_min_2d instead of $x_min since we need the minimum per
+            #  2d latitude-longitude slice
+            fixed_constants=dict(x_min=data_min_2d, x_max=data_max_2d),
         )
 
     @staticmethod
-    def rel_bound_codec(error_bound, data_min=None, data_max=None, **kwargs):
-        assert data_min is not None, "data_min must be provided"
-        assert data_max is not None, "data_max must be provided"
+    def rel_bound_codec(error_bound, data_min_2d=None, data_max_2d=None, **kwargs):
+        assert data_min_2d is not None, "data_min_2d must be provided"
+        assert data_max_2d is not None, "data_max_2d must be provided"
 
         return numcodecs_safeguards.SafeguardedCodec(
             codec=numcodecs_zero.ZeroCodec(),
@@ -84,6 +85,7 @@ class SafeguardedZeroDssim(Compressor):
                     eb=0,
                 ),
             ],
-            # use data_min instead of $x_min to allow for chunking
-            fixed_constants=dict(x_min=data_min, x_max=data_max),
+            # use data_min_2d instead of $x_min since we need the minimum per
+            #  2d latitude-longitude slice
+            fixed_constants=dict(x_min=data_min_2d, x_max=data_max_2d),
         )

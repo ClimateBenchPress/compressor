@@ -87,6 +87,8 @@ def compress(
         ds_abs_maxs: dict[str, float] = dict()
         ds_mins: dict[str, float] = dict()
         ds_maxs: dict[str, float] = dict()
+        ds_min_2ds: dict[str, np.ndarray] = dict()
+        ds_max_2ds: dict[str, np.ndarray] = dict()
         for v in ds:
             vs: str = str(v)
             abs_vals = xr.ufuncs.abs(ds[v])
@@ -96,6 +98,16 @@ def compress(
             ds_abs_maxs[vs] = abs_vals.max().values.item()
             ds_mins[vs] = ds[v].min().values.item()
             ds_maxs[vs] = ds[v].max().values.item()
+            ds_min_2ds[vs] = (
+                ds[v]
+                .min(dim=[ds[v].cf["Y"].name, ds[v].cf["X"].name], keepdims=True)
+                .values
+            )
+            ds_max_2ds[vs] = (
+                ds[v]
+                .max(dim=[ds[v].cf["Y"].name, ds[v].cf["X"].name], keepdims=True)
+                .values
+            )
 
         if chunked:
             for v in ds:
@@ -115,7 +127,14 @@ def compress(
 
             compressor_variants: dict[str, list[NamedPerVariableCodec]] = (
                 compressor.build(
-                    ds_dtypes, ds_abs_mins, ds_abs_maxs, ds_mins, ds_maxs, error_bounds
+                    ds_dtypes,
+                    ds_abs_mins,
+                    ds_abs_maxs,
+                    ds_mins,
+                    ds_maxs,
+                    ds_min_2ds,
+                    ds_max_2ds,
+                    error_bounds,
                 )
             )
 
@@ -189,6 +208,15 @@ def compress_decompress(
         if not isinstance(codec, CodecStack):
             codec = CodecStack(codec)
 
+        # HACK: Safeguarded(0, dSSIM) requires the per-lat-lon-slice minimum
+        #  and maximum
+        # for potentially-chunked data we should really use xarray-safeguards,
+        #  but not using chunks also works (for now)
+        is_safeguarded_zero_dssim = (
+            "# === pointwise dSSIM quantity of interest === #"
+            in json.dumps(codec.get_config())
+        )
+
         with numcodecs_observers.observe(
             codec,
             observers=[
@@ -197,7 +225,9 @@ def compress_decompress(
                 timing,
             ],
         ) as codec_:
-            variables[v] = codec_.encode_decode_data_array(ds[v]).compute()
+            variables[v] = codec_.encode_decode_data_array(
+                ds[v].compute() if is_safeguarded_zero_dssim else ds[v]
+            ).compute()
 
             cs = [c._codec for c in codec_.__iter__()]
 
