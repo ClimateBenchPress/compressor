@@ -21,13 +21,15 @@ class SafeguardedZeroDssim(Compressor):
             codec=numcodecs_zero.ZeroCodec(),
             safeguards=[
                 dict(kind="eb", type="abs", eb=error_bound, equal_nan=True),
-                # guarantee that the global minimum and maximum are preserved,
-                #  which simplifies the rescaling
+                # guarantee that the per-latitude-longitude-slice minimum and
+                #  maximum are preserved, which simplifies the rescaling
                 dict(kind="sign", offset="x_min"),
                 dict(kind="sign", offset="x_max"),
                 dict(
                     kind="qoi_eb_pw",
                     qoi="""
+                    # === pointwise dSSIM quantity of interest === #
+
                     # we guarantee that
                     #  min(data) = min(corrected) and
                     #  max(data) = max(corrected)
@@ -60,13 +62,15 @@ class SafeguardedZeroDssim(Compressor):
             codec=numcodecs_zero.ZeroCodec(),
             safeguards=[
                 dict(kind="eb", type="rel", eb=error_bound, equal_nan=True),
-                # guarantee that the global minimum and maximum are preserved,
-                #  which simplifies the rescaling
+                # guarantee that the per-latitude-longitude-slice minimum and
+                #  maximum are preserved, which simplifies the rescaling
                 dict(kind="sign", offset="x_min"),
                 dict(kind="sign", offset="x_max"),
                 dict(
                     kind="qoi_eb_pw",
                     qoi="""
+                    # === pointwise dSSIM quantity of interest === #
+
                     # we guarantee that
                     #  min(data) = min(corrected) and
                     #  max(data) = max(corrected)
