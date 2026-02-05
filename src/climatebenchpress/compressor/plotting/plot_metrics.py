@@ -614,24 +614,23 @@ def _plot_aggregated_rd_curve(
 
 
 def _plot_throughput(df, outfile: None | Path = None):
-    # Transform throughput measurements from raw B/s to s/MB for better comparison
-    # with instruction count measurements.
     encode_col = "Encode Throughput [raw B / s]"
     decode_col = "Decode Throughput [raw B / s]"
     new_df = df[["Compressor", "Error Bound Name", encode_col, decode_col]].copy()
-    transformed_encode_col = "Encode Throughput [s / MB]"
-    transformed_decode_col = "Decode Throughput [s / MB]"
-    new_df[transformed_encode_col] = 1e6 / new_df[encode_col]
-    new_df[transformed_decode_col] = 1e6 / new_df[decode_col]
+    transformed_encode_col = "Encode Throughput [MiB / s]"
+    transformed_decode_col = "Decode Throughput [MiB / s]"
+    new_df[transformed_encode_col] = new_df[encode_col] / (2**20)
+    new_df[transformed_decode_col] = new_df[decode_col] / (2**20)
     encode_col, decode_col = transformed_encode_col, transformed_decode_col
 
     grouped_df = _get_median_and_quantiles(new_df, encode_col, decode_col)
     _plot_grouped_df(
         grouped_df,
         title="",
-        ylabel="Throughput [s / MB]",
+        ylabel="Throughput [MiB / s]",
         logy=True,
         outfile=outfile,
+        up=True,
     )
 
 
@@ -645,6 +644,7 @@ def _plot_instruction_count(df, outfile: None | Path = None):
         ylabel="Instructions [# / raw B]",
         logy=True,
         outfile=outfile,
+        up=False,
     )
 
 
@@ -679,7 +679,12 @@ def _get_median_and_quantiles(df, encode_column, decode_column):
 
 
 def _plot_grouped_df(
-    grouped_df, title, ylabel, outfile: None | Path = None, logy=False
+    grouped_df,
+    title,
+    ylabel,
+    outfile: None | Path = None,
+    logy=False,
+    up=False,
 ):
     fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharex=True, sharey=True)
 
@@ -736,16 +741,18 @@ def _plot_grouped_df(
         ax.set_title(f"{error_bound.capitalize()} Error Bound", fontsize=14)
         ax.grid(axis="y", linestyle="--", alpha=0.7)
         if i == 0:
-            ax.legend(fontsize=14, loc="upper left")
+            ax.legend(
+                fontsize=14, loc="lower left" if up else "upper left", framealpha=0.9
+            )
             ax.set_ylabel(ylabel, fontsize=14)
         if i == 1:
             ax.annotate(
                 "Better",
-                xy=(0.1, 0.75),
+                xy=(0.51, 0.75),
                 xycoords="axes fraction",
-                xytext=(0.1, 0.9),
+                xytext=(0.51, 0.92),
                 textcoords="axes fraction",
-                arrowprops=dict(arrowstyle="->", lw=3, color="black"),
+                arrowprops=dict(arrowstyle="<-" if up else "->", lw=3, color="black"),
                 fontsize=14,
                 ha="center",
                 va="bottom",
