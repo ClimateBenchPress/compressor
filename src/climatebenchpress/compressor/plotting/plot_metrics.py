@@ -73,7 +73,7 @@ _COMPRESSOR_ORDER = [
 
 DISTORTION2LEGEND_NAME = {
     "Relative MAE": "Mean Absolute Error",
-    "Relative DSSIM": "DSSIM",
+    "Relative dSSIM": "dSSIM",
     "Relative MaxAbsError": "Max Absolute Error",
     "Spectral Error": "Spectral Error",
 }
@@ -155,7 +155,7 @@ def plot_metrics(
 
     for metric in [
         "Relative MAE",
-        "Relative DSSIM",
+        "Relative dSSIM",
         "Relative MaxAbsError",
         "Relative SpectralError",
     ]:
@@ -214,7 +214,7 @@ def _normalize(data):
     normalize_vars = [
         ("Compression Ratio [raw B / enc B]", "Relative CR"),
         ("MAE", "Relative MAE"),
-        ("DSSIM", "Relative DSSIM"),
+        ("DSSIM", "Relative dSSIM"),
         ("Max Absolute Error", "Relative MaxAbsError"),
         ("Spectral Error", "Relative SpectralError"),
     ]
@@ -528,12 +528,12 @@ def _plot_aggregated_rd_curve(
         right=True,
     )
     plt.xlabel(
-        r"Mean Normalized Compression Ratio ($\uparrow$)",
+        r"Mean Normalised Compression Ratio ($\uparrow$)",
         fontsize=16,
     )
     metric_name = DISTORTION2LEGEND_NAME.get(distortion_metric, distortion_metric)
     plt.ylabel(
-        rf"Mean Normalized {metric_name} ($\downarrow$)",
+        rf"Mean Normalised {metric_name} ($\downarrow$)",
         fontsize=16,
     )
     plt.legend(
@@ -545,7 +545,7 @@ def _plot_aggregated_rd_curve(
     )
 
     arrow_color = "black"
-    if "DSSIM" in distortion_metric:
+    if "dSSIM" in distortion_metric:
         # Add an arrow pointing into the top right corner
         plt.annotate(
             "",
@@ -573,7 +573,7 @@ def _plot_aggregated_rd_curve(
         )
         # Correct the y-label to point upwards
         plt.ylabel(
-            rf"Mean Normalized {metric_name} ($\uparrow$)",
+            rf"Mean Normalised {metric_name} ($\uparrow$)",
             fontsize=16,
         )
     else:
@@ -601,7 +601,7 @@ def _plot_aggregated_rd_curve(
             ha="center",
         )
     if (
-        "DSSIM" in distortion_metric
+        "dSSIM" in distortion_metric
         or "MaxAbsError" in distortion_metric
         or "SpectralError" in distortion_metric
     ):
@@ -736,13 +736,14 @@ def _plot_grouped_df(
         ax.set_title(f"{error_bound.capitalize()} Error Bound", fontsize=14)
         ax.grid(axis="y", linestyle="--", alpha=0.7)
         if i == 0:
-            ax.legend(fontsize=14)
+            ax.legend(fontsize=14, loc="upper left")
             ax.set_ylabel(ylabel, fontsize=14)
+        if i == 1:
             ax.annotate(
                 "Better",
-                xy=(0.1, 0.8),
+                xy=(0.1, 0.75),
                 xycoords="axes fraction",
-                xytext=(0.1, 0.95),
+                xytext=(0.1, 0.9),
                 textcoords="axes fraction",
                 arrowprops=dict(arrowstyle="->", lw=3, color="black"),
                 fontsize=14,
