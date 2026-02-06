@@ -716,7 +716,12 @@ def _plot_grouped_df(
                 bound_data["encode_upper_quantile"],
             ],
             label="Encoding",
+            edgecolor="white",
+            linewidth=0,
             color=[_get_lineinfo(comp)[0] for comp in compressors],
+            hatch=[
+                "O" if comp.startswith("safeguarded-") else "" for comp in compressors
+            ],
         )
 
         # Plot decode throughput
@@ -732,6 +737,9 @@ def _plot_grouped_df(
             edgecolor=[_get_lineinfo(comp)[0] for comp in compressors],
             fill=False,
             linewidth=4,
+            hatch=[
+                "O" if comp.startswith("safeguarded-") else "" for comp in compressors
+            ],
         )
 
         # Add labels and title
