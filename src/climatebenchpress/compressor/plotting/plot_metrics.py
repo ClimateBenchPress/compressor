@@ -146,7 +146,7 @@ def plot_metrics(
     # )
 
     df = _rename_compressors(df)
-    normalized_df = _normalize(df)
+    normalized_df, normalized_mean_std = _normalize(df)
     _plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
@@ -164,6 +164,7 @@ def plot_metrics(
                 normalized_df,
                 compression_metric="Relative CR",
                 distortion_metric=metric,
+                mean_std=normalized_mean_std[metric],
                 outfile=plots_path / f"rd_curve_{metric.lower().replace(' ', '_')}.pdf",
                 agg="mean",
                 bound_names=bound_names,
@@ -173,6 +174,7 @@ def plot_metrics(
                 normalized_df,
                 compression_metric="Relative CR",
                 distortion_metric=metric,
+                mean_std=normalized_mean_std[metric],
                 outfile=plots_path
                 / f"full_rd_curve_{metric.lower().replace(' ', '_')}.pdf",
                 agg="mean",
@@ -224,6 +226,7 @@ def _normalize(data):
     dssim_unreliable = normalized["Variable"].isin(["ta", "tos"])
     normalized.loc[dssim_unreliable, "DSSIM"] = np.nan
 
+    normalize_mean_std = dict()
     for col, new_col in normalize_vars:
         mean_std = dict()
         for var in variables:
@@ -239,7 +242,9 @@ def _normalize(data):
             axis=1,
         )
 
-    return normalized
+        normalize_mean_std[new_col] = mean_std
+
+    return normalized, normalize_mean_std
 
 
 def _plot_per_variable_metrics(
@@ -434,6 +439,7 @@ def _plot_aggregated_rd_curve(
     normalized_df,
     compression_metric,
     distortion_metric,
+    mean_std,
     outfile: None | Path = None,
     agg="median",
     bound_names=["low", "mid", "high"],
@@ -546,10 +552,27 @@ def _plot_aggregated_rd_curve(
 
     arrow_color = "black"
     if "dSSIM" in distortion_metric:
+        # Annotate dSSIM = 1, accounting for the normalization
+        dssim_one = getattr(np, f"nan{agg}")(
+            [(1 - ms[0]) / ms[1] for ms in mean_std.values()]
+        )
+        plt.axhline(dssim_one, c="k", ls="--")
+        plt.text(
+            np.percentile(plt.xlim(), 63),
+            dssim_one,
+            "dSSIM = 1",
+            fontsize=16,
+            fontweight="bold",
+            color="black",
+            ha="center",
+            va="center",
+            bbox=dict(edgecolor="none", facecolor="w", alpha=0.85),
+        )
+
         # Add an arrow pointing into the top right corner
         plt.annotate(
             "",
-            xy=(0.95, 0.95),
+            xy=(0.95, 0.875 if remove_outliers else 0.9),
             xycoords="axes fraction",
             xytext=(-60, -50),
             textcoords="offset points",
@@ -562,7 +585,7 @@ def _plot_aggregated_rd_curve(
         # Attach the text to the lower left of the arrow
         plt.text(
             0.83,
-            0.92,
+            0.845 if remove_outliers else 0.87,
             "Better",
             transform=plt.gca().transAxes,
             fontsize=16,
