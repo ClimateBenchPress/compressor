@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../../../img/favicon.ico" />
+    <title>zero - climatebenchpress.compressor</title>
+    <link rel="stylesheet" href="../../../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../../../css/theme_extra.css" />
+        <link href="../../../../../../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "zero";
+        var mkdocs_page_input_path = "_ref/climatebenchpress/compressor/compressors/safeguarded/zero.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../../../js/html5shiv.min.js"></script>
+    <![endif]--> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../../../.." class="icon icon-home"> climatebenchpress.compressor
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../../../../run_benchmark/">Run the benchmark</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Links</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="" href="https://github.com/ClimateBenchPress/compressor/">GitHub</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Documentation</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >climatebenchpress</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" >compressor</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" >compressors</a>
+    <ul class="current">
+                <li class="toctree-l4"><a class="reference internal" href="../../abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../bitround/">bitround</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../bitround_pco/">bitround_pco</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../jpeg2000/">jpeg2000</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" >safeguarded</a>
+    <ul class="current">
+                <li class="toctree-l5"><a class="reference internal" href="../bitround_pco/">bitround_pco</a>
+                </li>
+                <li class="toctree-l5"><a class="reference internal" href="../sperr/">sperr</a>
+                </li>
+                <li class="toctree-l5"><a class="reference internal" href="../sz3/">sz3</a>
+                </li>
+                <li class="toctree-l5 current"><a class="reference internal current" href="#">zero</a>
+    <ul class="current">
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero">SafeguardedZero</a>
+        <ul>
+    <li class="toctree-l7"><a class="reference internal" href="#climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero.name">name</a>
+    </li>
+    <li class="toctree-l7"><a class="reference internal" href="#climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero.description">description</a>
+    </li>
+    <li class="toctree-l7"><a class="reference internal" href="#climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero.abs_bound_codec">abs_bound_codec</a>
+    </li>
+    <li class="toctree-l7"><a class="reference internal" href="#climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero.rel_bound_codec">rel_bound_codec</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l5"><a class="reference internal" href="../zero_dssim/">zero_dssim</a>
+                </li>
+                <li class="toctree-l5"><a class="reference internal" href="../zfp_round/">zfp_round</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../sperr/">sperr</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../stochround/">stochround</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../stochround_pco/">stochround_pco</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../sz3/">sz3</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../tthresh/">tthresh</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../utils/">utils</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../zfp/">zfp</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../zfp_round/">zfp_round</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >metrics</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../../metrics/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../metrics/dssim/">dssim</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../metrics/mae/">mae</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../metrics/max_abs_error/">max_abs_error</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../metrics/max_rel_error/">max_rel_error</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../metrics/psnr/">psnr</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../metrics/spectral_error/">spectral_error</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >plotting</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../../plotting/plot_metrics/">plot_metrics</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >scripts</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../../scripts/compress/">compress</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../scripts/compute_metrics/">compute_metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../scripts/concatenate_metrics/">concatenate_metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../scripts/create_error_bounds/">create_error_bounds</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../scripts/print_metrics/">print_metrics</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >tests</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../../tests/abc/">abc</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../tests/error_bound/">error_bound</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../tests/r2_correlation/">r2_correlation</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../../tests/spatial_relative_error/">spatial_relative_error</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../..">climatebenchpress.compressor</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Documentation</li>
+          <li class="breadcrumb-item">climatebenchpress</li>
+          <li class="breadcrumb-item">compressor</li>
+          <li class="breadcrumb-item">compressors</li>
+          <li class="breadcrumb-item">safeguarded</li>
+      <li class="breadcrumb-item active">zero</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="zero"><code>zero</code></h1>
+<p><code>climatebenchpress.compressor.compressors.safeguarded.zero</code></p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">SafeguardedZero</span>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="Compressor (climatebenchpress.compressor.compressors.abc.Compressor)" href="../../abc/#climatebenchpress.compressor.compressors.abc.Compressor">Compressor</a></code></p>
+
+
+
+        <p>Safeguarded all-zero compressor.</p>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero.name" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">name</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>name <span style="color: #666">=</span> <span style="color: #BA2121">&#39;safeguarded-zero&#39;</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero.description" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">description</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>description <span style="color: #666">=</span> <span style="color: #BA2121">&#39;Safeguarded(0)&#39;</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero.abs_bound_codec" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">abs_bound_codec</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>abs_bound_codec(error_bound, <span style="color: #666">**</span>kwargs)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.compressors.safeguarded.zero.SafeguardedZero.rel_bound_codec" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">rel_bound_codec</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>rel_bound_codec(error_bound, <span style="color: #666">**</span>kwargs)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../zero_dssim/" class="btn btn-neutral float-right" title="zero_dssim">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="../zero_dssim/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../../../..";</script>
+    <script src="../../../../../../js/theme_extra.js"></script>
+    <script src="../../../../../../js/theme.js"></script>
+      <script src="../../../../../../js/katex.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js"></script>
+      <script src="../../../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

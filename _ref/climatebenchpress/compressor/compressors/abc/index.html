@@ -106,6 +106,22 @@
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../jpeg2000/">jpeg2000</a>
                 </li>
+                <li class="toctree-l4"><a class="reference internal" >safeguarded</a>
+    <ul>
+                <li class="toctree-l5"><a class="reference internal" href="../safeguarded/bitround_pco/">bitround_pco</a>
+                </li>
+                <li class="toctree-l5"><a class="reference internal" href="../safeguarded/sperr/">sperr</a>
+                </li>
+                <li class="toctree-l5"><a class="reference internal" href="../safeguarded/sz3/">sz3</a>
+                </li>
+                <li class="toctree-l5"><a class="reference internal" href="../safeguarded/zero/">zero</a>
+                </li>
+                <li class="toctree-l5"><a class="reference internal" href="../safeguarded/zero_dssim/">zero_dssim</a>
+                </li>
+                <li class="toctree-l5"><a class="reference internal" href="../safeguarded/zfp_round/">zfp_round</a>
+                </li>
+    </ul>
+                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../sperr/">sperr</a>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../stochround/">stochround</a>
@@ -691,6 +707,10 @@ names and error bounds.</p>
     dtype: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
     data_min: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
     data_max: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_abs_min: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_abs_max: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_min_2d: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_max_2d: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
 ) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>
 </code></pre></div>
 
@@ -727,6 +747,10 @@ names and error bounds.</p>
     dtype: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.dtype" href="https://numpy.org/doc/2.2/reference/generated/numpy.dtype.html#numpy.dtype">dtype</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
     data_min: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
     data_max: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_abs_min: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_abs_max: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_min_2d: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    data_max_2d: <a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3.12/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
 ) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" title="numcodecs.abc.Codec" href="https://numcodecs.readthedocs.io/en/v0.16.0/abc.html#numcodecs.abc.Codec">Codec</a>
 </code></pre></div>
 
@@ -762,6 +786,8 @@ names and error bounds.</p>
     data_abs_max: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
     data_min: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
     data_max: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#float">float</a>],
+    data_min_2d: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a>],
+    data_max_2d: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a><span style="color: #666">.</span><a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a>],
     error_bounds: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-internal" title="ErrorBound
 
 
@@ -835,6 +861,24 @@ error bound.</p>
               –
               <div class="doc-md-description">
                 <p>Dict mapping from variable name to maximum value for the variable.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data_min_2d</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a>.<a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Dict mapping from variable name to per-lat-lon-slice minimum value for the
+variable.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>data_max_2d</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#dict">dict</a>[<span title="climatebenchpress.compressor.compressors.abc.VariableName">VariableName</span>, <a class="autorefs autorefs-external" title="numpy" href="https://numpy.org/doc/2.2/reference/index.html#module-numpy">np</a>.<a class="autorefs autorefs-external" title="numpy.ndarray" href="https://numpy.org/doc/2.2/reference/generated/numpy.ndarray.html#numpy.ndarray">ndarray</a>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Dict mapping from variable name to per-lat-lon-slice maximum value for the
+variable.</p>
               </div>
             </li>
             <li>
