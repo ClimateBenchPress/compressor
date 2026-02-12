@@ -207,8 +207,9 @@ def _normalize(data):
 
         # Normalize each variable by its mean and std
         normalized[new_col] = normalized.apply(
-            lambda x: (x[col] - mean_std[x["Variable"]][0])
-            / mean_std[x["Variable"]][1],
+            lambda x: (
+                (x[col] - mean_std[x["Variable"]][0]) / mean_std[x["Variable"]][1]
+            ),
             axis=1,
         )
 

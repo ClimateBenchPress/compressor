@@ -87,6 +87,8 @@ def compress(
         ds_abs_maxs: dict[str, float] = dict()
         ds_mins: dict[str, float] = dict()
         ds_maxs: dict[str, float] = dict()
+        ds_min_2ds: dict[str, np.ndarray] = dict()
+        ds_max_2ds: dict[str, np.ndarray] = dict()
         for v in ds:
             vs: str = str(v)
             abs_vals = xr.ufuncs.abs(ds[v])
@@ -96,6 +98,16 @@ def compress(
             ds_abs_maxs[vs] = abs_vals.max().values.item()
             ds_mins[vs] = ds[v].min().values.item()
             ds_maxs[vs] = ds[v].max().values.item()
+            ds_min_2ds[vs] = (
+                ds[v]
+                .min(dim=[ds[v].cf["Y"].name, ds[v].cf["X"].name], keepdims=True)
+                .values
+            )
+            ds_max_2ds[vs] = (
+                ds[v]
+                .max(dim=[ds[v].cf["Y"].name, ds[v].cf["X"].name], keepdims=True)
+                .values
+            )
 
         if chunked:
             for v in ds:
@@ -115,7 +127,14 @@ def compress(
 
             compressor_variants: dict[str, list[NamedPerVariableCodec]] = (
                 compressor.build(
-                    ds_dtypes, ds_abs_mins, ds_abs_maxs, ds_mins, ds_maxs, error_bounds
+                    ds_dtypes,
+                    ds_abs_mins,
+                    ds_abs_maxs,
+                    ds_mins,
+                    ds_maxs,
+                    ds_min_2ds,
+                    ds_max_2ds,
+                    error_bounds,
                 )
             )
 
@@ -189,6 +208,15 @@ def compress_decompress(
         if not isinstance(codec, CodecStack):
             codec = CodecStack(codec)
 
+        # HACK: Safeguarded(0, dSSIM) requires the per-lat-lon-slice minimum
+        #  and maximum
+        # for potentially-chunked data we should really use xarray-safeguards,
+        #  but not using chunks also works (for now)
+        is_safeguarded_zero_dssim = (
+            "# === pointwise dSSIM quantity of interest === #"
+            in json.dumps(codec.get_config())
+        )
+
         with numcodecs_observers.observe(
             codec,
             observers=[
@@ -197,26 +225,42 @@ def compress_decompress(
                 timing,
             ],
         ) as codec_:
-            variables[v] = codec_.encode_decode_data_array(ds[v]).compute()
+            variables[v] = codec_.encode_decode_data_array(
+                ds[v].compute() if is_safeguarded_zero_dssim else ds[v]
+            ).compute()
 
-        measurements[v] = {
-            "encoded_bytes": sum(
-                b.post for b in nbytes.encode_sizes[HashableCodec(codec[-1])]
-            ),
-            "decoded_bytes": sum(
-                b.post for b in nbytes.decode_sizes[HashableCodec(codec[0])]
-            ),
-            "encode_timing": sum(t for ts in timing.encode_times.values() for t in ts),
-            "decode_timing": sum(t for ts in timing.decode_times.values() for t in ts),
-            "encode_instructions": sum(
-                i for is_ in instructions.encode_instructions.values() for i in is_
-            )
-            or None,
-            "decode_instructions": sum(
-                i for is_ in instructions.decode_instructions.values() for i in is_
-            )
-            or None,
-        }
+            cs = [c._codec for c in codec_.__iter__()]
+
+            measurements[v] = {
+                # bytes measurements: only look at the first and last codec in
+                #  the top level stack, which gives the total encoded and
+                #  decoded sizes
+                "encoded_bytes": sum(
+                    b.post for b in nbytes.encode_sizes[HashableCodec(cs[-1])]
+                ),
+                "decoded_bytes": sum(
+                    b.post for b in nbytes.decode_sizes[HashableCodec(cs[0])]
+                ),
+                # time measurements: only sum over the top level stack members
+                #  to avoid double counting from nested codec combinators
+                "encode_timing": sum(
+                    t for c in cs for t in timing.encode_times[HashableCodec(c)]
+                ),
+                "decode_timing": sum(
+                    t for c in cs for t in timing.decode_times[HashableCodec(c)]
+                ),
+                # encode instructions: sum over all codecs since WASM
+                #  instruction counts are currently not aggregated in codec
+                #  combinators
+                "encode_instructions": sum(
+                    i for is_ in instructions.encode_instructions.values() for i in is_
+                )
+                or None,
+                "decode_instructions": sum(
+                    i for is_ in instructions.decode_instructions.values() for i in is_
+                )
+                or None,
+            }
 
     return xr.Dataset(variables, coords=ds.coords, attrs=ds.attrs), measurements
 

@@ -88,6 +88,10 @@ class Compressor(ABC):
         dtype: Optional[np.dtype] = None,
         data_min: Optional[float] = None,
         data_max: Optional[float] = None,
+        data_abs_min: Optional[float] = None,
+        data_abs_max: Optional[float] = None,
+        data_min_2d: Optional[np.ndarray] = None,
+        data_max_2d: Optional[np.ndarray] = None,
     ) -> Codec:
         """Create a codec with an absolute error bound."""
         pass
@@ -100,6 +104,10 @@ class Compressor(ABC):
         dtype: Optional[np.dtype] = None,
         data_min: Optional[float] = None,
         data_max: Optional[float] = None,
+        data_abs_min: Optional[float] = None,
+        data_abs_max: Optional[float] = None,
+        data_min_2d: Optional[np.ndarray] = None,
+        data_max_2d: Optional[np.ndarray] = None,
     ) -> Codec:
         """Create a codec with a relative error bound."""
         pass
@@ -112,6 +120,8 @@ class Compressor(ABC):
         data_abs_max: dict[VariableName, float],
         data_min: dict[VariableName, float],
         data_max: dict[VariableName, float],
+        data_min_2d: dict[VariableName, np.ndarray],
+        data_max_2d: dict[VariableName, np.ndarray],
         error_bounds: list[dict[VariableName, ErrorBound]],
     ) -> dict[VariantName, list[NamedPerVariableCodec]]:
         """
@@ -135,6 +145,12 @@ class Compressor(ABC):
             Dict mapping from variable name to minimum value for the variable.
         data_max : dict[VariableName, float]
             Dict mapping from variable name to maximum value for the variable.
+        data_min_2d : dict[VariableName, np.ndarray]
+            Dict mapping from variable name to per-lat-lon-slice minimum value for the
+            variable.
+        data_max_2d : dict[VariableName, np.ndarray]
+            Dict mapping from variable name to per-lat-lon-slice maximum value for the
+            variable.
         error_bounds: list[ErrorBound]
             List of error bounds to use for the compressor.
 
@@ -167,6 +183,10 @@ class Compressor(ABC):
                         dtype=dtypes[var],
                         data_min=data_min[var],
                         data_max=data_max[var],
+                        data_abs_min=data_abs_min[var],
+                        data_abs_max=data_abs_max[var],
+                        data_min_2d=data_min_2d[var],
+                        data_max_2d=data_max_2d[var],
                     )
                 elif eb.rel_error is not None and cls.has_rel_error_impl:
                     new_codecs[var] = partial(
@@ -175,6 +195,10 @@ class Compressor(ABC):
                         dtype=dtypes[var],
                         data_min=data_min[var],
                         data_max=data_max[var],
+                        data_abs_min=data_abs_min[var],
+                        data_abs_max=data_abs_max[var],
+                        data_min_2d=data_min_2d[var],
+                        data_max_2d=data_max_2d[var],
                     )
                 else:
                     # This should never happen as we have already transformed the error bounds.

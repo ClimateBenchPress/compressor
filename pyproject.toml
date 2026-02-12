@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "astropy~=7.0.1",
+    "astropy~=7.2.0",
     "cartopy~=0.24.1",
     "cf-xarray~=0.10",
     "cftime~=1.6.0",
@@ -13,8 +13,9 @@ dependencies = [
     "matplotlib~=3.8",
     "netcdf4==1.7.3",
     "numcodecs>=0.13.0,<0.17",
-    "numcodecs-combinators[xarray]~=0.2.10",
+    "numcodecs-combinators[xarray]~=0.2.13",
     "numcodecs-observers~=0.1.2",
+    "numcodecs-safeguards==0.1.0b2",
     "numcodecs-wasm~=0.2.2",
     "numcodecs-wasm-bit-round~=0.4.0",
     "numcodecs-wasm-fixed-offset-scale~=0.4.0",
@@ -28,6 +29,7 @@ dependencies = [
     "numcodecs-wasm-zfp~=0.6.0",
     "numcodecs-wasm-zfp-classic~=0.4.0",
     "numcodecs-wasm-zstd~=0.4.0",
+    "numcodecs-zero~=0.1.2",
     "pandas~=2.2",
     "scipy~=1.14",
     "seaborn~=0.13.2",
