@@ -15,6 +15,7 @@ dependencies = [
     "numcodecs>=0.13.0,<0.17",
     "numcodecs-combinators[xarray]~=0.2.13",
     "numcodecs-observers~=0.1.2",
+    "numcodecs-random-projection==0.1.0a1",
     "numcodecs-replace==0.1.0",
     "numcodecs-safeguards==0.1.0b2",
     "numcodecs-wasm==0.2.2",
