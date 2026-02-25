@@ -5,6 +5,8 @@ __all__ = [
     "RP",
     "RPDct",
     "SafeguardedBitRoundPco",
+    "SafeguardedRP",
+    "SafeguardedRPDct",
     "SafeguardedSperr",
     "SafeguardedSz3",
     "SafeguardedZero",
@@ -27,6 +29,8 @@ from .rp import RP
 from .rp_dct import RPDct
 from .safeguarded import (
     SafeguardedBitRoundPco,
+    SafeguardedRP,
+    SafeguardedRPDct,
     SafeguardedSperr,
     SafeguardedSz3,
     SafeguardedZero,

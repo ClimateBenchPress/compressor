@@ -2,7 +2,7 @@ __all__ = ["RPDct"]
 
 import numcodecs_random_projection
 import numcodecs_wasm_swizzle_reshape
-from numcodecs_combinators.stack import CodecStack
+from numcodecs_combinators.framed import FramedCodecStack
 
 from .abc import Compressor
 
@@ -13,7 +13,7 @@ class RPDct(Compressor):
 
     @staticmethod
     def abs_bound_codec(error_bound, **kwargs):
-        return CodecStack(
+        return FramedCodecStack(
             numcodecs_wasm_swizzle_reshape.SwizzleReshape(axes=[[0, 1, 2], [3, 4]]),
             numcodecs_random_projection.RPCodec(
                 mae=error_bound, method="dct", seed=0, debug=True
