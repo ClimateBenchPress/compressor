@@ -180,9 +180,7 @@ def compress(
                         json.dump(measurements, f)
 
                     with progress_bar(progress):
-                        ds_new.to_zarr(
-                            compressed_dataset_path, encoding=dict(), compute=False
-                        ).compute()
+                        ds_new.to_zarr(compressed_dataset_path, compute=False).compute()
 
 
 def compress_decompress(
