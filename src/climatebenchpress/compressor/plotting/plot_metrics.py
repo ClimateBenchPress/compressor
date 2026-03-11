@@ -22,6 +22,10 @@ _COMPRESSOR2LINEINFO = [
     ("stochround-pco", ("#BBBBBB", "--")),
     ("stochround", ("#009988", "--")),
     ("tthresh", ("#882255", "-.")),
+    ("rp-dct", ("pink", "-")),
+    ("rp", ("purple", "-")),
+    ("safeguarded-rp-dct", ("pink", ":")),
+    ("safeguarded-rp", ("purple", ":")),
 ]
 
 
@@ -44,6 +48,10 @@ _COMPRESSOR2LEGEND_NAME = [
     ("stochround-pco", "StochRound + PCO"),
     ("stochround", "StochRound + Zstd"),
     ("tthresh", "TTHRESH"),
+    ("rp-dct", "RP(N)"),
+    ("rp", "RP(DCT)"),
+    ("safeguarded-rp-dct", "Safeguarded(RP(N))"),
+    ("safeguarded-rp", "Safeguarded(RP(DCT))"),
 ]
 
 DISTORTION2LEGEND_NAME = {
@@ -111,13 +119,13 @@ def plot_metrics(
     filter_chunked = is_chunked if chunked_datasets else ~is_chunked
     df = df[filter_chunked]
 
-    _plot_per_variable_metrics(
-        datasets=datasets,
-        compressed_datasets=compressed_datasets,
-        plots_path=plots_path,
-        all_results=df,
-        rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
-    )
+    # _plot_per_variable_metrics(
+    #     datasets=datasets,
+    #     compressed_datasets=compressed_datasets,
+    #     plots_path=plots_path,
+    #     all_results=df,
+    #     rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
+    # )
 
     df = _rename_compressors(df)
     normalized_df = _normalize(df)
@@ -768,6 +776,7 @@ def _savefig(outfile: Path, fig=None):
 
 
 if __name__ == "__main__":
+    # uv run python -m climatebenchpress.compressor.plotting.plot_metrics --exclude-compressor bitround stochround-conservative-abs stochround-pco-conservative-abs zfp-conservative-abs bitround-conservative-rel stochround-pco stochround zfp safeguarded-zero safeguarded-zero-dssim safeguarded-zfp-round safeguarded-sz3 safeguarded-sperr safeguarded-bitround-pco
     parser = argparse.ArgumentParser()
     parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
