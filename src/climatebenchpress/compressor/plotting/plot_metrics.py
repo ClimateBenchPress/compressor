@@ -48,8 +48,8 @@ _COMPRESSOR2LEGEND_NAME = [
     ("stochround-pco", "StochRound + PCO"),
     ("stochround", "StochRound + Zstd"),
     ("tthresh", "TTHRESH"),
-    ("rp-dct", "RP(N)"),
-    ("rp", "RP(DCT)"),
+    ("rp-dct", "RP(DCT)"),
+    ("rp", "RP(N)"),
     ("safeguarded-rp-dct", "Safeguarded(RP(N))"),
     ("safeguarded-rp", "Safeguarded(RP(DCT))"),
 ]
