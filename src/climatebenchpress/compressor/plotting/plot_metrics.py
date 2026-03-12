@@ -50,8 +50,8 @@ _COMPRESSOR2LEGEND_NAME = [
     ("tthresh", "TTHRESH"),
     ("rp-dct", "RP(DCT)"),
     ("rp", "RP(N)"),
-    ("safeguarded-rp-dct", "Safeguarded(RP(N))"),
-    ("safeguarded-rp", "Safeguarded(RP(DCT))"),
+    ("safeguarded-rp-dct", "Safeguarded(RP(DCT))"),
+    ("safeguarded-rp", "Safeguarded(RP(N))"),
 ]
 
 DISTORTION2LEGEND_NAME = {
