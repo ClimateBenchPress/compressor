@@ -47,6 +47,7 @@ def create_rp_cr_compressor(cr: float) -> type[Compressor]:
 
     return RPCr
 
+
 create_rp_cr_compressor(2.0)
 create_rp_cr_compressor(5.0)
 create_rp_cr_compressor(10.0)
