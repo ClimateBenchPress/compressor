@@ -22,6 +22,20 @@ _COMPRESSOR2LINEINFO = [
     ("stochround-pco", ("#BBBBBB", "--")),
     ("stochround", ("#009988", "--")),
     ("tthresh", ("#882255", "-.")),
+    ("rp-dct-100.0", ("#ffe6f2", "-")),
+    ("rp-dct-50.0", ("#ffb3d9", "-")),
+    ("rp-dct-10.0", ("#ff80bf", "-")),
+    ("rp-dct-5.0", ("#ff4da6", "-")),
+    ("rp-dct-2.0", ("#ff1a8c", "-")),
+    ("rp-dct", ("#e60073", "-")),
+    ("rp-100.0", ("#ffccff", "-")),
+    ("rp-50.0", ("#ff99ff", "-")),
+    ("rp-10.0", ("#ff66ff", "-")),
+    ("rp-5.0", ("#ff33ff", "-")),
+    ("rp-2.0", ("#ff00ff", "-")),
+    ("rp", ("#cc00cc", "-")),
+    ("safeguarded-rp-dct", ("pink", ":")),
+    ("safeguarded-rp", ("purple", ":")),
 ]
 
 
@@ -44,6 +58,20 @@ _COMPRESSOR2LEGEND_NAME = [
     ("stochround-pco", "StochRound + PCO"),
     ("stochround", "StochRound + Zstd"),
     ("tthresh", "TTHRESH"),
+    ("rp-dct-100.0", "RP(DCT, x100)"),
+    ("rp-dct-50.0", "RP(DCT, x50)"),
+    ("rp-dct-10.0", "RP(DCT, x10)"),
+    ("rp-dct-5.0", "RP(DCT, x5)"),
+    ("rp-dct-2.0", "RP(DCT, x2)"),
+    ("rp-dct", "RP(DCT, MAE)"),
+    ("rp-100.0", "RP(N, x100)"),
+    ("rp-50.0", "RP(N, x50)"),
+    ("rp-10.0", "RP(N, x10)"),
+    ("rp-5.0", "RP(N, x5)"),
+    ("rp-2.0", "RP(N, x2)"),
+    ("rp", "RP(N, MAE)"),
+    ("safeguarded-rp-dct", "Safeguarded(RP(DCT))"),
+    ("safeguarded-rp", "Safeguarded(RP(N))"),
 ]
 
 DISTORTION2LEGEND_NAME = {
@@ -111,13 +139,13 @@ def plot_metrics(
     filter_chunked = is_chunked if chunked_datasets else ~is_chunked
     df = df[filter_chunked]
 
-    _plot_per_variable_metrics(
-        datasets=datasets,
-        compressed_datasets=compressed_datasets,
-        plots_path=plots_path,
-        all_results=df,
-        rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
-    )
+    # _plot_per_variable_metrics(
+    #     datasets=datasets,
+    #     compressed_datasets=compressed_datasets,
+    #     plots_path=plots_path,
+    #     all_results=df,
+    #     rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
+    # )
 
     df = _rename_compressors(df)
     normalized_df = _normalize(df)
@@ -447,7 +475,9 @@ def _plot_aggregated_rd_curve(
 
     if remove_outliers:
         # SZ3 and JPEG2000 often give outlier values and violate the bounds.
-        exclude_compressors = ["sz3", "jpeg2000"]
+        exclude_compressors = ["sz3", "jpeg2000"] + [
+            c for c, _n in _COMPRESSOR2LEGEND_NAME if "rp" in c
+        ]
         filtered_agg = agg_distortion[
             ~agg_distortion.index.get_level_values("Compressor").isin(
                 exclude_compressors
@@ -768,6 +798,7 @@ def _savefig(outfile: Path, fig=None):
 
 
 if __name__ == "__main__":
+    # uv run python -m climatebenchpress.compressor.plotting.plot_metrics --exclude-compressor bitround stochround-conservative-abs stochround-pco-conservative-abs zfp-conservative-abs bitround-conservative-rel stochround-pco stochround zfp safeguarded-zero safeguarded-zero-dssim safeguarded-zfp-round safeguarded-sz3 safeguarded-sperr safeguarded-bitround-pco
     parser = argparse.ArgumentParser()
     parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])

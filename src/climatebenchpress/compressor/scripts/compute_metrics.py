@@ -72,17 +72,17 @@ def compute_metrics(
             variable2error_bound = parse_error_bounds(error_bound.name)
 
             for compressor in error_bound.iterdir():
-                if compressor.stem in exclude_compressor:
+                if compressor.name in exclude_compressor:
                     continue
-                if include_compressor and compressor.stem not in include_compressor:
+                if include_compressor and compressor.name not in include_compressor:
                     continue
-                print(f"Evaluating {compressor.stem} on {dataset.name}...")
+                print(f"Evaluating {compressor.name} on {dataset.name}...")
 
                 compressed_dataset = (
                     compressed_datasets
                     / dataset.name
                     / error_bound.name
-                    / compressor.stem
+                    / compressor.name
                 )
                 compressed_dataset_path = compressed_dataset / "decompressed.zarr"
                 uncompressed_dataset_name = dataset.name
@@ -102,10 +102,9 @@ def compute_metrics(
                 ds_new = xr.open_zarr(compressed_dataset_path, chunks=dict()).compute()
 
                 compressor_metrics = (
-                    metrics_dir / dataset.name / error_bound.name / compressor.stem
+                    metrics_dir / dataset.name / error_bound.name / compressor.name
                 )
                 compressor_metrics.mkdir(parents=True, exist_ok=True)
-
                 compute_compressor_metrics(compressor_metrics, ds, ds_new)
                 compute_tests(compressor_metrics, variable2error_bound, ds, ds_new)
 
@@ -261,7 +260,7 @@ def load_measurements(compressed_dataset: Path, compressor: Path) -> pd.DataFram
     for var, variable_measurements in measurements.items():
         rows.append(
             {
-                "Compressor": compressor.stem,
+                "Compressor": compressor.name,
                 "Variable": var,
                 "Compression Ratio [raw B / enc B]": variable_measurements[
                     "decoded_bytes"
