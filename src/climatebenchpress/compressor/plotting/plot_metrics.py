@@ -22,8 +22,18 @@ _COMPRESSOR2LINEINFO = [
     ("stochround-pco", ("#BBBBBB", "--")),
     ("stochround", ("#009988", "--")),
     ("tthresh", ("#882255", "-.")),
-    ("rp-dct", ("pink", "-")),
-    ("rp", ("purple", "-")),
+    ("rp-dct-100.0", ("#ffe6f2", "-")),
+    ("rp-dct-50.0", ("#ffb3d9", "-")),
+    ("rp-dct-10.0", ("#ff80bf", "-")),
+    ("rp-dct-5.0", ("#ff4da6", "-")),
+    ("rp-dct-2.0", ("#ff1a8c", "-")),
+    ("rp-dct", ("#e60073", "-")),
+    ("rp-100.0", ("#ffccff", "-")),
+    ("rp-50.0", ("#ff99ff", "-")),
+    ("rp-10.0", ("#ff66ff", "-")),
+    ("rp-5.0", ("#ff33ff", "-")),
+    ("rp-2.0", ("#ff00ff", "-")),
+    ("rp", ("#cc00cc", "-")),
     ("safeguarded-rp-dct", ("pink", ":")),
     ("safeguarded-rp", ("purple", ":")),
 ]
@@ -48,8 +58,18 @@ _COMPRESSOR2LEGEND_NAME = [
     ("stochround-pco", "StochRound + PCO"),
     ("stochround", "StochRound + Zstd"),
     ("tthresh", "TTHRESH"),
-    ("rp-dct", "RP(DCT)"),
-    ("rp", "RP(N)"),
+    ("rp-dct-100.0", "RP(DCT, x100)"),
+    ("rp-dct-50.0", "RP(DCT, x50)"),
+    ("rp-dct-10.0", "RP(DCT, x10)"),
+    ("rp-dct-5.0", "RP(DCT, x5)"),
+    ("rp-dct-2.0", "RP(DCT, x2)"),
+    ("rp-dct", "RP(DCT, MAE)"),
+    ("rp-100.0", "RP(N, x100)"),
+    ("rp-50.0", "RP(N, x50)"),
+    ("rp-10.0", "RP(N, x10)"),
+    ("rp-5.0", "RP(N, x5)"),
+    ("rp-2.0", "RP(N, x2)"),
+    ("rp", "RP(N, MAE)"),
     ("safeguarded-rp-dct", "Safeguarded(RP(DCT))"),
     ("safeguarded-rp", "Safeguarded(RP(N))"),
 ]
@@ -455,7 +475,9 @@ def _plot_aggregated_rd_curve(
 
     if remove_outliers:
         # SZ3 and JPEG2000 often give outlier values and violate the bounds.
-        exclude_compressors = ["sz3", "jpeg2000"]
+        exclude_compressors = ["sz3", "jpeg2000"] + [
+            c for c, _n in _COMPRESSOR2LEGEND_NAME if "rp" in c
+        ]
         filtered_agg = agg_distortion[
             ~agg_distortion.index.get_level_values("Compressor").isin(
                 exclude_compressors
