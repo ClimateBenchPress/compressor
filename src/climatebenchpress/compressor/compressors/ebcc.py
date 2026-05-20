@@ -1,5 +1,6 @@
 __all__ = ["Ebcc"]
 
+import numcodecs.astype
 import numcodecs_wasm_ebcc
 from numcodecs_combinators.stack import CodecStack
 
