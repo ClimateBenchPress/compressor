@@ -4,7 +4,6 @@ import argparse
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -162,8 +161,12 @@ def create_error_bounds(
             decode_times=False,
         )
 
-        low_error_bounds, mid_error_bounds, high_error_bounds = dict(), dict(), dict()
+        low_error_bounds: dict[str, dict[str, float | None]] = dict()
+        mid_error_bounds: dict[str, dict[str, float | None]] = dict()
+        high_error_bounds: dict[str, dict[str, float | None]] = dict()
+
         for v in ds:
+            v = str(v)
             if v in VAR_NAME_TO_ERA5:
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
                     get_error_bounds(
@@ -205,7 +208,7 @@ def create_error_bounds(
 
 def get_error_bounds(
     error_bounds: pd.DataFrame, era5_var: str, error_bound_type: str
-) -> list[dict[str, Optional[float]]]:
+) -> list[dict[str, None | float]]:
     var_error_bounds = error_bounds[error_bounds["var"] == era5_var].copy()
     single_level = var_error_bounds["level"].unique()[0] == "single"
     if single_level:
@@ -228,7 +231,7 @@ def get_error_bounds(
 
     # Ordered from strictest to most relaxed error bounds.
     percentiles = ["100%", "99%", "95%"]
-    var_ebs = []
+    var_ebs: list[dict[str, None | float]] = []
     for percentile in percentiles:
         eb_row = var_error_bounds[var_error_bounds["percentile"] == percentile]
 
@@ -246,13 +249,13 @@ def get_error_bounds(
     return var_ebs
 
 
-def get_no2_bounds(percentiles=[1.00, 0.99, 0.95]) -> list[dict[str, Optional[float]]]:
+def get_no2_bounds(percentiles=[1.00, 0.99, 0.95]) -> list[dict[str, None | float]]:
     # First we need to transform the bitwise real information into a cumulative
     # distribution function.
     real_information_dist = np.cumsum(NO2_REAL_INFORMATION) / np.sum(
         NO2_REAL_INFORMATION
     )
-    no2_bounds = []
+    no2_bounds: list[dict[str, None | float]] = []
     for p in percentiles:
         # Find the first position where cumulative distribution exceeds p.
         # Add one for 1-based indexing.
@@ -275,7 +278,7 @@ def get_no2_bounds(percentiles=[1.00, 0.99, 0.95]) -> list[dict[str, Optional[fl
 
 def get_agb_bound(
     datasets: Path, percentiles=[1.00, 0.99, 0.95]
-) -> list[dict[str, Optional[float]]]:
+) -> list[dict[str, None | float]]:
     # Define rough bounding box coordinates for mainland France.
     # Format: [min_longitude, min_latitude, max_longitude, max_latitude].
     FRANCE_BBOX = [-5.5, 42.3, 9.6, 51.1]
@@ -295,7 +298,7 @@ def get_agb_bound(
         mean=agb.agb, spread=agb.agb_sd, percentile=percentiles
     )
 
-    error_bounds = []
+    error_bounds: list[dict[str, None | float]] = []
     for a, r in zip(ensemble_bounds.absolute, ensemble_bounds.relative):
         if VAR_NAME_TO_ERROR_BOUND["agb"] == ABS_ERROR:
             error_bounds.append(
@@ -330,8 +333,12 @@ def compute_ensemble_spread_bounds(
 
     spread_nonzero = spread_values[spread_values > 0.0]
 
+    absolute: list[float]
     if len(spread_nonzero) > 0:
-        absolute = np.nanquantile(spread_nonzero, [1 - p for p in percentile])
+        absolute = [
+            float(s)
+            for s in np.nanquantile(spread_nonzero, [1 - p for p in percentile])
+        ]
     else:
         absolute = [0.0 for _ in percentile]
 
@@ -339,8 +346,11 @@ def compute_ensemble_spread_bounds(
     rel = spread_values[abs_mean > 0.0] / abs_mean[abs_mean > 0.0]
     rel_nonzero = rel[rel > 0.0]
 
+    relative: list[float]
     if len(rel_nonzero) > 0:
-        relative = np.nanquantile(rel_nonzero, [1 - p for p in percentile])
+        relative = [
+            float(r) for r in np.nanquantile(rel_nonzero, [1 - p for p in percentile])
+        ]
     else:
         relative = [0.0 for _ in percentile]
 

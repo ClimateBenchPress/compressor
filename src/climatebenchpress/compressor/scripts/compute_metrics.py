@@ -3,8 +3,8 @@ __all__ = ["compute_metrics"]
 import argparse
 import json
 import re
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 import pandas as pd
 import xarray as xr
