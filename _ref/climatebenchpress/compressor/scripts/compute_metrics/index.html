@@ -263,10 +263,10 @@
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>compute_metrics(
     basepath: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>(),
     data_loader_basepath: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
-    exclude_dataset: <a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>(),
-    include_dataset: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
-    exclude_compressor: <a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>(),
-    include_compressor: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    exclude_dataset: <a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>(),
+    include_dataset: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    exclude_compressor: <a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>(),
+    include_compressor: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
 )
 </code></pre></div>
 
@@ -309,7 +309,7 @@ Input datasets will be loaded from <code>data_loader_basepath / datasets</code>.
             </li>
             <li>
               <b><code>exclude_dataset</code></b>
-                  (<code><a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
+                  (<code><a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
                       <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>()</code>
 )
               –
@@ -319,7 +319,7 @@ Input datasets will be loaded from <code>data_loader_basepath / datasets</code>.
             </li>
             <li>
               <b><code>include_dataset</code></b>
-                  (<code>None | <a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
+                  (<code>None | <a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
                       <code>None</code>
 )
               –
@@ -330,7 +330,7 @@ If specified, only datasets in <code>include_dataset</code> will be evaluated.</
             </li>
             <li>
               <b><code>exclude_compressor</code></b>
-                  (<code><a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
+                  (<code><a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
                       <code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>()</code>
 )
               –
@@ -340,7 +340,7 @@ If specified, only datasets in <code>include_dataset</code> will be evaluated.</
             </li>
             <li>
               <b><code>include_compressor</code></b>
-                  (<code>None | <a class="autorefs autorefs-external" title="typing.Iterable" href="https://docs.python.org/3.12/library/typing.html#typing.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
+                  (<code>None | <a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
                       <code>None</code>
 )
               –
