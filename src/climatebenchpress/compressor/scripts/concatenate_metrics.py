@@ -3,7 +3,6 @@ __all__ = ["concatenate_metrics"]
 import argparse
 import json
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
 
@@ -139,7 +138,7 @@ def merge_metrics(
 
 def get_error_bound_name(
     variable2bound: dict[str, tuple[str, float]],
-    error_bound_list: list[dict[str, dict[str, Optional[float]]]],
+    error_bound_list: list[dict[str, dict[str, None | float]]],
     bound_names: list[str] = ["low", "mid", "high"],
 ) -> str:
     """The function returns either "low", "mid", or "high" depending on which error bound
@@ -156,7 +155,7 @@ def get_error_bound_name(
         A dictionary representing a single error bound, mapping variable names to
         tuples of error type and error bound. The error type is either "abs_error"
         or "rel_error", and the error bound is a float.
-    error_bound_list : list[dict[str, dict[str, Optional[float]]]]
+    error_bound_list : list[dict[str, dict[str, None | float]]]
         A list of dictionaries, each representing an error bound (low, mid, high).
         Each dictionary contains variable names as keys and a dictionary of error types
         and bounds as values.
