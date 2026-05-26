@@ -28,6 +28,7 @@ class Ebcc(Compressor):
                 base_cr=100,
                 residual="absolute",
                 error=error_bound,
+                chunk_shape="auto",
             ),
         )
 
@@ -46,5 +47,6 @@ class Ebcc(Compressor):
                 base_cr=100,
                 residual="relative",
                 error=error_bound,
+                chunk_shape="auto",
             ),
         )
