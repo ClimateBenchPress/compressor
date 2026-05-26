@@ -50,7 +50,7 @@ def concatenate_metrics(basepath: Path = Path()):
                     compressed_datasets
                     / dataset.name
                     / error_bound.name
-                    / compressor.stem
+                    / compressor.name
                 )
                 measurements = load_measurements(compressed_dataset, compressor)
 
@@ -72,7 +72,7 @@ def load_measurements(compressed_dataset: Path, compressor: Path) -> pd.DataFram
     for var, variable_measurements in measurements.items():
         rows.append(
             {
-                "Compressor": compressor.stem,
+                "Compressor": compressor.name,
                 "Variable": var,
                 "Compression Ratio [raw B / enc B]": variable_measurements[
                     "decoded_bytes"
