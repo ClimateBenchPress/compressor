@@ -1,7 +1,9 @@
 import argparse
 from pathlib import Path
 
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -12,24 +14,24 @@ from .error_dist_plotter import ErrorDistPlotter
 from .variable_plotters import PLOTTERS
 
 _COMPRESSOR2LINEINFO = [
-    ("jpeg2000", ("#EE7733", "-")),
-    ("sperr", ("#117733", ":")),
-    ("zfp-round", ("#DDAA33", "--")),
-    ("zfp", ("#EE3377", "--")),
-    ("sz3", ("#CC3311", "-.")),
-    ("bitround-pco", ("#0077BB", ":")),
-    ("bitround", ("#33BBEE", "-")),
-    ("stochround-pco", ("#BBBBBB", "--")),
-    ("stochround", ("#009988", "--")),
-    ("tthresh", ("#882255", "-.")),
+    ("jpeg2000", ("#EE7733", "-", "o")),
+    ("sperr", ("#117733", ":", "s")),
+    ("zfp-round", ("#DDAA33", "--", "D")),
+    ("zfp", ("#EE3377", "--", "^")),
+    ("sz3", ("#CC3311", "-.", "v")),
+    ("bitround-pco", ("#0077BB", ":", "P")),
+    ("bitround", ("#33BBEE", "-", "X")),
+    ("stochround-pco", ("#BBBBBB", "--", "d")),
+    ("stochround", ("#009988", "--", "h")),
+    ("tthresh", ("#882255", "-.", "<")),
 ]
 
 
-def _get_lineinfo(compressor: str) -> tuple[str, str]:
-    """Get the line color and style for a given compressor."""
-    for comp, (color, linestyle) in _COMPRESSOR2LINEINFO:
+def _get_lineinfo(compressor: str) -> tuple[str, str, str]:
+    """Get the line color, style, and marker for a given compressor."""
+    for comp, (color, linestyle, marker) in _COMPRESSOR2LINEINFO:
         if compressor.startswith(comp):
-            return color, linestyle
+            return color, linestyle, marker
     raise ValueError(f"Unknown compressor: {compressor}")
 
 
@@ -52,6 +54,23 @@ DISTORTION2LEGEND_NAME = {
     "Relative MaxAbsError": "Max Absolute Error",
     "Spectral Error": "Spectral Error",
 }
+
+
+def _make_legend_handle(compressor, color, linestyle, marker, line_alpha):
+    """Proxy artist combining the alpha-faded line and the opaque marker."""
+    faded = mcolors.to_rgba(color, alpha=line_alpha)
+    return Line2D(
+        [0],
+        [0],
+        color=faded,
+        linestyle=linestyle,
+        linewidth=4,
+        marker=marker,
+        markersize=12,
+        markerfacecolor=color,
+        markeredgecolor=color,
+        label=_get_legend_name(compressor),
+    )
 
 
 def _get_legend_name(compressor: str) -> str:
@@ -103,6 +122,8 @@ def plot_metrics(
 
     # Filter out excluded datasets and compressors
     df = df[~df["Compressor"].isin(exclude_compressor)]
+    df = df[~df["Compressor"].str.startswith("safeguarded-")]
+    df = df[~df["Compressor"].str.startswith("rp")]
     df = df[~df["Dataset"].isin(exclude_dataset)]
     is_tiny = df["Dataset"].str.endswith("-tiny")
     filter_tiny = is_tiny if tiny_datasets else ~is_tiny
@@ -111,13 +132,13 @@ def plot_metrics(
     filter_chunked = is_chunked if chunked_datasets else ~is_chunked
     df = df[filter_chunked]
 
-    _plot_per_variable_metrics(
-        datasets=datasets,
-        compressed_datasets=compressed_datasets,
-        plots_path=plots_path,
-        all_results=df,
-        rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
-    )
+    # _plot_per_variable_metrics(
+    #     datasets=datasets,
+    #     compressed_datasets=compressed_datasets,
+    #     plots_path=plots_path,
+    #     all_results=df,
+    #     rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
+    # )
 
     df = _rename_compressors(df)
     normalized_df = _normalize(df)
@@ -344,6 +365,7 @@ def _plot_variable_rd_curve(
 ):
     plt.figure(figsize=(8, 6))
     compressors = df["Compressor"].unique()
+    legend_handles = []
     for comp in compressors:
         compressor_data = df[df["Compressor"] == comp]
         assert len(compressor_data) == len(bounds)
@@ -356,16 +378,26 @@ def _plot_variable_rd_curve(
             for i in bound_ixs
         ]
         distortion = [compressor_data[distortion_metric].loc[i] for i in bound_ixs]
-        color, linestyle = _get_lineinfo(comp)
+        color, linestyle, marker = _get_lineinfo(comp)
+        line_alpha = 0.5
         plt.plot(
             compr_ratio,
             distortion,
-            label=_get_legend_name(comp),
-            marker="s",
             color=color,
             linestyle=linestyle,
             linewidth=4,
-            markersize=8,
+            alpha=line_alpha,
+        )
+        plt.plot(
+            compr_ratio,
+            distortion,
+            marker=marker,
+            color=color,
+            linestyle="None",
+            markersize=12,
+        )
+        legend_handles.append(
+            _make_legend_handle(comp, color, linestyle, marker, line_alpha)
         )
 
     plt.xlabel("Compression Ratio [raw B / enc B]", fontsize=14)
@@ -376,6 +408,7 @@ def _plot_variable_rd_curve(
     plt.ylabel(distortion_metric, fontsize=14)
 
     plt.legend(
+        handles=legend_handles,
         title="Compressor",
         fontsize=10,
         title_fontsize=12,
@@ -424,6 +457,7 @@ def _plot_aggregated_rd_curve(
         [compression_metric, distortion_metric]
     ].agg(agg)
 
+    legend_handles = []
     for comp in compressors:
         compr_ratio = [
             agg_distortion.loc[(bound, comp), compression_metric]
@@ -433,16 +467,27 @@ def _plot_aggregated_rd_curve(
             agg_distortion.loc[(bound, comp), distortion_metric]
             for bound in bound_names
         ]
-        color, linestyle = _get_lineinfo(comp)
+        color, linestyle, marker = _get_lineinfo(comp)
+        line_alpha = 0.6
         plt.plot(
             compr_ratio,
             distortion,
-            label=_get_legend_name(comp),
-            marker="s",
             color=color,
             linestyle=linestyle,
+            # linestyle="-",
             linewidth=4,
-            markersize=8,
+            alpha=line_alpha,
+        )
+        plt.plot(
+            compr_ratio,
+            distortion,
+            marker=marker,
+            color=color,
+            linestyle="None",
+            markersize=12,
+        )
+        legend_handles.append(
+            _make_legend_handle(comp, color, linestyle, marker, line_alpha)
         )
 
     if remove_outliers:
@@ -502,6 +547,7 @@ def _plot_aggregated_rd_curve(
         fontsize=16,
     )
     plt.legend(
+        handles=legend_handles,
         title="Compressor",
         loc="upper right",
         bbox_to_anchor=(0.8, 0.99),
