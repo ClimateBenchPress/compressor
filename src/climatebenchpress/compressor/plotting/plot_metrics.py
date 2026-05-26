@@ -3,11 +3,11 @@ from pathlib import Path
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import xarray as xr
+from matplotlib.lines import Line2D
 
 from ..scripts.compute_metrics import parse_error_bounds
 from .error_dist_plotter import ErrorDistPlotter
@@ -24,6 +24,7 @@ _COMPRESSOR2LINEINFO = [
     ("stochround-pco", ("#BBBBBB", "--", "d")),
     ("stochround", ("#009988", "--", "h")),
     ("tthresh", ("#882255", "-.", "<")),
+    ("ebcc", ("#AA4444", "-.", "8")),
 ]
 
 
@@ -46,6 +47,7 @@ _COMPRESSOR2LEGEND_NAME = [
     ("stochround-pco", "StochRound + PCO"),
     ("stochround", "StochRound + Zstd"),
     ("tthresh", "TTHRESH"),
+    ("ebcc", "EBCC"),
 ]
 
 DISTORTION2LEGEND_NAME = {
