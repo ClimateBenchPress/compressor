@@ -1,4 +1,4 @@
-__all__ = ["Ebcc"]
+__all__ = ["Ebcc", "EbccAbsOnly"]
 
 import numcodecs.astype
 import numcodecs_wasm_ebcc
@@ -46,6 +46,33 @@ class Ebcc(Compressor):
                 # reasonable default recommended by Langwen Huang
                 base_cr=100,
                 residual="relative",
+                error=error_bound,
+                chunk_shape="auto",
+            ),
+        )
+
+
+class EbccAbsOnly(Compressor):
+    """EBCC compressor but instead of using the internal EBCC relative error bound,
+    it converts the relative error bound to an absolute error bound.."""
+
+    name = "ebcc-abs"
+    description = "EBCC-Abs"
+
+    @staticmethod
+    def abs_bound_codec(error_bound, dtype=None, **kwargs):
+        assert dtype is not None, "dtype must be provided"
+
+        return CodecStack(
+            # EBCC only supports float32 data
+            numcodecs.astype.AsType(
+                encode_dtype="float32",
+                decode_dtype=dtype.name,
+            ),
+            numcodecs_wasm_ebcc.Ebcc(
+                # reasonable default recommended by Langwen Huang
+                base_cr=100,
+                residual="absolute",
                 error=error_bound,
                 chunk_shape="auto",
             ),
