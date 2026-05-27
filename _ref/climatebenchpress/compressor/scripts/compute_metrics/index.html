@@ -269,6 +269,7 @@
     include_dataset: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
     exclude_compressor: <a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>(),
     include_compressor: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="collections.abc.Iterable" href="https://docs.python.org/3.12/library/collections.abc.html#collections.abc.Iterable">Iterable</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+    overwrite: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">False</span>,
 )
 </code></pre></div>
 
@@ -349,6 +350,17 @@ If specified, only datasets in <code>include_dataset</code> will be evaluated.</
               <div class="doc-md-description">
                 <p>Compressors to include in evaluation. If <code>None</code>, all compressors are included.
 If specified, only compressors in <code>include_compressor</code> will be evaluated.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>overwrite</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a></code>, default:
+                      <code>False</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>If <code>True</code>, overwrite existing <code>metrics.csv</code> and <code>tests.csv</code> files. Otherwise,
+existing files are read and returned without recomputation.</p>
               </div>
             </li>
         </ul>
