@@ -63,7 +63,7 @@ class ErrorDistPlotter:
         compressors = [comp for comp in compressors if "-pco" not in comp]
         for var in variables:
             for comp in compressors:
-                color, linestyle = get_line_info(comp)
+                color, linestyle, _ = get_line_info(comp)
                 label = get_legend_name(comp)
                 # Don't state the lossless compressor in the legend.
                 if label.startswith("BitRound"):

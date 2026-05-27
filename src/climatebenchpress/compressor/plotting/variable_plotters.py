@@ -360,7 +360,7 @@ class CamsPlotter(Plotter):
     datasets = ["cams-nitrogen-dioxide-tiny", "cams-nitrogen-dioxide"]
 
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var, err_bound):
-        selector = dict(valid_time=0, hybrid=3)
+        selector = dict(valid_time=0, pressure_level=3)
         in_min = ds.isel(**selector).min().values.item()
         in_max = ds.isel(**selector).max().values.item()
         out_min = ds_new.isel(**selector).min().values.item()

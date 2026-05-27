@@ -19,12 +19,14 @@ _COMPRESSOR2LINEINFO = [
     ("zfp-round", ("#DDAA33", "--", "D")),
     ("zfp", ("#EE3377", "--", "^")),
     ("sz3", ("#CC3311", "-.", "v")),
+    ("sz3-abs", ("#CC3311", "-.", "v")),
     ("bitround-pco", ("#0077BB", ":", "P")),
     ("bitround", ("#33BBEE", "-", "X")),
     ("stochround-pco", ("#BBBBBB", "--", "d")),
     ("stochround", ("#009988", "--", "h")),
     ("tthresh", ("#882255", "-.", "<")),
     ("ebcc", ("#AA4444", "-.", "8")),
+    ("ebcc-abs", ("#AA7744", "-.", "8")),
 ]
 
 
@@ -41,12 +43,14 @@ _COMPRESSOR2LEGEND_NAME = [
     ("sperr", "SPERR"),
     ("zfp-round", "ZFP-ROUND"),
     ("zfp", "ZFP"),
+    ("sz3-abs", "SZ3-Abs"),
     ("sz3", "SZ3"),
     ("bitround-pco", "BitRound + PCO"),
     ("bitround", "BitRound + Zstd"),
     ("stochround-pco", "StochRound + PCO"),
     ("stochround", "StochRound + Zstd"),
     ("tthresh", "TTHRESH"),
+    ("ebcc-abs", "EBCC-Abs"),
     ("ebcc", "EBCC"),
 ]
 
@@ -134,13 +138,13 @@ def plot_metrics(
     filter_chunked = is_chunked if chunked_datasets else ~is_chunked
     df = df[filter_chunked]
 
-    # _plot_per_variable_metrics(
-    #     datasets=datasets,
-    #     compressed_datasets=compressed_datasets,
-    #     plots_path=plots_path,
-    #     all_results=df,
-    #     rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
-    # )
+    _plot_per_variable_metrics(
+        datasets=datasets,
+        compressed_datasets=compressed_datasets,
+        plots_path=plots_path,
+        all_results=df,
+        rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
+    )
 
     df = _rename_compressors(df)
     normalized_df = _normalize(df)
@@ -248,6 +252,9 @@ def _plot_per_variable_metrics(
 ):
     """Creates all the plots which only depend on a single variable."""
     for dataset in all_results["Dataset"].unique():
+        if dataset != "ifs-uncompressed":
+            continue
+
         df = all_results[all_results["Dataset"] == dataset]
         dataset_plots_path = plots_path / dataset
         dataset_plots_path.mkdir(parents=True, exist_ok=True)
