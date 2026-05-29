@@ -209,6 +209,51 @@ class IFSHumidityPlotter(Plotter):
         self.error_title = "Absolute Error"
 
 
+class IFSCIWCPlotter(Plotter):
+    datasets = ["ifs-cloud-ice-water-content"]
+
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var, err_bound):
+        selector = dict(time=0, level=80)
+        # Calculate shared vmin and vmax for consistent color ranges
+        data_orig = ds.isel(**selector)
+        data_new = ds_new.isel(**selector)
+        vmax = float(np.nanpercentile(data_orig.values, 98))
+        vmin = float(np.nanmin(data_orig.values))
+        norm = mcolors.PowerNorm(gamma=0.4, vmin=vmin, vmax=max(vmax, 1e-6))
+        cmap = "Blues"
+
+        data_orig.plot(ax=ax[0], transform=ccrs.PlateCarree(), norm=norm, cmap=cmap)
+        data_new.plot(
+            ax=ax[1],
+            transform=ccrs.PlateCarree(),
+            norm=norm,
+            cmap=cmap,
+            rasterized=True,
+        )
+        error = data_orig - data_new
+        non_zero_mask = np.abs(data_orig) > 0.0
+        # Check where both original and new data are zero
+        both_zero_mask = (np.abs(data_orig) == 0.0) & (np.abs(data_new) == 0.0)
+        rel_error = xr.where(
+            both_zero_mask,
+            0.0,
+            xr.where(non_zero_mask, error / np.abs(data_orig), 1e12),
+        )
+
+        _, bound_value = err_bound
+        vmin_error, vmax_error = -bound_value, bound_value
+        rel_error.plot(
+            ax=ax[2],
+            transform=ccrs.PlateCarree(),
+            rasterized=True,
+            vmin=vmin_error,
+            vmax=vmax_error,
+            cbar_kwargs={"ticks": [-bound_value, 0, bound_value]},
+            cmap="seismic",
+        )
+        self.error_title = "Relative Error"
+
+
 class Era5Plotter(Plotter):
     datasets = ["era5-tiny", "era5", "ifs-uncompressed"]
 
@@ -443,6 +488,8 @@ plotter_clss: list[type[Plotter]] = [
     Era5Plotter,
     EsaBiomassPlotter,
     NextGEMSPlotter,
+    IFSHumidityPlotter,
+    IFSCIWCPlotter,
 ]
 PLOTTERS: dict[str, type[Plotter]] = dict()
 for plotter_cls in plotter_clss:

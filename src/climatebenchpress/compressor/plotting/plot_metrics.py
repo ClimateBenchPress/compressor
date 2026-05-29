@@ -18,15 +18,15 @@ _COMPRESSOR2LINEINFO = [
     ("sperr", ("#117733", ":", "s")),
     ("zfp-round", ("#DDAA33", "--", "D")),
     ("zfp", ("#EE3377", "--", "^")),
+    ("sz3-abs", ("#CC3311", "-.", "p")),
     ("sz3", ("#CC3311", "-.", "v")),
-    ("sz3-abs", ("#CC3311", "-.", "v")),
     ("bitround-pco", ("#0077BB", ":", "P")),
     ("bitround", ("#33BBEE", "-", "X")),
     ("stochround-pco", ("#BBBBBB", "--", "d")),
     ("stochround", ("#009988", "--", "h")),
     ("tthresh", ("#882255", "-.", "<")),
+    ("ebcc-abs", ("#AA4444", "-.", "X")),
     ("ebcc", ("#AA4444", "-.", "8")),
-    ("ebcc-abs", ("#AA7744", "-.", "8")),
 ]
 
 
@@ -252,7 +252,7 @@ def _plot_per_variable_metrics(
 ):
     """Creates all the plots which only depend on a single variable."""
     for dataset in all_results["Dataset"].unique():
-        if dataset != "ifs-uncompressed":
+        if dataset != "nextgems-icon":
             continue
 
         df = all_results[all_results["Dataset"] == dataset]
@@ -558,8 +558,8 @@ def _plot_aggregated_rd_curve(
     plt.legend(
         handles=legend_handles,
         title="Compressor",
-        loc="upper right",
-        bbox_to_anchor=(0.8, 0.99),
+        loc="upper left",
+        ncol=2,
         fontsize=12,
         title_fontsize=14,
     )
