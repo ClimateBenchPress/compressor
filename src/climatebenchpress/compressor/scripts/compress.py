@@ -4,9 +4,9 @@ import argparse
 import json
 import math
 import traceback
-from collections.abc import Container, Mapping
+from collections.abc import Callable, Container, Mapping
 from pathlib import Path
-from typing import Callable
+from typing import cast
 
 import numcodecs_observers
 import numpy as np
@@ -195,6 +195,8 @@ def compress_decompress(
     measurements = dict()
 
     for v in ds:
+        v = str(v)
+
         if v in exclude_variable:
             continue
         if include_variable and v not in include_variable:
@@ -225,11 +227,16 @@ def compress_decompress(
                 timing,
             ],
         ) as codec_:
+            codec_ = cast(CodecStack, codec_)  # by duck typing only
+
             variables[v] = codec_.encode_decode_data_array(
                 ds[v].compute() if is_safeguarded_zero_dssim else ds[v]
             ).compute()
 
-            cs = [c._codec for c in codec_.__iter__()]
+            cs = [
+                c._codec  # type: ignore
+                for c in codec_.__iter__()
+            ]
 
             measurements[v] = {
                 # bytes measurements: only look at the first and last codec in

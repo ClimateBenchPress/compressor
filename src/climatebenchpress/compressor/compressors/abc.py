@@ -2,11 +2,10 @@ __all__ = ["Compressor", "NamedPerVariableCodec", "ErrorBound"]
 
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from collections.abc import Mapping
+from collections.abc import Mapping, Callable
 from dataclasses import dataclass
 from functools import partial
 from types import MappingProxyType
-from typing import Callable, Optional
 
 import numpy as np
 from numcodecs.abc import Codec
@@ -42,14 +41,14 @@ class ErrorBound:
 
     Attributes
     ----------
-    abs_error : Optional[float]
+    abs_error : None | float
         Absolute error bound for the variable.
-    rel_error : Optional[float]
+    rel_error : None | float
         Relative error bound for the variable.
     """
 
-    abs_error: Optional[float] = None
-    rel_error: Optional[float] = None
+    abs_error: None | float = None
+    rel_error: None | float = None
 
     def __post_init__(self):
         if self.abs_error is not None and self.rel_error is not None:
@@ -85,13 +84,13 @@ class Compressor(ABC):
     def abs_bound_codec(
         error_bound: float,
         *,
-        dtype: Optional[np.dtype] = None,
-        data_min: Optional[float] = None,
-        data_max: Optional[float] = None,
-        data_abs_min: Optional[float] = None,
-        data_abs_max: Optional[float] = None,
-        data_min_2d: Optional[np.ndarray] = None,
-        data_max_2d: Optional[np.ndarray] = None,
+        dtype: None | np.dtype = None,
+        data_min: None | float = None,
+        data_max: None | float = None,
+        data_abs_min: None | float = None,
+        data_abs_max: None | float = None,
+        data_min_2d: None | np.ndarray = None,
+        data_max_2d: None | np.ndarray = None,
     ) -> Codec:
         """Create a codec with an absolute error bound."""
         pass
@@ -101,13 +100,13 @@ class Compressor(ABC):
     def rel_bound_codec(
         error_bound: float,
         *,
-        dtype: Optional[np.dtype] = None,
-        data_min: Optional[float] = None,
-        data_max: Optional[float] = None,
-        data_abs_min: Optional[float] = None,
-        data_abs_max: Optional[float] = None,
-        data_min_2d: Optional[np.ndarray] = None,
-        data_max_2d: Optional[np.ndarray] = None,
+        dtype: None | np.dtype = None,
+        data_min: None | float = None,
+        data_max: None | float = None,
+        data_abs_min: None | float = None,
+        data_abs_max: None | float = None,
+        data_min_2d: None | np.ndarray = None,
+        data_max_2d: None | np.ndarray = None,
     ) -> Codec:
         """Create a codec with a relative error bound."""
         pass
