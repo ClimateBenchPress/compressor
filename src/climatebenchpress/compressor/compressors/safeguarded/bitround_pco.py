@@ -30,7 +30,7 @@ class SafeguardedBitRoundPco(Compressor):
         keepbits = compute_keepbits(dtype, error_bound / data_abs_max)
 
         return numcodecs_safeguards.SafeguardedCodec(
-            codec=numcodecs_wasm_bit_round.BitRound(keepbits=keepbits),
+            codec=numcodecs_wasm_bit_round.BitRound(mode="keepbits", keepbits=keepbits),
             lossless=numcodecs_safeguards.lossless.Lossless(
                 for_codec=numcodecs_wasm_pco.Pco(
                     level=8,
@@ -51,7 +51,7 @@ class SafeguardedBitRoundPco(Compressor):
         keepbits = compute_keepbits(dtype, error_bound)
 
         return numcodecs_safeguards.SafeguardedCodec(
-            codec=numcodecs_wasm_bit_round.BitRound(keepbits=keepbits),
+            codec=numcodecs_wasm_bit_round.BitRound(mode="keepbits", keepbits=keepbits),
             lossless=numcodecs_safeguards.lossless.Lossless(
                 for_codec=numcodecs_wasm_pco.Pco(
                     level=8,

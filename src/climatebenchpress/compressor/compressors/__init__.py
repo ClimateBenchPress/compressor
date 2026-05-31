@@ -1,5 +1,8 @@
 __all__ = [
     "BitRound",
+    "BitRoundNew",
+    "BitRoundNewNew",
+    "BitRoundNewNewNew",
     "BitRoundPco",
     "Ebcc",
     "Jpeg2000",
@@ -20,6 +23,9 @@ __all__ = [
 
 from . import abc as abc
 from .bitround import BitRound
+from .bitround_new import BitRoundNew
+from .bitround_new_new import BitRoundNewNew
+from .bitround_new_new_new import BitRoundNewNewNew
 from .bitround_pco import BitRoundPco
 from .ebcc import Ebcc
 from .jpeg2000 import Jpeg2000

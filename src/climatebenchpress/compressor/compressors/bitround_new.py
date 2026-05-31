@@ -1,14 +1,13 @@
-__all__ = ["BitRound"]
+__all__ = ["BitRoundNew"]
 
 import numcodecs_wasm_bit_round
 import numcodecs_wasm_zstd
 from numcodecs_combinators.stack import CodecStack
 
 from .abc import Compressor
-from .utils import compute_keepbits
 
 
-class BitRound(Compressor):
+class BitRoundNew(Compressor):
     """Bit Rounding compressor.
 
     This compressor applies bit rounding to the data, which reduces the precision of the data
@@ -16,15 +15,19 @@ class BitRound(Compressor):
     for further compression.
     """
 
-    name = "bitround"
+    name = "bitround-new"
     description = "Bit Rounding"
 
     @staticmethod
-    def rel_bound_codec(error_bound, *, dtype=None, **kwargs):
-        assert dtype is not None, "dtype must be provided"
-
-        keepbits = compute_keepbits(dtype, error_bound)
+    def abs_bound_codec(error_bound, **kwargs):
         return CodecStack(
-            numcodecs_wasm_bit_round.BitRound(mode="keepbits", keepbits=keepbits),
+            numcodecs_wasm_bit_round.BitRound(mode="abs", eb_abs=error_bound),
+            numcodecs_wasm_zstd.Zstd(level=3),
+        )
+
+    @staticmethod
+    def rel_bound_codec(error_bound, **kwargs):
+        return CodecStack(
+            numcodecs_wasm_bit_round.BitRound(mode="rel", eb_rel=error_bound),
             numcodecs_wasm_zstd.Zstd(level=3),
         )
