@@ -26,6 +26,12 @@ class ErrorDistPlotter:
         if "-pco" in compressor:
             return
 
+        if "-abs" in compressor and err_bound_type == "abs_error":
+            # The compressors with a "-abs" suffix are versions of compressors
+            # that have their relative error bound option removed. For absolute
+            # error bounds, the errors are the same as their non "-abs" counterparts.
+            return
+
         error = robust_error(ds[var], ds_new[var])
         if err_bound_type == "abs_error":
             error = error.compute().values
@@ -60,7 +66,9 @@ class ErrorDistPlotter:
         # We only plot bitround and stochround once because the lossless compressor
         # does not change the error plot distribution. Hence, we ignore the PCO
         # compressors here.
-        compressors = [comp for comp in compressors if "-pco" not in comp]
+        compressors = [
+            comp for comp in compressors if "-pco" not in comp and "-abs" not in comp
+        ]
         for var in variables:
             for comp in compressors:
                 color, linestyle, _ = get_line_info(comp)

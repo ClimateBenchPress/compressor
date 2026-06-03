@@ -25,7 +25,7 @@ _COMPRESSOR2LINEINFO = [
     ("stochround-pco", ("#BBBBBB", "--", "d")),
     ("stochround", ("#009988", "--", "h")),
     ("tthresh", ("#882255", "-.", "<")),
-    ("ebcc-abs", ("#AA4444", "-.", "X")),
+    ("ebcc-abs", ("#AA4444", "-.", ">")),
     ("ebcc", ("#AA4444", "-.", "8")),
 ]
 
@@ -252,7 +252,7 @@ def _plot_per_variable_metrics(
 ):
     """Creates all the plots which only depend on a single variable."""
     for dataset in all_results["Dataset"].unique():
-        if dataset != "nextgems-icon":
+        if dataset != "ifs-uncompressed":
             continue
 
         df = all_results[all_results["Dataset"] == dataset]
@@ -478,6 +478,7 @@ def _plot_aggregated_rd_curve(
         ]
         color, linestyle, marker = _get_lineinfo(comp)
         line_alpha = 0.6
+        marker_alpha = 0.8
         plt.plot(
             compr_ratio,
             distortion,
@@ -494,6 +495,7 @@ def _plot_aggregated_rd_curve(
             color=color,
             linestyle="None",
             markersize=12,
+            alpha=marker_alpha,
         )
         legend_handles.append(
             _make_legend_handle(comp, color, linestyle, marker, line_alpha)
