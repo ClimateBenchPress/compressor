@@ -12,32 +12,32 @@ from .error_dist_plotter import ErrorDistPlotter
 from .variable_plotters import PLOTTERS
 
 _COMPRESSOR2LINEINFO = [
-    ("jpeg2000", ("#EE7733", "-")),
-    ("sperr", ("#117733", "-")),
-    ("zfp-round", ("#DDAA33", "-")),
-    ("zfp", ("#EE3377", "--")),
-    ("sz3", ("#CC3311", "-")),
-    ("bitround-pco", ("#0077BB", "-")),
-    ("bitround", ("#33BBEE", "-")),
-    ("stochround-pco", ("#BBBBBB", "--")),
-    ("stochround", ("#009988", "--")),
-    ("tthresh", ("#882255", "-.")),
-    ("safeguarded-sperr", ("#117733", ":")),
-    ("safeguarded-zfp-round", ("#DDAA33", ":")),
-    ("safeguarded-sz3", ("#CC3311", ":")),
-    ("safeguarded-zero-dssim", ("#9467BD", "--")),
-    ("safeguarded-zero", ("#9467BD", ":")),
-    ("safeguarded-bitround-pco", ("#0077BB", ":")),
-    ("ebcc", ("#AA4444", "-")),
-    ("safeguarded-ebcc", ("#AA4444", ":")),
+    ("jpeg2000", ("#EE7733", "-", "o")),
+    ("sperr", ("#117733", "-", "s")),
+    ("zfp-round", ("#DDAA33", "-", "D")),
+    ("zfp", ("#EE3377", "--", "^")),
+    ("sz3", ("#CC3311", "-", "v")),
+    ("bitround-pco", ("#0077BB", "-", "P")),
+    ("bitround", ("#33BBEE", "-", "X")),
+    ("stochround-pco", ("#BBBBBB", "--", "d")),
+    ("stochround", ("#009988", "--", "h")),
+    ("tthresh", ("#882255", "-.", "<")),
+    ("safeguarded-sperr", ("#117733", ":", "s")),
+    ("safeguarded-zfp-round", ("#DDAA33", ":", "D")),
+    ("safeguarded-sz3", ("#CC3311", ":", "v")),
+    ("safeguarded-zero-dssim", ("#9467BD", "--", "*")),
+    ("safeguarded-zero", ("#9467BD", ":", "H")),
+    ("safeguarded-bitround-pco", ("#0077BB", ":", "P")),
+    ("ebcc", ("#AA4444", "-", "8")),
+    ("safeguarded-ebcc", ("#AA4444", ":", "8")),
 ]
 
 
-def _get_lineinfo(compressor: str) -> tuple[str, str]:
-    """Get the line color and style for a given compressor."""
-    for comp, (color, linestyle) in _COMPRESSOR2LINEINFO:
+def _get_lineinfo(compressor: str) -> tuple[str, str, str]:
+    """Get the line color, style, and marker for a given compressor."""
+    for comp, (color, linestyle, marker) in _COMPRESSOR2LINEINFO:
         if compressor.startswith(comp):
-            return color, linestyle
+            return color, linestyle, marker
     raise ValueError(f"Unknown compressor: {compressor}")
 
 
@@ -396,12 +396,12 @@ def _plot_variable_rd_curve(
             for i in bound_ixs
         ]
         distortion = [compressor_data[distortion_metric].loc[i] for i in bound_ixs]
-        color, linestyle = _get_lineinfo(comp)
+        color, linestyle, marker = _get_lineinfo(comp)
         plt.plot(
             compr_ratio,
             distortion,
             label=_get_legend_name(comp),
-            marker="s",
+            marker=marker,
             color=color,
             linestyle=linestyle,
             linewidth=4,
@@ -477,12 +477,12 @@ def _plot_aggregated_rd_curve(
             agg_distortion.loc[(bound, comp), distortion_metric]
             for bound in bound_names
         ]
-        color, linestyle = _get_lineinfo(comp)
+        color, linestyle, marker = _get_lineinfo(comp)
         plt.plot(
             compr_ratio,
             distortion,
             label=_get_legend_name(comp),
-            marker="s",
+            marker=marker,
             color=color,
             linestyle=linestyle,
             linewidth=4,
