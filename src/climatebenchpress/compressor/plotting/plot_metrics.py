@@ -28,6 +28,8 @@ _COMPRESSOR2LINEINFO = [
     ("safeguarded-zero-dssim", ("#9467BD", "--")),
     ("safeguarded-zero", ("#9467BD", ":")),
     ("safeguarded-bitround-pco", ("#0077BB", ":")),
+    ("ebcc", ("#AA4444", "-")),
+    ("safeguarded-ebcc", ("#AA4444", ":")),
 ]
 
 
@@ -56,6 +58,8 @@ _COMPRESSOR2LEGEND_NAME = [
     ("safeguarded-zero-dssim", "Safeguarded(0, dSSIM)"),
     ("safeguarded-zero", "Safeguarded(0)"),
     ("safeguarded-bitround-pco", "Safeguarded(BitRound)"),
+    ("ebcc", "EBCC"),
+    ("safeguarded-ebcc", "Safeguarded(EBCC)"),
 ]
 
 _COMPRESSOR_ORDER = [
@@ -67,6 +71,8 @@ _COMPRESSOR_ORDER = [
     "Safeguarded(SZ3[v3.2])",
     "SPERR",
     "Safeguarded(SPERR)",
+    "EBCC",
+    "Safeguarded(EBCC)",
     "Safeguarded(0)",
     "Safeguarded(0, dSSIM)",
 ]
@@ -127,7 +133,7 @@ def plot_metrics(
     df = pd.read_csv(metrics_path / "all_results.csv")
 
     # Filter out excluded datasets and compressors
-    # bitround jpeg2000-conservative-abs stochround-conservative-abs stochround-pco-conservative-abs zfp-conservative-abs bitround-conservative-rel stochround-pco stochround zfp jpeg2000
+    # bitround jpeg2000-conservative-abs stochround-conservative-abs stochround-pco-conservative-abs zfp-conservative-abs bitround-conservative-rel stochround-pco stochround zfp jpeg2000 sz3-abs sz3-abs-conservative-abs ebcc-abs ebcc-abs-conservative-abs rp rp-conservative-abs rp-10.0 rp-10.0-conservative-abs rp-100.0 rp-100.0-conservative-abs rp-2.0 rp-2.0-conservative-abs rp-5.0 rp-5.0-conservative-abs rp-50.0 rp-50.0-conservative-abs rp-dct rp-dct-conservative-abs rp-dct-10.0 rp-dct-10.0-conservative-abs rp-dct-100.0 rp-dct-100.0-conservative-abs rp-dct-2.0 rp-dct-2.0-conservative-abs rp-dct-5.0 rp-dct-5.0-conservative-abs rp-dct-50.0 rp-dct-50.0-conservative-abs safeguarded-rp safeguarded-rp-dct
     df = df[~df["Compressor"].isin(exclude_compressor)]
     df = df[~df["Dataset"].isin(exclude_dataset)]
     is_tiny = df["Dataset"].str.endswith("-tiny")
