@@ -78,10 +78,10 @@ _COMPRESSOR_ORDER = [
 ]
 
 DISTORTION2LEGEND_NAME = {
-    "Relative MAE": "Mean Absolute Error",
+    "Relative MAE": "Normalised Mean Absolute Error",
     "Relative dSSIM": "dSSIM",
-    "Relative MaxAbsError": "Max Absolute Error",
-    "Spectral Error": "Spectral Error",
+    "Relative MaxAbsError": "Normalised Max Absolute Error",
+    "Relative SpectralError": "Normalised Spectral Error",
 }
 
 
@@ -236,8 +236,11 @@ def _normalize(data):
     for col, new_col in normalize_vars:
         mean_std = dict()
         for var in variables:
-            mean = normalized[normalized["Variable"] == var][col].mean()
-            std = normalized[normalized["Variable"] == var][col].std()
+            if col in ["DSSIM"]:
+                mean, std = 0.0, 1.0
+            else:
+                mean = normalized[normalized["Variable"] == var][col].mean()
+                std = normalized[normalized["Variable"] == var][col].std()
             mean_std[var] = (mean, std)
 
         # Normalize each variable by its mean and std
@@ -545,7 +548,7 @@ def _plot_aggregated_rd_curve(
     )
     metric_name = DISTORTION2LEGEND_NAME.get(distortion_metric, distortion_metric)
     plt.ylabel(
-        rf"Mean Normalised {metric_name} ($\downarrow$)",
+        rf"Mean {metric_name} ($\downarrow$)",
         fontsize=16,
     )
     plt.legend(
@@ -563,17 +566,6 @@ def _plot_aggregated_rd_curve(
             [(1 - ms[0]) / ms[1] for ms in mean_std.values()]
         )
         plt.axhline(dssim_one, c="k", ls="--")
-        plt.text(
-            np.percentile(plt.xlim(), 63),
-            dssim_one,
-            "dSSIM = 1",
-            fontsize=16,
-            fontweight="bold",
-            color="black",
-            ha="center",
-            va="center",
-            bbox=dict(edgecolor="none", facecolor="w", alpha=0.85),
-        )
 
         # Add an arrow pointing into the top right corner
         plt.annotate(
@@ -602,7 +594,7 @@ def _plot_aggregated_rd_curve(
         )
         # Correct the y-label to point upwards
         plt.ylabel(
-            rf"Mean Normalised {metric_name} ($\uparrow$)",
+            rf"Mean {metric_name} ($\uparrow$)",
             fontsize=16,
         )
     else:
