@@ -693,8 +693,15 @@ def _get_median_and_quantiles(df, encode_column, decode_column):
             ),
         )
         .sort_index(
-            level=0,
-            key=lambda ks: [_COMPRESSOR_ORDER.index(_get_legend_name(k)) for k in ks],
+            level=[0, 1],
+            key=lambda ks: [
+                (
+                    ["low", "mid", "high"].index(k)
+                    if k in ["low", "mid", "high"]
+                    else _COMPRESSOR_ORDER.index(_get_legend_name(k))
+                )
+                for k in ks
+            ],
         )
     )
 
@@ -707,91 +714,113 @@ def _plot_grouped_df(
     logy=False,
     up=False,
 ):
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6), sharex=True, sharey=True)
+    fig, (ax1, ax2) = plt.subplots(
+        1, 2, figsize=(18, 4), sharex=True, sharey=True, gridspec_kw=dict(wspace=0.1)
+    )
 
     # Bar width
-    bar_width = 0.35
+    bar_width = 0.25
     compressors = sorted(
         grouped_df.index.levels[0].tolist(),
         key=lambda k: _COMPRESSOR_ORDER.index(_get_legend_name(k)),
     )
     x_labels = [_get_legend_name(c) for c in compressors]
-    x_positions = range(len(x_labels))
 
     error_bounds = ["low", "mid", "high"]
 
-    for i, error_bound in enumerate(error_bounds):
-        ax = axes[i]
-        bound_data = grouped_df.xs(error_bound, level="Error Bound Name").sort_index(
-            level=0,
-            key=lambda ks: [_COMPRESSOR_ORDER.index(_get_legend_name(k)) for k in ks],
-        )
+    ax1.bar(
+        [
+            (x // len(error_bounds))
+            + ((x % len(error_bounds)) - ((len(error_bounds) - 1) / 2))
+            * bar_width
+            * 1.2
+            for x in range(len(grouped_df["encode_median"]))
+        ],
+        grouped_df["encode_median"],
+        bar_width,
+        yerr=[
+            grouped_df["encode_lower_quantile"],
+            grouped_df["encode_upper_quantile"],
+        ],
+        edgecolor="white",
+        linewidth=0,
+        color=np.repeat(
+            [_get_lineinfo(comp)[0] for comp in compressors], len(error_bounds)
+        ),
+        hatch=np.repeat(
+            ["O" if comp.startswith("safeguarded-") else "" for comp in compressors],
+            len(error_bounds),
+        ),
+        label=np.array(
+            [
+                ["Safeguarded"] + [None] * (len(error_bounds) - 1)
+                if comp == "safeguarded-bitround-pco"
+                else [None] * len(error_bounds)
+                for comp in compressors
+            ],
+        ).flatten(),
+    )
 
-        # Plot encode throughput
-        ax.bar(
-            x_positions,
-            bound_data["encode_median"],
-            bar_width,
-            yerr=[
-                bound_data["encode_lower_quantile"],
-                bound_data["encode_upper_quantile"],
-            ],
-            label="Compression",
-            edgecolor="white",
-            linewidth=0,
-            color=[_get_lineinfo(comp)[0] for comp in compressors],
-            hatch=[
-                "O" if comp.startswith("safeguarded-") else "" for comp in compressors
-            ],
-        )
+    # Add labels and title
+    ax1.set_xticks([p for p in range(len(x_labels))])
+    ax1.set_xticklabels(x_labels, rotation=45, ha="right", fontsize=14)
+    ax1.set_xlim(-0.5, len(x_labels) - 0.5)
+    ax1.set_yscale("log" if logy else "linear")
+    ax1.set_title("Compression", fontsize=14)
+    ax1.grid(axis="y", linestyle="--", alpha=0.7)
+    ax1.legend(fontsize=14, loc="upper right" if up else "upper left", framealpha=0.9)
+    ax1.set_ylabel(ylabel, fontsize=14)
+    ax1.annotate(
+        "Better",
+        xy=(0.5, 0.75),
+        xycoords="axes fraction",
+        xytext=(0.5, 0.92),
+        textcoords="axes fraction",
+        arrowprops=dict(arrowstyle="<-" if up else "->", lw=3, color="black"),
+        fontsize=14,
+        ha="center",
+        va="bottom",
+    )
 
-        # Plot decode throughput
-        ax.bar(
-            [p + bar_width for p in x_positions],
-            bound_data["decode_median"],
-            bar_width,
-            yerr=[
-                bound_data["decode_lower_quantile"],
-                bound_data["decode_upper_quantile"],
-            ],
-            label="Decompression",
-            edgecolor=[_get_lineinfo(comp)[0] for comp in compressors],
-            fill=False,
-            linewidth=4,
-            hatch=[
-                "O" if comp.startswith("safeguarded-") else "" for comp in compressors
-            ],
-        )
+    ax2.bar(
+        [
+            (x // len(error_bounds))
+            + ((x % len(error_bounds)) - ((len(error_bounds) - 1) / 2))
+            * bar_width
+            * 1.2
+            for x in range(len(grouped_df["decode_median"]))
+        ],
+        grouped_df["decode_median"],
+        bar_width,
+        yerr=[
+            grouped_df["decode_lower_quantile"],
+            grouped_df["decode_upper_quantile"],
+        ],
+        edgecolor="white",
+        linewidth=0,
+        color=np.repeat(
+            [_get_lineinfo(comp)[0] for comp in compressors], len(error_bounds)
+        ),
+        hatch=np.repeat(
+            ["O" if comp.startswith("safeguarded-") else "" for comp in compressors],
+            len(error_bounds),
+        ),
+    )
 
-        # Add labels and title
-        ax.set_xticks([p + bar_width / 2 for p in x_positions])
-        ax.set_xticklabels(x_labels, rotation=45, ha="right", fontsize=14)
-        ax.set_yscale("log" if logy else "linear")
-        ax.set_title(f"{error_bound.capitalize()} Error Bound", fontsize=14)
-        ax.grid(axis="y", linestyle="--", alpha=0.7)
-        if i == 0:
-            ax.legend(
-                fontsize=14, loc="lower left" if up else "upper left", framealpha=0.9
-            )
-            ax.set_ylabel(ylabel, fontsize=14)
-        if i == 1:
-            ax.annotate(
-                "Better",
-                xy=(0.51, 0.75),
-                xycoords="axes fraction",
-                xytext=(0.51, 0.92),
-                textcoords="axes fraction",
-                arrowprops=dict(arrowstyle="<-" if up else "->", lw=3, color="black"),
-                fontsize=14,
-                ha="center",
-                va="bottom",
-            )
+    # Add labels and title
+    ax2.set_xticks([p for p in range(len(x_labels))])
+    ax2.set_xticklabels(x_labels, rotation=45, ha="right", fontsize=14)
+    ax2.set_yscale("log" if logy else "linear")
+    ax2.set_title("Decompression", fontsize=14)
+    ax2.grid(axis="y", linestyle="--", alpha=0.7)
+    ax2.yaxis.tick_right()
+    ax2.tick_params("y", labelright=True)
 
     fig.suptitle(title)
 
-    fig.tight_layout()
+    # fig.tight_layout()
     if outfile is not None:
-        _savefig(outfile)
+        _savefig(outfile, bbox_inches="tight")
     plt.close()
 
 
@@ -837,17 +866,17 @@ def _plot_bound_violations(df, bound_names, outfile: None | Path = None):
     plt.close()
 
 
-def _savefig(outfile: Path, fig=None):
+def _savefig(outfile: Path, fig=None, **kwargs):
     ispdf = outfile.suffix == ".pdf"
     fig = fig if fig is not None else plt.gcf()
     if ispdf:
         # Saving a PDF with the alternative code below leads to a corrupted file.
         # Hence, we use the default savefig method.
         # NOTE: This means passing a virtual UPath is only supported for non-PDF files.
-        fig.savefig(outfile, dpi=300)
+        fig.savefig(outfile, dpi=300, **kwargs)
     else:
         with outfile.open("wb") as f:
-            fig.savefig(f, dpi=300)
+            fig.savefig(f, dpi=300, **kwargs)
 
 
 if __name__ == "__main__":
