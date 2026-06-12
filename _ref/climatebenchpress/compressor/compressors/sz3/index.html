@@ -106,6 +106,16 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.compressors.sz3.Sz3AbsOnly">Sz3AbsOnly</a>
+        <ul>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.sz3.Sz3AbsOnly.name">name</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.sz3.Sz3AbsOnly.description">description</a>
+    </li>
+    <li class="toctree-l6"><a class="reference internal" href="#climatebenchpress.compressor.compressors.sz3.Sz3AbsOnly.abs_bound_codec">abs_bound_codec</a>
+    </li>
+        </ul>
+    </li>
     </ul>
                 </li>
                 <li class="toctree-l4"><a class="reference internal" href="../tthresh/">tthresh</a>
@@ -368,6 +378,136 @@
 
 </h3>
 <div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>rel_bound_codec(error_bound, <span style="color: #666">**</span>kwargs)
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="climatebenchpress.compressor.compressors.sz3.Sz3AbsOnly" class="doc doc-heading">
+            <span class="doc doc-object-name doc-class-name">Sz3AbsOnly</span>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="Compressor (climatebenchpress.compressor.compressors.abc.Compressor)" href="../abc/#climatebenchpress.compressor.compressors.abc.Compressor">Compressor</a></code></p>
+
+
+
+        <p>SZ3 compressor but instead of using the internal SZ3 relative error bound,
+it converts the relative error bound to an absolute error bound.</p>
+
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.sz3.Sz3AbsOnly.name" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">name</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>name <span style="color: #666">=</span> <span style="color: #BA2121">&#39;sz3-abs&#39;</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="climatebenchpress.compressor.compressors.sz3.Sz3AbsOnly.description" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">description</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>description <span style="color: #666">=</span> <span style="color: #BA2121">&#39;SZ3-Abs&#39;</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="climatebenchpress.compressor.compressors.sz3.Sz3AbsOnly.abs_bound_codec" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">abs_bound_codec</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>abs_bound_codec(error_bound, <span style="color: #666">**</span>kwargs)
 </code></pre></div>
 
     <div class="doc doc-contents ">
