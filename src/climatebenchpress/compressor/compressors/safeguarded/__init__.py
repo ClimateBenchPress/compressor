@@ -1,5 +1,6 @@
 __all__ = [
     "SafeguardedBitRoundPco",
+    "SafeguardedEbcc",
     "SafeguardedSperr",
     "SafeguardedSz3",
     "SafeguardedZero",
@@ -8,6 +9,7 @@ __all__ = [
 ]
 
 from .bitround_pco import SafeguardedBitRoundPco
+from .ebcc import SafeguardedEbcc
 from .sperr import SafeguardedSperr
 from .sz3 import SafeguardedSz3
 from .zero import SafeguardedZero
