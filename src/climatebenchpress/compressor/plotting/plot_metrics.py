@@ -127,8 +127,8 @@ def plot_metrics(
     """
     metrics_path = basepath / "metrics"
     plots_path = basepath / "plots"
-    datasets = (data_loader_basepath or basepath) / "datasets"
-    compressed_datasets = basepath / "compressed-datasets"
+    _datasets = (data_loader_basepath or basepath) / "datasets"
+    _compressed_datasets = basepath / "compressed-datasets"
 
     df = pd.read_csv(metrics_path / "all_results.csv")
 
@@ -554,7 +554,6 @@ def _plot_aggregated_rd_curve(
     plt.legend(
         title="Compressor",
         loc="upper left",
-        # bbox_to_anchor=(0.8, 0.99),
         fontsize=12,
         title_fontsize=14,
     )
