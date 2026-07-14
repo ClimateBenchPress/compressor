@@ -10,56 +10,9 @@ import xarray as xr
 from matplotlib.lines import Line2D
 
 from ..scripts.compute_metrics import parse_error_bounds
+from .constants import DISTORTION2LEGEND_NAME, _get_legend_name, _get_lineinfo
 from .error_dist_plotter import ErrorDistPlotter
 from .variable_plotters import PLOTTERS
-
-_COMPRESSOR2LINEINFO = [
-    ("jpeg2000", ("#EE7733", "-", "o")),
-    ("sperr", ("#117733", ":", "s")),
-    ("zfp-round", ("#DDAA33", "--", "D")),
-    ("zfp", ("#EE3377", "--", "^")),
-    ("sz3-abs", ("#CC3311", "-.", "p")),
-    ("sz3", ("#CC3311", "-.", "v")),
-    ("bitround-pco", ("#0077BB", ":", "P")),
-    ("bitround", ("#33BBEE", "-", "X")),
-    ("stochround-pco", ("#BBBBBB", "--", "d")),
-    ("stochround", ("#009988", "--", "h")),
-    ("tthresh", ("#882255", "-.", "<")),
-    ("ebcc-abs", ("#AA4444", "-.", ">")),
-    ("ebcc", ("#AA4444", "-.", "8")),
-]
-
-
-def _get_lineinfo(compressor: str) -> tuple[str, str, str]:
-    """Get the line color, style, and marker for a given compressor."""
-    for comp, (color, linestyle, marker) in _COMPRESSOR2LINEINFO:
-        if compressor.startswith(comp):
-            return color, linestyle, marker
-    raise ValueError(f"Unknown compressor: {compressor}")
-
-
-_COMPRESSOR2LEGEND_NAME = [
-    ("jpeg2000", "JPEG2000"),
-    ("sperr", "SPERR"),
-    ("zfp-round", "ZFP-ROUND"),
-    ("zfp", "ZFP"),
-    ("sz3-abs", "SZ3-Abs"),
-    ("sz3", "SZ3"),
-    ("bitround-pco", "BitRound + PCO"),
-    ("bitround", "BitRound + Zstd"),
-    ("stochround-pco", "StochRound + PCO"),
-    ("stochround", "StochRound + Zstd"),
-    ("tthresh", "TTHRESH"),
-    ("ebcc-abs", "EBCC-Abs"),
-    ("ebcc", "EBCC"),
-]
-
-DISTORTION2LEGEND_NAME = {
-    "Relative MAE": "Mean Absolute Error",
-    "Relative DSSIM": "DSSIM",
-    "Relative MaxAbsError": "Max Absolute Error",
-    "Spectral Error": "Spectral Error",
-}
 
 
 def _make_legend_handle(compressor, color, linestyle, marker, line_alpha):
@@ -77,15 +30,6 @@ def _make_legend_handle(compressor, color, linestyle, marker, line_alpha):
         markeredgecolor=color,
         label=_get_legend_name(compressor),
     )
-
-
-def _get_legend_name(compressor: str) -> str:
-    """Get the legend name for a given compressor."""
-    for comp, name in _COMPRESSOR2LEGEND_NAME:
-        if compressor.startswith(comp):
-            return name
-
-    return compressor  # Fallback to the compressor name if not found in the mapping.
 
 
 def plot_metrics(
@@ -252,7 +196,7 @@ def _plot_per_variable_metrics(
 ):
     """Creates all the plots which only depend on a single variable."""
     for dataset in all_results["Dataset"].unique():
-        if dataset != "ifs-uncompressed":
+        if dataset != "cmip6-access-tos":
             continue
 
         df = all_results[all_results["Dataset"] == dataset]
@@ -320,7 +264,7 @@ def _plot_per_variable_metrics(
                         comp,
                         var,
                         error_bound_vals[var],
-                        outfile=err_bound_path / f"{var}_{comp}.png",
+                        outfile=err_bound_path / f"{var}_{comp}.pdf",
                     )
 
             error_dist_plotter.plot_error_bound_histograms(

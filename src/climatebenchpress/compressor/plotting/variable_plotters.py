@@ -8,6 +8,8 @@ import numpy as np
 import xarray as xr
 import xarray.plot.utils as xplot_utils
 
+from .constants import _get_legend_name
+
 
 class Plotter(ABC):
     datasets: list[str]
@@ -46,9 +48,20 @@ class Plotter(ABC):
         ax[2].set_title(self.error_title, fontsize=self.title_fontsize)
         # fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
         fig.tight_layout()
+        fig.suptitle(
+            f"{_get_legend_name(compressor)}",
+            fontsize=self.title_fontsize + 4,
+            y=0.88,
+        )
         if outfile is not None:
-            with outfile.open("wb") as f:
-                fig.savefig(f, dpi=300)
+            if outfile.suffix == ".pdf":
+                # Passing a file handle hides the suffix from matplotlib, so it
+                # falls back to the default PNG format and writes PNG bytes into
+                # a .pdf file. Pass the Path directly so the format is inferred.
+                fig.savefig(outfile, dpi=300, bbox_inches="tight")
+            else:
+                with outfile.open("wb") as f:
+                    fig.savefig(f, dpi=300)
         plt.close()
 
 
@@ -163,6 +176,7 @@ class CmipOceanPlotter(Plotter):
             transform=ccrs.PlateCarree(),
             add_colorbar=False,
             cmap=plt.cm.colors.ListedColormap(["yellow"]),
+            rasterized=True,
         )
 
         for a in ax:
