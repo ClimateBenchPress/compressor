@@ -42,6 +42,7 @@ def plot_metrics(
     tiny_datasets: bool = False,
     chunked_datasets: bool = False,
     use_latex: bool = True,
+    per_variable_plots: bool = True,
 ):
     """Create diagnostic plots for the metrics computed by the compressors.
 
@@ -63,6 +64,9 @@ def plot_metrics(
         If True, only plot the tiny datasets. Defaults to False.
     use_latex: bool
         If True, use LaTeX for rendering text in the plots. Defaults to True.
+    per_variable_plots: bool
+        If True, create the per-variable plots, which require reading the compressed
+        datasets and are hence by far the most expensive ones. Defaults to True.
     """
     metrics_path = basepath / "metrics"
     plots_path = basepath / "plots"
@@ -83,13 +87,14 @@ def plot_metrics(
     filter_chunked = is_chunked if chunked_datasets else ~is_chunked
     df = df[filter_chunked]
 
-    _plot_per_variable_metrics(
-        datasets=datasets,
-        compressed_datasets=compressed_datasets,
-        plots_path=plots_path,
-        all_results=df,
-        rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
-    )
+    if per_variable_plots:
+        _plot_per_variable_metrics(
+            datasets=datasets,
+            compressed_datasets=compressed_datasets,
+            plots_path=plots_path,
+            all_results=df,
+            rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
+        )
 
     # The conversion markers are encoded in the compressor name suffixes, so they have
     # to be collected before the names are normalized.
@@ -782,6 +787,13 @@ if __name__ == "__main__":
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
     parser.add_argument("--tiny-datasets", action="store_true", default=False)
     parser.add_argument("--avoid-latex", action="store_true", default=False)
+    parser.add_argument(
+        "--skip-per-variable-plots",
+        action="store_true",
+        default=False,
+        help="Skip the per-variable plots, which require reading the compressed "
+        "datasets and are hence by far the most expensive ones.",
+    )
     parser.add_argument("--basepath", type=Path, default=Path())
     parser.add_argument(
         "--data-loader-basepath",
@@ -797,4 +809,5 @@ if __name__ == "__main__":
         exclude_dataset=args.exclude_dataset,
         tiny_datasets=args.tiny_datasets,
         use_latex=(not args.avoid_latex),
+        per_variable_plots=(not args.skip_per_variable_plots),
     )
