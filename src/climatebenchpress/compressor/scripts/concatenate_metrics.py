@@ -77,9 +77,7 @@ def concatenate_metrics(basepath: Path = Path(), skip_missing: bool = False):
                 tests = (
                     pd.read_csv(tests_csv)
                     if tests_csv.exists()
-                    else pd.DataFrame(
-                        columns=["Variable", "Test", "Passed", "Value"]
-                    )
+                    else pd.DataFrame(columns=["Variable", "Test", "Passed", "Value"])
                 )
 
                 df = merge_metrics(measurements, metrics, tests)
