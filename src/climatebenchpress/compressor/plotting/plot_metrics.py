@@ -12,6 +12,7 @@ from matplotlib.lines import Line2D
 from ..scripts.compute_metrics import parse_error_bounds
 from .constants import DISTORTION2LEGEND_NAME, _get_legend_name, _get_lineinfo
 from .error_dist_plotter import ErrorDistPlotter
+from .scorecards import converted_bound_cells, plot_scorecards
 from .variable_plotters import PLOTTERS
 
 
@@ -90,8 +91,15 @@ def plot_metrics(
         rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
     )
 
+    # The conversion markers are encoded in the compressor name suffixes, so they have
+    # to be collected before the names are normalized.
+    converted_cells = converted_bound_cells(df)
+
     df = _rename_compressors(df)
     normalized_df = _normalize(df)
+    plot_scorecards(
+        df, plots_path / "scorecards", converted_cells, bound_names=bound_names
+    )
     _plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
