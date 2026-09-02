@@ -54,14 +54,9 @@ class Plotter(ABC):
             y=0.88,
         )
         if outfile is not None:
-            if outfile.suffix == ".pdf":
-                # Passing a file handle hides the suffix from matplotlib, so it
-                # falls back to the default PNG format and writes PNG bytes into
-                # a .pdf file. Pass the Path directly so the format is inferred.
-                fig.savefig(outfile, dpi=300, bbox_inches="tight")
-            else:
-                with outfile.open("wb") as f:
-                    fig.savefig(f, dpi=300)
+            format = outfile.suffix[1:]  # Remove the leading dot
+            with outfile.open("wb") as f:
+                fig.savefig(f, dpi=300, format=format)
         plt.close()
 
 
