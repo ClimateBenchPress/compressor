@@ -217,9 +217,6 @@ def _plot_per_variable_metrics(
 ):
     """Creates all the plots which only depend on a single variable."""
     for dataset in all_results["Dataset"].unique():
-        if dataset != "cmip6-access-tos":
-            continue
-
         df = all_results[all_results["Dataset"] == dataset]
         dataset_plots_path = plots_path / dataset
         dataset_plots_path.mkdir(parents=True, exist_ok=True)
