@@ -2,6 +2,7 @@ __all__ = ["concatenate_metrics"]
 
 import argparse
 import json
+import warnings
 from pathlib import Path
 
 import pandas as pd
@@ -9,7 +10,7 @@ import pandas as pd
 from .compute_metrics import parse_error_bounds
 
 
-def concatenate_metrics(basepath: Path = Path()):
+def concatenate_metrics(basepath: Path = Path(), skip_missing: bool = False):
     """Concatenate metrics from all datasets and compressors into a single CSV file.
 
     Parameters
@@ -17,6 +18,9 @@ def concatenate_metrics(basepath: Path = Path()):
     basepath : Path
         Assumes that the metrics are stored in `basepath / metrics`. The script will
         create a `basepath / metrics / all_results.csv` file containing the concatenated results.
+    skip_missing : bool
+        If True, skip missing `metrics.csv`, `tests.csv`, or `measurements.json` files
+        and emit a warning instead of raising. Missing fields will be filled with NaN.
     """
     compressed_datasets = basepath / "compressed-datasets"
     error_bounds_dir = basepath / "datasets-error-bounds"
@@ -42,16 +46,39 @@ def concatenate_metrics(basepath: Path = Path()):
 
             for compressor in error_bound.iterdir():
                 metrics_csv = compressor / "metrics.csv"
-                metrics = pd.read_csv(metrics_csv)
                 tests_csv = compressor / "tests.csv"
-                tests = pd.read_csv(tests_csv)
                 compressed_dataset = (
                     compressed_datasets
                     / dataset.name
                     / error_bound.name
-                    / compressor.stem
+                    / compressor.name
                 )
+                measurements_json = compressed_dataset / "measurements.json"
+
+                if skip_missing:
+                    missing = [
+                        p
+                        for p in (metrics_csv, tests_csv, measurements_json)
+                        if not p.exists()
+                    ]
+                    for p in missing:
+                        warnings.warn(f"Skipping missing file: {p}")
+                    if measurements_json in missing:
+                        # Without measurements.json we have no variable list, so we
+                        # cannot construct any rows for this compressor.
+                        continue
+
                 measurements = load_measurements(compressed_dataset, compressor)
+                metrics = (
+                    pd.read_csv(metrics_csv)
+                    if metrics_csv.exists()
+                    else pd.DataFrame(columns=["Variable", "Metric", "Error"])
+                )
+                tests = (
+                    pd.read_csv(tests_csv)
+                    if tests_csv.exists()
+                    else pd.DataFrame(columns=["Variable", "Test", "Passed", "Value"])
+                )
 
                 df = merge_metrics(measurements, metrics, tests)
                 df["Dataset"] = dataset.name
@@ -71,7 +98,7 @@ def load_measurements(compressed_dataset: Path, compressor: Path) -> pd.DataFram
     for var, variable_measurements in measurements.items():
         rows.append(
             {
-                "Compressor": compressor.stem,
+                "Compressor": compressor.name,
                 "Variable": var,
                 "Compression Ratio [raw B / enc B]": variable_measurements[
                     "decoded_bytes"
@@ -131,8 +158,10 @@ def merge_metrics(
         .merge(
             test_per_variable.reset_index(),
             on="Variable",
+            how="outer",
         ),
         on="Variable",
+        how="left",
     )
 
 
@@ -189,6 +218,12 @@ def get_error_bound_name(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--basepath", type=Path, default=Path())
+    parser.add_argument(
+        "--skip-missing",
+        action="store_true",
+        help="Skip missing metrics/tests/measurements files (with a warning) "
+        "and fill the corresponding fields with NaN.",
+    )
     args = parser.parse_args()
 
-    concatenate_metrics(basepath=args.basepath)
+    concatenate_metrics(basepath=args.basepath, skip_missing=args.skip_missing)

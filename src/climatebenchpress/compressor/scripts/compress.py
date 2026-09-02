@@ -3,6 +3,7 @@ __all__ = ["compress"]
 import argparse
 import json
 import math
+import shutil
 import traceback
 from collections.abc import Callable, Container, Mapping
 from pathlib import Path
@@ -34,6 +35,7 @@ def compress(
     include_variable: None | Container[str] = None,
     data_loader_basepath: None | Path = None,
     chunked: bool = False,
+    overwrite: bool = False,
     progress: bool = True,
 ):
     """Compress datasets with compressors.
@@ -62,6 +64,10 @@ def compress(
         Input datasets will be loaded from `data_loader_basepath / datasets`.
     chunked : bool
         Whether to chunk the input data.
+    overwrite : bool
+        Whether to overwrite existing decompressed datasets. If `False`, any
+        compressor-dataset combination with an existing `decompressed.zarr` is
+        skipped.
     progress : bool
         Whether to show a progress bar during compression.
     """
@@ -154,7 +160,9 @@ def compress(
                     compressed_dataset_path = compressed_dataset / "decompressed.zarr"
 
                     if compressed_dataset_path.exists():
-                        continue
+                        if not overwrite:
+                            continue
+                        _cleanup(compressed_dataset)
 
                     print(
                         f"Compressing {dataset.parent.name} with {compressor.description} ..."
@@ -183,6 +191,13 @@ def compress(
                         ds_new.to_zarr(
                             compressed_dataset_path, encoding=dict(), compute=False
                         ).compute()
+
+
+def _cleanup(compressed_dataset: Path):
+    """Delete existing output files for a compressor-dataset combination."""
+    shutil.rmtree(compressed_dataset / "decompressed.zarr", ignore_errors=True)
+    (compressed_dataset / "measurements.json").unlink(missing_ok=True)
+    (compressed_dataset / "error.out").unlink(missing_ok=True)
 
 
 def compress_decompress(
@@ -458,6 +473,7 @@ if __name__ == "__main__":
         "--data-loader-basepath", type=Path, default=Path() / ".." / "data-loader"
     )
     parser.add_argument("--chunked", action="store_true", default=False)
+    parser.add_argument("--overwrite", action="store_true", default=False)
     args = parser.parse_args()
 
     compress(
@@ -470,5 +486,6 @@ if __name__ == "__main__":
         include_variable=args.include_variable,
         data_loader_basepath=args.data_loader_basepath,
         chunked=args.chunked,
+        overwrite=args.overwrite,
         progress=True,
     )
