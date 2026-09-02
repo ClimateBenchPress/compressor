@@ -43,6 +43,7 @@ def plot_metrics(
     bound_names: list[str] = ["low", "mid", "high"],
     exclude_dataset: list[str] = [],
     exclude_compressor: list[str] = [],
+    exclude_compressor_prefix: list[str] = ["safeguarded-", "rp"],
     tiny_datasets: bool = False,
     chunked_datasets: bool = False,
     use_latex: bool = True,
@@ -64,6 +65,9 @@ def plot_metrics(
         List of dataset names to exclude from the plotting.
     exclude_compressor: list[str]
         List of compressor names to exclude from the plotting.
+    exclude_compressor_prefix: list[str]
+        List of prefixes of compressor names to exclude from the plotting. Defaults
+        to the safeguarded and random projection variants.
     tiny_datasets: bool
         If True, only plot the tiny datasets. Defaults to False.
     use_latex: bool
@@ -81,8 +85,8 @@ def plot_metrics(
 
     # Filter out excluded datasets and compressors
     df = df[~df["Compressor"].isin(exclude_compressor)]
-    df = df[~df["Compressor"].str.startswith("safeguarded-")]
-    df = df[~df["Compressor"].str.startswith("rp")]
+    if exclude_compressor_prefix:
+        df = df[~df["Compressor"].str.startswith(tuple(exclude_compressor_prefix))]
     df = df[~df["Dataset"].isin(exclude_dataset)]
     is_tiny = df["Dataset"].str.endswith("-tiny")
     filter_tiny = is_tiny if tiny_datasets else ~is_tiny
@@ -445,7 +449,6 @@ def _plot_aggregated_rd_curve(
             distortion,
             color=color,
             linestyle=linestyle,
-            # linestyle="-",
             linewidth=4,
             alpha=line_alpha,
         )
@@ -789,6 +792,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
+    parser.add_argument(
+        "--exclude-compressor-prefix",
+        type=str,
+        nargs="*",
+        default=[],
+        help="Exclude all compressors whose name starts with one of these prefixes. "
+        "Pass with no values to keep all compressors.",
+    )
     parser.add_argument("--tiny-datasets", action="store_true", default=False)
     parser.add_argument("--avoid-latex", action="store_true", default=False)
     parser.add_argument(
@@ -810,6 +821,7 @@ if __name__ == "__main__":
         basepath=args.basepath,
         data_loader_basepath=args.data_loader_basepath,
         exclude_compressor=args.exclude_compressor,
+        exclude_compressor_prefix=args.exclude_compressor_prefix,
         exclude_dataset=args.exclude_dataset,
         tiny_datasets=args.tiny_datasets,
         use_latex=(not args.avoid_latex),
