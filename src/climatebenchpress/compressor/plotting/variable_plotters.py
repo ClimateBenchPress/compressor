@@ -8,7 +8,7 @@ import numpy as np
 import xarray as xr
 import xarray.plot.utils as xplot_utils
 
-from .constants import _get_legend_name
+from .constants import _get_compressor_legend_name
 
 
 class Plotter(ABC):
@@ -49,7 +49,7 @@ class Plotter(ABC):
         # fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
         fig.tight_layout()
         fig.suptitle(
-            f"{_get_legend_name(compressor)}",
+            f"{_get_compressor_legend_name(compressor)}",
             fontsize=self.title_fontsize + 4,
             y=0.88,
         )

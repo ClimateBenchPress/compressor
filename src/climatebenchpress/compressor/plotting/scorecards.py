@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from .constants import _get_legend_name
+from .constants import _get_compressor_legend_name
 
 METRICS2NAME = {
     "MAE": "Mean Absolute Error",
@@ -248,7 +248,7 @@ def _create_compression_scorecard(
 
             if col == 0:
                 ax.set_ylabel(
-                    _get_legend_name(compressor),
+                    _get_compressor_legend_name(compressor),
                     rotation=0,
                     ha="right",
                     va="center",
@@ -296,7 +296,7 @@ def _create_compression_scorecard(
         cb = fig.colorbar(img, cax=cax, orientation="horizontal")
         cb.ax.set_xticks(cb_levels)
         cb.ax.set_xlabel(
-            f"Better ← % difference vs {_get_legend_name(ref_compressor)} → Worse",
+            f"Better ← % difference vs {_get_compressor_legend_name(ref_compressor)} → Worse",
             fontsize=16,
         )
 

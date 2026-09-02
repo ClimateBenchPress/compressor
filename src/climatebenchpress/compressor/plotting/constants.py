@@ -47,7 +47,7 @@ DISTORTION2LEGEND_NAME = {
 }
 
 
-def _get_legend_name(compressor: str) -> str:
+def _get_compressor_legend_name(compressor: str) -> str:
     """Get the legend name for a given compressor."""
     for comp, name in _COMPRESSOR2LEGEND_NAME:
         if compressor.startswith(comp):

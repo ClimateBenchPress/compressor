@@ -10,7 +10,11 @@ import xarray as xr
 from matplotlib.lines import Line2D
 
 from ..scripts.compute_metrics import parse_error_bounds
-from .constants import DISTORTION2LEGEND_NAME, _get_legend_name, _get_lineinfo
+from .constants import (
+    DISTORTION2LEGEND_NAME,
+    _get_compressor_legend_name,
+    _get_lineinfo,
+)
 from .error_dist_plotter import ErrorDistPlotter
 from .scorecards import converted_bound_cells, plot_scorecards
 from .variable_plotters import PLOTTERS
@@ -29,7 +33,7 @@ def _make_legend_handle(compressor, color, linestyle, marker, line_alpha):
         markersize=12,
         markerfacecolor=color,
         markeredgecolor=color,
-        label=_get_legend_name(compressor),
+        label=_get_compressor_legend_name(compressor),
     )
 
 
@@ -285,7 +289,7 @@ def _plot_per_variable_metrics(
                 variables,
                 compressors,
                 error_bound_vals,
-                _get_legend_name,
+                _get_compressor_legend_name,
                 _get_lineinfo,
             )
 
@@ -660,7 +664,7 @@ def _plot_grouped_df(
     # Bar width
     bar_width = 0.35
     compressors = grouped_df.index.levels[0].tolist()
-    x_labels = [_get_legend_name(c) for c in compressors]
+    x_labels = [_get_compressor_legend_name(c) for c in compressors]
     x_positions = range(len(x_labels))
 
     error_bounds = ["low", "mid", "high"]
@@ -731,7 +735,7 @@ def _plot_bound_violations(df, bound_names, outfile: None | Path = None):
 
     for i, bound_name in enumerate(bound_names):
         df_bound = df[df["Error Bound Name"] == bound_name].copy()
-        df_bound["Compressor"] = df_bound["Compressor"].map(_get_legend_name)
+        df_bound["Compressor"] = df_bound["Compressor"].map(_get_compressor_legend_name)
         pass_fail = df_bound.pivot(
             index="Compressor", columns="Variable", values="Satisfies Bound (Passed)"
         )
