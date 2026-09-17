@@ -1,66 +1,40 @@
 import argparse
 from pathlib import Path
 
+import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import xarray as xr
+from matplotlib.lines import Line2D
 
 from ..scripts.compute_metrics import parse_error_bounds
+from .constants import (
+    DISTORTION2LEGEND_NAME,
+    _get_compressor_legend_name,
+    _get_lineinfo,
+)
 from .error_dist_plotter import ErrorDistPlotter
+from .scorecards import converted_bound_cells, plot_scorecards
 from .variable_plotters import PLOTTERS
 
-_COMPRESSOR2LINEINFO = [
-    ("jpeg2000", ("#EE7733", "-")),
-    ("sperr", ("#117733", ":")),
-    ("zfp-round", ("#DDAA33", "--")),
-    ("zfp", ("#EE3377", "--")),
-    ("sz3", ("#CC3311", "-.")),
-    ("bitround-pco", ("#0077BB", ":")),
-    ("bitround", ("#33BBEE", "-")),
-    ("stochround-pco", ("#BBBBBB", "--")),
-    ("stochround", ("#009988", "--")),
-    ("tthresh", ("#882255", "-.")),
-]
 
-
-def _get_lineinfo(compressor: str) -> tuple[str, str]:
-    """Get the line color and style for a given compressor."""
-    for comp, (color, linestyle) in _COMPRESSOR2LINEINFO:
-        if compressor.startswith(comp):
-            return color, linestyle
-    raise ValueError(f"Unknown compressor: {compressor}")
-
-
-_COMPRESSOR2LEGEND_NAME = [
-    ("jpeg2000", "JPEG2000"),
-    ("sperr", "SPERR"),
-    ("zfp-round", "ZFP-ROUND"),
-    ("zfp", "ZFP"),
-    ("sz3", "SZ3"),
-    ("bitround-pco", "BitRound + PCO"),
-    ("bitround", "BitRound + Zstd"),
-    ("stochround-pco", "StochRound + PCO"),
-    ("stochround", "StochRound + Zstd"),
-    ("tthresh", "TTHRESH"),
-]
-
-DISTORTION2LEGEND_NAME = {
-    "Relative MAE": "Mean Absolute Error",
-    "Relative DSSIM": "DSSIM",
-    "Relative MaxAbsError": "Max Absolute Error",
-    "Spectral Error": "Spectral Error",
-}
-
-
-def _get_legend_name(compressor: str) -> str:
-    """Get the legend name for a given compressor."""
-    for comp, name in _COMPRESSOR2LEGEND_NAME:
-        if compressor.startswith(comp):
-            return name
-
-    return compressor  # Fallback to the compressor name if not found in the mapping.
+def _make_legend_handle(compressor, color, linestyle, marker, line_alpha):
+    """Proxy artist combining the alpha-faded line and the opaque marker."""
+    faded = mcolors.to_rgba(color, alpha=line_alpha)
+    return Line2D(
+        [0],
+        [0],
+        color=faded,
+        linestyle=linestyle,
+        linewidth=4,
+        marker=marker,
+        markersize=12,
+        markerfacecolor=color,
+        markeredgecolor=color,
+        label=_get_compressor_legend_name(compressor),
+    )
 
 
 def plot_metrics(
@@ -69,9 +43,11 @@ def plot_metrics(
     bound_names: list[str] = ["low", "mid", "high"],
     exclude_dataset: list[str] = [],
     exclude_compressor: list[str] = [],
+    exclude_compressor_prefix: list[str] = ["safeguarded-", "rp"],
     tiny_datasets: bool = False,
     chunked_datasets: bool = False,
     use_latex: bool = True,
+    per_variable_plots: bool = True,
 ):
     """Create diagnostic plots for the metrics computed by the compressors.
 
@@ -89,10 +65,16 @@ def plot_metrics(
         List of dataset names to exclude from the plotting.
     exclude_compressor: list[str]
         List of compressor names to exclude from the plotting.
+    exclude_compressor_prefix: list[str]
+        List of prefixes of compressor names to exclude from the plotting. Defaults
+        to the safeguarded and random projection variants.
     tiny_datasets: bool
         If True, only plot the tiny datasets. Defaults to False.
     use_latex: bool
         If True, use LaTeX for rendering text in the plots. Defaults to True.
+    per_variable_plots: bool
+        If True, create the per-variable plots, which require reading the compressed
+        datasets and are hence by far the most expensive ones. Defaults to True.
     """
     metrics_path = basepath / "metrics"
     plots_path = basepath / "plots"
@@ -103,6 +85,8 @@ def plot_metrics(
 
     # Filter out excluded datasets and compressors
     df = df[~df["Compressor"].isin(exclude_compressor)]
+    if exclude_compressor_prefix:
+        df = df[~df["Compressor"].str.startswith(tuple(exclude_compressor_prefix))]
     df = df[~df["Dataset"].isin(exclude_dataset)]
     is_tiny = df["Dataset"].str.endswith("-tiny")
     filter_tiny = is_tiny if tiny_datasets else ~is_tiny
@@ -111,16 +95,24 @@ def plot_metrics(
     filter_chunked = is_chunked if chunked_datasets else ~is_chunked
     df = df[filter_chunked]
 
-    _plot_per_variable_metrics(
-        datasets=datasets,
-        compressed_datasets=compressed_datasets,
-        plots_path=plots_path,
-        all_results=df,
-        rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
-    )
+    if per_variable_plots:
+        _plot_per_variable_metrics(
+            datasets=datasets,
+            compressed_datasets=compressed_datasets,
+            plots_path=plots_path,
+            all_results=df,
+            rd_curves_metrics=["Max Absolute Error", "MAE", "DSSIM", "Spectral Error"],
+        )
+
+    # The conversion markers are encoded in the compressor name suffixes, so they have
+    # to be collected before the names are normalized.
+    converted_cells = converted_bound_cells(df)
 
     df = _rename_compressors(df)
     normalized_df = _normalize(df)
+    plot_scorecards(
+        df, plots_path / "scorecards", converted_cells, bound_names=bound_names
+    )
     _plot_bound_violations(
         normalized_df, bound_names, plots_path / "bound_violations.pdf"
     )
@@ -290,7 +282,7 @@ def _plot_per_variable_metrics(
                         comp,
                         var,
                         error_bound_vals[var],
-                        outfile=err_bound_path / f"{var}_{comp}.png",
+                        outfile=err_bound_path / f"{var}_{comp}.pdf",
                     )
 
             error_dist_plotter.plot_error_bound_histograms(
@@ -298,7 +290,7 @@ def _plot_per_variable_metrics(
                 variables,
                 compressors,
                 error_bound_vals,
-                _get_legend_name,
+                _get_compressor_legend_name,
                 _get_lineinfo,
             )
 
@@ -344,6 +336,7 @@ def _plot_variable_rd_curve(
 ):
     plt.figure(figsize=(8, 6))
     compressors = df["Compressor"].unique()
+    legend_handles = []
     for comp in compressors:
         compressor_data = df[df["Compressor"] == comp]
         assert len(compressor_data) == len(bounds)
@@ -356,16 +349,26 @@ def _plot_variable_rd_curve(
             for i in bound_ixs
         ]
         distortion = [compressor_data[distortion_metric].loc[i] for i in bound_ixs]
-        color, linestyle = _get_lineinfo(comp)
+        color, linestyle, marker = _get_lineinfo(comp)
+        line_alpha = 0.5
         plt.plot(
             compr_ratio,
             distortion,
-            label=_get_legend_name(comp),
-            marker="s",
             color=color,
             linestyle=linestyle,
             linewidth=4,
-            markersize=8,
+            alpha=line_alpha,
+        )
+        plt.plot(
+            compr_ratio,
+            distortion,
+            marker=marker,
+            color=color,
+            linestyle="None",
+            markersize=12,
+        )
+        legend_handles.append(
+            _make_legend_handle(comp, color, linestyle, marker, line_alpha)
         )
 
     plt.xlabel("Compression Ratio [raw B / enc B]", fontsize=14)
@@ -376,6 +379,7 @@ def _plot_variable_rd_curve(
     plt.ylabel(distortion_metric, fontsize=14)
 
     plt.legend(
+        handles=legend_handles,
         title="Compressor",
         fontsize=10,
         title_fontsize=12,
@@ -424,6 +428,7 @@ def _plot_aggregated_rd_curve(
         [compression_metric, distortion_metric]
     ].agg(agg)
 
+    legend_handles = []
     for comp in compressors:
         compr_ratio = [
             agg_distortion.loc[(bound, comp), compression_metric]
@@ -433,16 +438,28 @@ def _plot_aggregated_rd_curve(
             agg_distortion.loc[(bound, comp), distortion_metric]
             for bound in bound_names
         ]
-        color, linestyle = _get_lineinfo(comp)
+        color, linestyle, marker = _get_lineinfo(comp)
+        line_alpha = 0.6
+        marker_alpha = 0.8
         plt.plot(
             compr_ratio,
             distortion,
-            label=_get_legend_name(comp),
-            marker="s",
             color=color,
             linestyle=linestyle,
             linewidth=4,
-            markersize=8,
+            alpha=line_alpha,
+        )
+        plt.plot(
+            compr_ratio,
+            distortion,
+            marker=marker,
+            color=color,
+            linestyle="None",
+            markersize=12,
+            alpha=marker_alpha,
+        )
+        legend_handles.append(
+            _make_legend_handle(comp, color, linestyle, marker, line_alpha)
         )
 
     if remove_outliers:
@@ -502,9 +519,10 @@ def _plot_aggregated_rd_curve(
         fontsize=16,
     )
     plt.legend(
+        handles=legend_handles,
         title="Compressor",
-        loc="upper right",
-        bbox_to_anchor=(0.8, 0.99),
+        loc="upper left",
+        ncol=2,
         fontsize=12,
         title_fontsize=14,
     )
@@ -646,7 +664,7 @@ def _plot_grouped_df(
     # Bar width
     bar_width = 0.35
     compressors = grouped_df.index.levels[0].tolist()
-    x_labels = [_get_legend_name(c) for c in compressors]
+    x_labels = [_get_compressor_legend_name(c) for c in compressors]
     x_positions = range(len(x_labels))
 
     error_bounds = ["low", "mid", "high"]
@@ -717,7 +735,7 @@ def _plot_bound_violations(df, bound_names, outfile: None | Path = None):
 
     for i, bound_name in enumerate(bound_names):
         df_bound = df[df["Error Bound Name"] == bound_name].copy()
-        df_bound["Compressor"] = df_bound["Compressor"].map(_get_legend_name)
+        df_bound["Compressor"] = df_bound["Compressor"].map(_get_compressor_legend_name)
         pass_fail = df_bound.pivot(
             index="Compressor", columns="Variable", values="Satisfies Bound (Passed)"
         )
@@ -771,8 +789,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--exclude-dataset", type=str, nargs="+", default=[])
     parser.add_argument("--exclude-compressor", type=str, nargs="+", default=[])
+    parser.add_argument(
+        "--exclude-compressor-prefix",
+        type=str,
+        nargs="*",
+        default=[],
+        help="Exclude all compressors whose name starts with one of these prefixes. "
+        "Pass with no values to keep all compressors.",
+    )
     parser.add_argument("--tiny-datasets", action="store_true", default=False)
     parser.add_argument("--avoid-latex", action="store_true", default=False)
+    parser.add_argument(
+        "--skip-per-variable-plots",
+        action="store_true",
+        default=False,
+        help="Skip the per-variable plots, which require reading the compressed "
+        "datasets and are hence by far the most expensive ones.",
+    )
     parser.add_argument("--basepath", type=Path, default=Path())
     parser.add_argument(
         "--data-loader-basepath",
@@ -785,7 +818,9 @@ if __name__ == "__main__":
         basepath=args.basepath,
         data_loader_basepath=args.data_loader_basepath,
         exclude_compressor=args.exclude_compressor,
+        exclude_compressor_prefix=args.exclude_compressor_prefix,
         exclude_dataset=args.exclude_dataset,
         tiny_datasets=args.tiny_datasets,
         use_latex=(not args.avoid_latex),
+        per_variable_plots=(not args.skip_per_variable_plots),
     )

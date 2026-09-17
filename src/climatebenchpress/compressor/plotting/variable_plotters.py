@@ -8,6 +8,8 @@ import numpy as np
 import xarray as xr
 import xarray.plot.utils as xplot_utils
 
+from .constants import _get_compressor_legend_name
+
 
 class Plotter(ABC):
     datasets: list[str]
@@ -46,9 +48,15 @@ class Plotter(ABC):
         ax[2].set_title(self.error_title, fontsize=self.title_fontsize)
         # fig.suptitle(f"{var} Error for {dataset_name} ({compressor})")
         fig.tight_layout()
+        fig.suptitle(
+            f"{_get_compressor_legend_name(compressor)}",
+            fontsize=self.title_fontsize + 4,
+            y=0.88,
+        )
         if outfile is not None:
+            format = outfile.suffix[1:]  # Remove the leading dot
             with outfile.open("wb") as f:
-                fig.savefig(f, dpi=300)
+                fig.savefig(f, dpi=300, format=format)
         plt.close()
 
 
@@ -163,6 +171,7 @@ class CmipOceanPlotter(Plotter):
             transform=ccrs.PlateCarree(),
             add_colorbar=False,
             cmap=plt.cm.colors.ListedColormap(["yellow"]),
+            rasterized=True,
         )
 
         for a in ax:
@@ -207,6 +216,51 @@ class IFSHumidityPlotter(Plotter):
             cmap="seismic",
         )
         self.error_title = "Absolute Error"
+
+
+class IFSCIWCPlotter(Plotter):
+    datasets = ["ifs-cloud-ice-water-content"]
+
+    def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var, err_bound):
+        selector = dict(time=0, level=80)
+        # Calculate shared vmin and vmax for consistent color ranges
+        data_orig = ds.isel(**selector)
+        data_new = ds_new.isel(**selector)
+        vmax = float(np.nanpercentile(data_orig.values, 98))
+        vmin = float(np.nanmin(data_orig.values))
+        norm = mcolors.PowerNorm(gamma=0.4, vmin=vmin, vmax=max(vmax, 1e-6))
+        cmap = "Blues"
+
+        data_orig.plot(ax=ax[0], transform=ccrs.PlateCarree(), norm=norm, cmap=cmap)
+        data_new.plot(
+            ax=ax[1],
+            transform=ccrs.PlateCarree(),
+            norm=norm,
+            cmap=cmap,
+            rasterized=True,
+        )
+        error = data_orig - data_new
+        non_zero_mask = np.abs(data_orig) > 0.0
+        # Check where both original and new data are zero
+        both_zero_mask = (np.abs(data_orig) == 0.0) & (np.abs(data_new) == 0.0)
+        rel_error = xr.where(
+            both_zero_mask,
+            0.0,
+            xr.where(non_zero_mask, error / np.abs(data_orig), 1e12),
+        )
+
+        _, bound_value = err_bound
+        vmin_error, vmax_error = -bound_value, bound_value
+        rel_error.plot(
+            ax=ax[2],
+            transform=ccrs.PlateCarree(),
+            rasterized=True,
+            vmin=vmin_error,
+            vmax=vmax_error,
+            cbar_kwargs={"ticks": [-bound_value, 0, bound_value]},
+            cmap="seismic",
+        )
+        self.error_title = "Relative Error"
 
 
 class Era5Plotter(Plotter):
@@ -360,7 +414,7 @@ class CamsPlotter(Plotter):
     datasets = ["cams-nitrogen-dioxide-tiny", "cams-nitrogen-dioxide"]
 
     def plot_fields(self, fig, ax, ds, ds_new, dataset_name, var, err_bound):
-        selector = dict(valid_time=0, hybrid=3)
+        selector = dict(valid_time=0, pressure_level=3)
         in_min = ds.isel(**selector).min().values.item()
         in_max = ds.isel(**selector).max().values.item()
         out_min = ds_new.isel(**selector).min().values.item()
@@ -443,6 +497,8 @@ plotter_clss: list[type[Plotter]] = [
     Era5Plotter,
     EsaBiomassPlotter,
     NextGEMSPlotter,
+    IFSHumidityPlotter,
+    IFSCIWCPlotter,
 ]
 PLOTTERS: dict[str, type[Plotter]] = dict()
 for plotter_cls in plotter_clss:
