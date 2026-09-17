@@ -1,9 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
-name = "climatebenchpress.compressor"
-version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+name = "climatebenchpress-compressor"
+version = "1.0.0"
 requires-python = ">=3.12"
+authors = [
+    { name = "Tim Reichelt", email = "tim.reichelt@physics.ox.ac.uk" },
+    { name = "Juniper Tyree", email = "juniper.tyree@helsinki.fi" },
+]
+description = "ClimateBenchPress compression benchmark"
+readme = "README.md"
+license = "MPL-2.0"
+keywords = ["climate", "compression", "benchmark", "compressors", "weather"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: System :: Archiving :: Compression",
+    "Typing :: Typed",
+]
+
 dependencies = [
     "astropy~=7.2.0",
     "cartopy~=0.24.1",
@@ -52,8 +79,8 @@ dev = [
     "types-seaborn~=0.13.2.20250111",
 ]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/climatebenchpress"]
 
 [tool.setuptools.package-data]
 "climatebenchpress.compressor" = ["py.typed"]
