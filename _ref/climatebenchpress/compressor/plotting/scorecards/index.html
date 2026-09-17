@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../../../img/favicon.ico" />
-    <title>plot_metrics - climatebenchpress.compressor</title>
+    <title>scorecards - climatebenchpress.compressor</title>
     <link rel="stylesheet" href="../../../../../css/theme.css" />
     <link rel="stylesheet" href="../../../../../css/theme_extra.css" />
         <link href="../../../../../assets/_mkdocstrings.css" rel="stylesheet" />
@@ -13,8 +13,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "plot_metrics";
-        var mkdocs_page_input_path = "_ref/climatebenchpress/compressor/plotting/plot_metrics.md";
+        var mkdocs_page_name = "scorecards";
+        var mkdocs_page_input_path = "_ref/climatebenchpress/compressor/plotting/scorecards.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -128,13 +128,25 @@
     <ul class="current">
                 <li class="toctree-l4"><a class="reference internal" href="../constants/">constants</a>
                 </li>
-                <li class="toctree-l4 current"><a class="reference internal current" href="#">plot_metrics</a>
+                <li class="toctree-l4"><a class="reference internal" href="../plot_metrics/">plot_metrics</a>
+                </li>
+                <li class="toctree-l4 current"><a class="reference internal current" href="#">scorecards</a>
     <ul class="current">
-    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.plot_metrics.plot_metrics">plot_metrics</a>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.scorecards.METRICS2NAME">METRICS2NAME</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.scorecards.VARIABLE2NAME">VARIABLE2NAME</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.scorecards.HIGHER_BETTER_METRICS">HIGHER_BETTER_METRICS</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.scorecards.UNRELIABLE_NAN_METRICS">UNRELIABLE_NAN_METRICS</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.scorecards.UNRELIABLE_NAN_VARIABLES">UNRELIABLE_NAN_VARIABLES</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.scorecards.converted_bound_cells">converted_bound_cells</a>
+    </li>
+    <li class="toctree-l5"><a class="reference internal" href="#climatebenchpress.compressor.plotting.scorecards.plot_scorecards">plot_scorecards</a>
     </li>
     </ul>
-                </li>
-                <li class="toctree-l4"><a class="reference internal" href="../scorecards/">scorecards</a>
                 </li>
     </ul>
                 </li>
@@ -187,7 +199,7 @@
           <li class="breadcrumb-item">climatebenchpress</li>
           <li class="breadcrumb-item">compressor</li>
           <li class="breadcrumb-item">plotting</li>
-      <li class="breadcrumb-item active">plot_metrics</li>
+      <li class="breadcrumb-item active">scorecards</li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -196,8 +208,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="plot_metrics"><code>plot_metrics</code></h1>
-<p><code>climatebenchpress.compressor.plotting.plot_metrics</code></p>
+                <h1 id="scorecards"><code>scorecards</code></h1>
+<p><code>climatebenchpress.compressor.plotting.scorecards</code></p>
 
 
 <div class="doc doc-object doc-module">
@@ -206,6 +218,11 @@
 
 
     <div class="doc doc-contents first">
+
+        <p>Scorecard figures summarizing the benchmark results.</p>
+<p>For each error bound level one scorecard is emitted, split into two rows of
+metrics. Each cell shows the raw metric value, coloured by its relative
+difference to a reference compressor.</p>
 
 
 
@@ -248,36 +265,147 @@
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="climatebenchpress.compressor.plotting.scorecards.METRICS2NAME" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">METRICS2NAME</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>METRICS2NAME <span style="color: #666">=</span> {
+    <span style="color: #BA2121">"MAE"</span>: <span style="color: #BA2121">"Mean Absolute Error"</span>,
+    <span style="color: #BA2121">"Spatial Relative Error (Value)"</span>: <span style="color: #BA2121">"SRE"</span>,
+    <span style="color: #BA2121">"Compression Ratio [raw B / enc B]"</span>: <span style="color: #BA2121">"Compression Ratio"</span>,
+    <span style="color: #BA2121">"Satisfies Bound (Value)"</span>: <span style="color: #BA2121">"</span><span style="color: #A45A77; font-weight: bold">% o</span><span style="color: #BA2121">f Pixels Exceeding Error Bound"</span>,
+}
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
 
 
 
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="climatebenchpress.compressor.plotting.scorecards.VARIABLE2NAME" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">VARIABLE2NAME</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>VARIABLE2NAME <span style="color: #666">=</span> {
+    <span style="color: #BA2121">"10m_u_component_of_wind"</span>: <span style="color: #BA2121">"10u"</span>,
+    <span style="color: #BA2121">"10m_v_component_of_wind"</span>: <span style="color: #BA2121">"10v"</span>,
+    <span style="color: #BA2121">"mean_sea_level_pressure"</span>: <span style="color: #BA2121">"msl"</span>,
+}
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
 
 
 
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="climatebenchpress.compressor.plotting.scorecards.HIGHER_BETTER_METRICS" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">HIGHER_BETTER_METRICS</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>HIGHER_BETTER_METRICS <span style="color: #666">=</span> [
+    <span style="color: #BA2121">"DSSIM"</span>,
+    <span style="color: #BA2121">"Compression Ratio [raw B / enc B]"</span>,
+]
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
 
 
 
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="climatebenchpress.compressor.plotting.scorecards.UNRELIABLE_NAN_METRICS" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">UNRELIABLE_NAN_METRICS</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>UNRELIABLE_NAN_METRICS <span style="color: #666">=</span> {<span style="color: #BA2121">'DSSIM'</span>, <span style="color: #BA2121">'Spectral Error'</span>}
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
 
 
 
 
 
 
+<div class="doc doc-object doc-attribute">
 
 
 
+<h2 id="climatebenchpress.compressor.plotting.scorecards.UNRELIABLE_NAN_VARIABLES" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">UNRELIABLE_NAN_VARIABLES</span>
 
 
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
 
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>UNRELIABLE_NAN_VARIABLES <span style="color: #666">=</span> {<span style="color: #BA2121">'ta'</span>, <span style="color: #BA2121">'tos'</span>}
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
 
 
 
@@ -287,31 +415,62 @@
 <div class="doc doc-object doc-function">
 
 
-<h2 id="climatebenchpress.compressor.plotting.plot_metrics.plot_metrics" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">plot_metrics</span>
+<h2 id="climatebenchpress.compressor.plotting.scorecards.converted_bound_cells" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">converted_bound_cells</span>
 
 
 </h2>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_metrics(
-    basepath: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>(),
-    data_loader_basepath: <span style="color: #008000; font-weight: bold">None</span> <span style="color: #666">|</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">None</span>,
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>converted_bound_cells(
+    df: <span title="pandas">pd</span><span style="color: #666">.</span><span title="pandas.DataFrame">DataFrame</span>,
+) <span style="color: #666">-&gt;</span> <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#set">set</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]]
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Find the (compressor, variable) pairs whose error bound had to be converted.</p>
+<p>Must be called on the raw results, i.e. before <code>_rename_compressors</code> strips the
+<code>-conservative-abs</code> / <code>-conservative-rel</code> suffixes which encode the conversion.
+The returned compressor names are the stripped ones, so they match the renamed
+frame the scorecards are built from.</p>
+
+
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="climatebenchpress.compressor.plotting.scorecards.plot_scorecards" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">plot_scorecards</span>
+
+
+</h2>
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>plot_scorecards(
+    df: <span title="pandas">pd</span><span style="color: #666">.</span><span title="pandas.DataFrame">DataFrame</span>,
+    plots_path: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>,
+    converted_cells: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#set">set</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]],
     bound_names: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [<span style="color: #BA2121">"low"</span>, <span style="color: #BA2121">"mid"</span>, <span style="color: #BA2121">"high"</span>],
-    exclude_dataset: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [],
-    exclude_compressor: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [],
-    exclude_compressor_prefix: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [
-        <span style="color: #BA2121">"safeguarded-"</span>,
-        <span style="color: #BA2121">"rp"</span>,
+    ref_compressor: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a> <span style="color: #666">=</span> <span style="color: #BA2121">"bitround"</span>,
+    metrics: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>] <span style="color: #666">=</span> [
+        <span style="color: #BA2121">"DSSIM"</span>,
+        <span style="color: #BA2121">"MAE"</span>,
+        <span style="color: #BA2121">"Max Absolute Error"</span>,
+        <span style="color: #BA2121">"Spectral Error"</span>,
+        <span style="color: #BA2121">"Compression Ratio [raw B / enc B]"</span>,
+        <span style="color: #BA2121">"Satisfies Bound (Value)"</span>,
     ],
-    tiny_datasets: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">False</span>,
-    chunked_datasets: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">False</span>,
-    use_latex: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">True</span>,
-    per_variable_plots: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">True</span>,
 )
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Create diagnostic plots for the metrics computed by the compressors.</p>
+        <p>Create one scorecard per error bound, each split into two rows of metrics.</p>
 
 
 <table class="field-list">
@@ -325,97 +484,29 @@
       <td class="field-body">
         <ul class="first simple">
             <li>
-              <b><code>basepath</code></b>
-                  (<code><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a></code>, default:
-                      <code><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>()</code>
-)
+              <b><code>df</code></b>
+                  (<code><span title="pandas">pd</span>.<span title="pandas.DataFrame">DataFrame</span></code>)
               –
               <div class="doc-md-description">
-                <p>Assumes compressed datasets are stored in <code>basepath / compressed-datasets</code>
-and metrics in <code>basepath / metrics</code>.</p>
+                <p>Results with the compressor names already normalized by
+<code>plot_metrics._rename_compressors</code>.</p>
               </div>
             </li>
             <li>
-              <b><code>data_loader_basepath</code></b>
-                  (<code>None | <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a></code>, default:
-                      <code>None</code>
-)
+              <b><code>plots_path</code></b>
+                  (<code><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a></code>)
               –
               <div class="doc-md-description">
-                <p>Assumes datasets are stored in <code>data_loader_basepath / datasets</code>.
-If None, uses <code>basepath / datasets</code>.</p>
+                <p>Directory the scorecards are written to. Created if it does not exist.</p>
               </div>
             </li>
             <li>
-              <b><code>bound_names</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
-                      <code>[&#39;low&#39;, &#39;mid&#39;, &#39;high&#39;]</code>
-)
+              <b><code>converted_cells</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#set">set</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#tuple">tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>, <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]]</code>)
               –
               <div class="doc-md-description">
-                <p>Names of the error bounds to use for plotting.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>exclude_dataset</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
-                      <code>[]</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>List of dataset names to exclude from the plotting.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>exclude_compressor</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
-                      <code>[]</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>List of compressor names to exclude from the plotting.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>exclude_compressor_prefix</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/stdtypes.html#str">str</a>]</code>, default:
-                      <code>[&#39;safeguarded-&#39;, &#39;rp&#39;]</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>List of prefixes of compressor names to exclude from the plotting. Defaults
-to the safeguarded and random projection variants.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>tiny_datasets</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a></code>, default:
-                      <code>False</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>If True, only plot the tiny datasets. Defaults to False.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>use_latex</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a></code>, default:
-                      <code>True</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>If True, use LaTeX for rendering text in the plots. Defaults to True.</p>
-              </div>
-            </li>
-            <li>
-              <b><code>per_variable_plots</code></b>
-                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a></code>, default:
-                      <code>True</code>
-)
-              –
-              <div class="doc-md-description">
-                <p>If True, create the per-variable plots, which require reading the compressed
-datasets and are hence by far the most expensive ones. Defaults to True.</p>
+                <p>(compressor, variable) pairs to flag as having a converted error bound, as
+returned by <code>converted_bound_cells</code> on the raw results.</p>
               </div>
             </li>
         </ul>
@@ -440,7 +531,7 @@ datasets and are hence by far the most expensive ones. Defaults to True.</p>
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../scorecards/" class="btn btn-neutral float-right" title="scorecards">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../scripts/compress/" class="btn btn-neutral float-right" title="compress">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -464,7 +555,7 @@ datasets and are hence by far the most expensive ones. Defaults to True.</p>
     
     
     
-      <span><a href="../scorecards/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../../scripts/compress/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

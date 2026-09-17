@@ -126,7 +126,11 @@
                 </li>
                 <li class="toctree-l3"><a class="reference internal" >plotting</a>
     <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../plotting/constants/">constants</a>
+                </li>
                 <li class="toctree-l4"><a class="reference internal" href="../../plotting/plot_metrics/">plot_metrics</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../plotting/scorecards/">scorecards</a>
                 </li>
     </ul>
                 </li>
@@ -240,6 +244,10 @@
 
 
 
+
+
+
+
 <div class="doc doc-object doc-function">
 
 
@@ -248,7 +256,9 @@
 
 
 </h2>
-<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>concatenate_metrics(basepath: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>())
+<div class="doc-signature highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><code>concatenate_metrics(
+    basepath: <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a> <span style="color: #666">=</span> <a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3.12/library/pathlib.html#pathlib.Path">Path</a>(), skip_missing: <a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a> <span style="color: #666">=</span> <span style="color: #008000; font-weight: bold">False</span>
+)
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -275,6 +285,17 @@
               <div class="doc-md-description">
                 <p>Assumes that the metrics are stored in <code>basepath / metrics</code>. The script will
 create a <code>basepath / metrics / all_results.csv</code> file containing the concatenated results.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>skip_missing</code></b>
+                  (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3.12/library/functions.html#bool">bool</a></code>, default:
+                      <code>False</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>If True, skip missing <code>metrics.csv</code>, <code>tests.csv</code>, or <code>measurements.json</code> files
+and emit a warning instead of raising. Missing fields will be filled with NaN.</p>
               </div>
             </li>
         </ul>
