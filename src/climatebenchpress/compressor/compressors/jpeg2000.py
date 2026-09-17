@@ -50,7 +50,7 @@ class Jpeg2000(Compressor):
         # Here we use the formula for the PSNR (https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio)
         # to convert between the absolute error and the PSNR value.
         # The original PSNR formula uses the root mean square error (RMSE),
-        # therefore JPEG does not guaruantee pointwise error bounds but only
+        # therefore JPEG does not guarantee pointwise error bounds but only
         # average error bounds.
         psnr = 20 * (math.log10(data_range) - math.log10(error_bound))
 
