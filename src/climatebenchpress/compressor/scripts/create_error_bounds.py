@@ -252,14 +252,14 @@ def get_error_bounds(
 def get_no2_bounds(percentiles=[1.00, 0.99, 0.95]) -> list[dict[str, None | float]]:
     # First we need to transform the bitwise real information into a cumulative
     # distribution function.
-    real_information_dist = np.cumsum(NO2_REAL_INFORMATION) / np.sum(
-        NO2_REAL_INFORMATION
-    )
+    # We need to be careful that np.cumsum(x)[-1] may be unequal np.sum(x).
+    real_information_cumsum = np.cumsum(NO2_REAL_INFORMATION)
+    real_information_dist = real_information_cumsum / real_information_cumsum[-1]
     no2_bounds: list[dict[str, None | float]] = []
     for p in percentiles:
-        # Find the first position where cumulative distribution exceeds p.
+        # Find the first position where cumulative distribution is >= p.
         # Add one for 1-based indexing.
-        keepbits = np.argmax(real_information_dist > p) + 1
+        keepbits = np.searchsorted(real_information_dist, p) + 1
         # There are 9 non-mantissa bits in the 32-bit floating point representation.
         mantissa_keepbits = max(int(keepbits - 9), 0)
         # 2^(-mantissa_keepbits) indicates the spacing between representable values.
