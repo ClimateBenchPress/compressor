@@ -2,19 +2,30 @@ __all__ = ["create_error_bounds"]
 
 import argparse
 import json
-from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 import xarray as xr
+from compression_recommendations import Recommendations
+from compression_recommendations.filters.cf import (
+    CfShortNameFilter,
+    CfStandardNameFilter,
+)
+from compression_recommendations.filters.combinators import AnyFilter
+from compression_recommendations.filters.grib import GribShortNameFilter
+from compression_recommendations.filters.tag import TagFilter
+from compression_recommendations.recommendation import Recommendation
+from compression_recommendations.requirements.abc import Requirement
+from compression_recommendations.requirements.error_bounds.max import (
+    MaxPointwiseAbsoluteErrorBoundRequirement,
+    MaxPointwiseRelativeErrorBoundRequirement,
+)
+from semver.version import Version
 
-# Table has header:
-# var,level,percentile,min,range,max,lpbits,lpabsolute,lprelative,brlqabsolute,brabsolute,brrelative,esabsolute,esrelative,esquadratic,unabsolute,cabsolute,crelative,cquadratic,pick,crlinquant,crbitround,crlinquantquadstep,exabsmean,exabsmax,exrelmean,exrelmax
-#
-# esabsolute and esrelative are respectively the absolute and relative error bounds
-# derived from the ERA5 ensembles.
-ERROR_BOUNDS = "https://gist.githubusercontent.com/juntyr/bbe2780256e5f91d8f2cb2f606b7935f/raw/table-raw.csv"
+# Location of the error bounds derived from ERA5 ensemble uncertainty
+ERROR_BOUNDS = Path(
+    "/Users/junityre/era5-ensemble/recommendations/ensemble-spread.yaml"
+)
 
 # Bitwise real information for no2 data computed from the CAMS dataset.
 # The numbers are taken from the supplementary material of:
@@ -143,7 +154,8 @@ def create_error_bounds(
     datasets = (data_loader_basepath or basepath) / "datasets"
     datasets_error_bounds = basepath / "datasets-error-bounds"
 
-    era5_error_bounds = pd.read_csv(ERROR_BOUNDS)
+    with ERROR_BOUNDS.open() as bounds:
+        recommendations = Recommendations.load(bounds)
 
     for dataset in datasets.iterdir():
         if dataset.name == ".gitignore":
@@ -170,18 +182,41 @@ def create_error_bounds(
             if v in VAR_NAME_TO_ERA5:
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
                     get_error_bounds(
-                        era5_error_bounds,
+                        recommendations,
                         VAR_NAME_TO_ERA5[str(v)],
                         VAR_NAME_TO_ERROR_BOUND[str(v)],
+                        percentiles=[0.0, 0.01, 0.05],
                     )
                 )
             elif v == "agb":
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
-                    get_agb_bound(datasets, percentiles=[1.00, 0.99, 0.95])
+                    get_error_bounds(
+                        Recommendations(
+                            recommendations=compute_agb_recommendations(
+                                datasets, percentiles=[0.0, 0.01, 0.05]
+                            ),
+                            version=Version.parse("1.0.0"),
+                            metadata={},
+                        ),
+                        v,
+                        VAR_NAME_TO_ERROR_BOUND[str(v)],
+                        percentiles=[0.0, 0.01, 0.05],
+                    )
                 )
             elif v == "no2":
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
-                    get_no2_bounds(percentiles=[1.00, 0.99, 0.95])
+                    get_error_bounds(
+                        Recommendations(
+                            recommendations=compute_no2_recommendations(
+                                percentiles=[1.00, 0.99, 0.95]
+                            ),
+                            version=Version.parse("1.0.0"),
+                            metadata={},
+                        ),
+                        v,
+                        VAR_NAME_TO_ERROR_BOUND[str(v)],
+                        percentiles=[1.0, 0.99, 0.95],
+                    )
                 )
             else:
                 data_range: float = (ds[v].max() - ds[v].min()).values.item()  # type: ignore
@@ -207,56 +242,89 @@ def create_error_bounds(
 
 
 def get_error_bounds(
-    error_bounds: pd.DataFrame, era5_var: str, error_bound_type: str
+    recommendations: Recommendations,
+    era5_var: str,
+    error_bound_type: str,
+    percentiles: list[float] = [0.0, 0.01, 0.05],
+    pressure_levels: list[float] = [50.0, 500.0, 850.0, 1000.0],
 ) -> list[dict[str, None | float]]:
-    var_error_bounds = error_bounds[error_bounds["var"] == era5_var].copy()
-    single_level = var_error_bounds["level"].unique()[0] == "single"
-    if single_level:
-        assert len(var_error_bounds) == 3, (
-            "Expected three error bounds for each variable."
-        )
-    else:
-        # For variables with multiple levels (only air temperature at this point)
-        # take the average error bound across all levels.
-        var_error_bounds["esrelative_float"] = (
-            var_error_bounds["esrelative"].str.rstrip("%").astype(float)
-        )
-        grouped = (
-            var_error_bounds.groupby(["percentile"])
-            .agg({"esabsolute": "mean", "esrelative_float": "mean"})
-            .reset_index()
-        )
-        grouped["esrelative"] = grouped["esrelative_float"].astype(str) + "%"
-        var_error_bounds = grouped[["percentile", "esabsolute", "esrelative"]]
+    error_bound_tag = {
+        ABS_ERROR: "absolute",
+        REL_ERROR: "relative",
+    }[error_bound_type]
 
-    # Ordered from strictest to most relaxed error bounds.
-    percentiles = ["100%", "99%", "95%"]
     var_ebs: list[dict[str, None | float]] = []
-    for percentile in percentiles:
-        eb_row = var_error_bounds[var_error_bounds["percentile"] == percentile]
 
-        if error_bound_type == REL_ERROR:
-            # Relative error bounds are given as a percentage with an "%" at the end,
-            # so we need to convert them to a fraction.
-            rel_error = float(eb_row["esrelative"].item()[:-1]) / 100.0
-            var_ebs.append({ABS_ERROR: None, REL_ERROR: rel_error})
-        elif error_bound_type == ABS_ERROR:
-            abs_error = float(eb_row["esabsolute"].item())
-            var_ebs.append({ABS_ERROR: abs_error, REL_ERROR: None})
-        else:
-            raise ValueError(f"Unknown error bound type: {error_bound_type}")
+    requirements: list[Requirement]
+    for percentile in percentiles:
+        try:
+            requirements = [
+                req
+                for pressure in pressure_levels
+                for req in recommendations.search(
+                    markers={
+                        "cf-short-name": era5_var,
+                        "grib-short-name": era5_var,
+                        "level-kind": "pressure",
+                        "level-value": pressure,
+                        "tags": f"{percentile * 100}%,{error_bound_tag}",
+                    }
+                )
+            ]
+            assert len(requirements) == len(pressure_levels)
+        except KeyError:
+            requirements = list(
+                recommendations.search(
+                    markers={
+                        "cf-short-name": era5_var,
+                        "grib-short-name": era5_var,
+                        "level-kind": "single",
+                        "tags": f"{percentile * 100}%,{error_bound_tag}",
+                    }
+                )
+            )
+            assert len(requirements) == 1
+
+        bounds: list[int | float] = []
+        for requirement in requirements:
+            assert isinstance(
+                requirement,
+                MaxPointwiseAbsoluteErrorBoundRequirement
+                | MaxPointwiseRelativeErrorBoundRequirement,
+            )
+            assert isinstance(
+                requirement,
+                {
+                    ABS_ERROR: MaxPointwiseAbsoluteErrorBoundRequirement,
+                    REL_ERROR: MaxPointwiseRelativeErrorBoundRequirement,
+                }[error_bound_type],
+            )
+            bounds.append(requirement.value)
+
+        bound = float(np.mean(bounds))
+
+        var_ebs.append(
+            {
+                ABS_ERROR: {error_bound_type: bound}.get(ABS_ERROR),
+                REL_ERROR: {error_bound_type: bound}.get(REL_ERROR),
+            }
+        )
 
     return var_ebs
 
 
-def get_no2_bounds(percentiles=[1.00, 0.99, 0.95]) -> list[dict[str, None | float]]:
+def compute_no2_recommendations(
+    percentiles=[1.00, 0.99, 0.95],
+) -> list[Recommendation]:
     # First we need to transform the bitwise real information into a cumulative
     # distribution function.
     # We need to be careful that np.cumsum(x)[-1] may be unequal np.sum(x).
     real_information_cumsum = np.cumsum(NO2_REAL_INFORMATION)
     real_information_dist = real_information_cumsum / real_information_cumsum[-1]
-    no2_bounds: list[dict[str, None | float]] = []
+    base_filters = [AnyFilter(filters=[CfShortNameFilter(value="no2")])]
+    recommendations = []
     for p in percentiles:
+        filters = base_filters + [TagFilter(value=f"{p * 100}%")]
         # Find the first position where cumulative distribution is >= p.
         # Add one for 1-based indexing.
         keepbits = np.searchsorted(real_information_dist, p) + 1
@@ -267,18 +335,20 @@ def get_no2_bounds(percentiles=[1.00, 0.99, 0.95]) -> list[dict[str, None | floa
         # then is the maximum rounding error.
         # See: https://en.wikipedia.org/wiki/Machine_epsilon
         rel_error = 2 ** (-mantissa_keepbits - 1)
-        no2_bounds.append(
-            {
-                "abs_error": None,
-                "rel_error": float(rel_error),
-            }
+        recommendations.append(
+            Recommendation(
+                filters=filters,
+                requirements=[
+                    MaxPointwiseRelativeErrorBoundRequirement(value=rel_error)
+                ],
+            )
         )
-    return no2_bounds
+    return recommendations
 
 
-def get_agb_bound(
-    datasets: Path, percentiles=[1.00, 0.99, 0.95]
-) -> list[dict[str, None | float]]:
+def compute_agb_recommendations(
+    datasets: Path, percentiles=[0.0, 0.01, 0.05]
+) -> list[Recommendation]:
     # Define rough bounding box coordinates for mainland France.
     # Format: [min_longitude, min_latitude, max_longitude, max_latitude].
     FRANCE_BBOX = [-5.5, 42.3, 9.6, 51.1]
@@ -294,71 +364,71 @@ def get_agb_bound(
         lat=slice(FRANCE_BBOX[3], FRANCE_BBOX[1]),
     )
 
-    ensemble_bounds = compute_ensemble_spread_bounds(
-        mean=agb.agb, spread=agb.agb_sd, percentile=percentiles
+    return compute_ensemble_spread_recommendations(
+        mean=agb.agb, spread=agb.agb_sd, percentiles=percentiles
     )
 
-    error_bounds: list[dict[str, None | float]] = []
-    for a, r in zip(ensemble_bounds.absolute, ensemble_bounds.relative):
-        if VAR_NAME_TO_ERROR_BOUND["agb"] == ABS_ERROR:
-            error_bounds.append(
-                {
-                    "abs_error": float(a),
-                    "rel_error": None,
-                }
-            )
-        elif VAR_NAME_TO_ERROR_BOUND["agb"] == REL_ERROR:
-            error_bounds.append(
-                {
-                    "abs_error": None,
-                    "rel_error": float(r),
-                }
-            )
 
-    return error_bounds
+def compute_ensemble_spread_recommendations(
+    mean: xr.DataArray, spread: xr.DataArray, percentiles: list[float]
+) -> list[Recommendation]:
+    da = mean
 
-
-@dataclass
-class EnsembleSpreadBounds:
-    percentile: list[float]
-    absolute: list[float]
-    relative: list[float]
-
-
-def compute_ensemble_spread_bounds(
-    mean: xr.DataArray, spread: xr.DataArray, percentile: list[float]
-) -> EnsembleSpreadBounds:
     mean_values = mean.values.flatten()
     spread_values = spread.values.flatten()
 
-    spread_nonzero = spread_values[spread_values > 0.0]
+    spread_nonzero = spread_values[(spread_values > 0.0) & np.isfinite(spread_values)]
 
+    # compute the absolute error bound
     absolute: list[float]
     if len(spread_nonzero) > 0:
         absolute = [
-            float(s)
-            for s in np.nanquantile(spread_nonzero, [1 - p for p in percentile])
+            float(s) for s in np.nanquantile(spread_nonzero, [p for p in percentiles])
         ]
     else:
-        absolute = [0.0 for _ in percentile]
+        absolute = [0.0 for _ in percentiles]
 
+    # compute the relative error bound
     abs_mean = np.abs(mean_values)
     rel = spread_values[abs_mean > 0.0] / abs_mean[abs_mean > 0.0]
-    rel_nonzero = rel[rel > 0.0]
+    rel_nonzero = rel[(rel > 0.0) & np.isfinite(rel)]
 
     relative: list[float]
     if len(rel_nonzero) > 0:
         relative = [
-            float(r) for r in np.nanquantile(rel_nonzero, [1 - p for p in percentile])
+            float(s) for s in np.nanquantile(rel_nonzero, [p for p in percentiles])
         ]
     else:
-        relative = [0.0 for _ in percentile]
+        relative = [0.0 for _ in percentiles]
 
-    return EnsembleSpreadBounds(
-        percentile=percentile,
-        absolute=absolute,
-        relative=relative,
-    )
+    base_filters = [
+        AnyFilter(filters=[CfShortNameFilter(value=str(da.name))]),
+    ]
+
+    recommendations = []
+
+    # compile the recommendations for each percentile and error bound kind
+    for i, p in enumerate(percentiles):
+        filters = base_filters + [TagFilter(value=f"{p * 100}%")]
+
+        recommendations.append(
+            Recommendation(
+                filters=filters + [AnyFilter(filters=[TagFilter(value="absolute")])],
+                requirements=[
+                    MaxPointwiseAbsoluteErrorBoundRequirement(value=float(absolute[i]))
+                ],
+            )
+        )
+        recommendations.append(
+            Recommendation(
+                filters=filters + [AnyFilter(filters=[TagFilter(value="relative")])],
+                requirements=[
+                    MaxPointwiseRelativeErrorBoundRequirement(value=float(relative[i]))
+                ],
+            )
+        )
+
+    return recommendations
 
 
 if __name__ == "__main__":
