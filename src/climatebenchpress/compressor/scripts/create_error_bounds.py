@@ -7,12 +7,8 @@ from pathlib import Path
 import numpy as np
 import xarray as xr
 from compression_recommendations import Recommendations
-from compression_recommendations.filters.cf import (
-    CfShortNameFilter,
-    CfStandardNameFilter,
-)
+from compression_recommendations.filters.cf import CfShortNameFilter
 from compression_recommendations.filters.combinators import AnyFilter
-from compression_recommendations.filters.grib import GribShortNameFilter
 from compression_recommendations.filters.tag import TagFilter
 from compression_recommendations.recommendation import Recommendation
 from compression_recommendations.requirements.abc import Requirement
