@@ -36,6 +36,7 @@ dependencies = [
     "cartopy~=0.24.1",
     "cf-xarray~=0.10",
     "cftime~=1.6.0",
+    "compression-recommendations==0.1.0b1",
     "dask>=2024.12.0,<2025.4",
     "matplotlib~=3.8",
     "netcdf4==1.7.3",
@@ -63,7 +64,7 @@ dependencies = [
     "scipy~=1.14",
     "seaborn~=0.13.2",
     "tabulate~=0.9",
-    "typed-classproperties~=1.1.0",
+    "typed-classproperties~=1.5.0",
     "xarray>=2024.11.0,<2025.4",
     "zarr~=2.18.0",
 ]
