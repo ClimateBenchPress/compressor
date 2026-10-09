@@ -2,6 +2,7 @@ __all__ = ["create_error_bounds"]
 
 import argparse
 import json
+from decimal import Decimal
 from pathlib import Path
 
 import numpy as np
@@ -197,6 +198,7 @@ def create_error_bounds(
                         v,
                         VAR_NAME_TO_ERROR_BOUND[str(v)],
                         percentiles=[0.0, 0.01, 0.05],
+                        round_bounds=False,
                     )
                 )
             elif v == "no2":
@@ -212,6 +214,7 @@ def create_error_bounds(
                         v,
                         VAR_NAME_TO_ERROR_BOUND[str(v)],
                         percentiles=[1.0, 0.99, 0.95],
+                        round_bounds=False,
                     )
                 )
             else:
@@ -243,6 +246,7 @@ def get_error_bounds(
     error_bound_type: str,
     percentiles: list[float] = [0.0, 0.01, 0.05],
     pressure_levels: list[float] = [50.0, 500.0, 850.0, 1000.0],
+    round_bounds: bool = True,
 ) -> list[dict[str, None | float]]:
     error_bound_tag = {
         ABS_ERROR: "absolute",
@@ -295,9 +299,21 @@ def get_error_bounds(
                     REL_ERROR: MaxPointwiseRelativeErrorBoundRequirement,
                 }[error_bound_type],
             )
-            bounds.append(requirement.value)
+            bound = requirement.value
+            # Explicitly round the bounds as done in ClimateBenchPress v1.0.0
+            bounds.append(
+                {
+                    ABS_ERROR: float(f"{bound:.1e}"),
+                    REL_ERROR: float(f"{bound:.2%}".rstrip("%")) / 100,
+                }[error_bound_type]
+                if round_bounds
+                else bound
+            )
 
-        bound = float(np.mean(bounds))
+        # For variables with multiple levels, only air temperature at this
+        # point, we take the average error bound across all levels.
+        # Compute the correctly-rounded order-independent mean
+        bound = float(sum(Decimal(b) for b in bounds) / len(bounds))
 
         var_ebs.append(
             {
