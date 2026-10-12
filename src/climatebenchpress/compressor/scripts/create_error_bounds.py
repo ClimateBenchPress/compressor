@@ -3,7 +3,9 @@ __all__ = ["create_error_bounds"]
 import argparse
 import json
 from decimal import Decimal
+from io import TextIOWrapper
 from pathlib import Path
+from urllib.request import urlopen
 
 import numpy as np
 import xarray as xr
@@ -20,8 +22,9 @@ from compression_recommendations.requirements.error_bounds.max import (
 from semver.version import Version
 
 # Location of the error bounds derived from ERA5 ensemble uncertainty
-ERROR_BOUNDS = Path(
-    "/Users/junityre/era5-ensemble/recommendations/ensemble-spread.yaml"
+# from https://doi.org/10.5281/zenodo.23308182
+ERROR_BOUNDS = (
+    "https://zenodo.org/records/23308182/files/ensemble-spread.yaml?download=1"
 )
 
 # Bitwise real information for no2 data computed from the CAMS dataset.
@@ -151,8 +154,8 @@ def create_error_bounds(
     datasets = (data_loader_basepath or basepath) / "datasets"
     datasets_error_bounds = basepath / "datasets-error-bounds"
 
-    with ERROR_BOUNDS.open() as bounds:
-        recommendations = Recommendations.load(bounds)
+    with urlopen(ERROR_BOUNDS) as bounds:
+        recommendations = Recommendations.load(TextIOWrapper(bounds))
 
     for dataset in datasets.iterdir():
         if dataset.name == ".gitignore":
