@@ -5,7 +5,6 @@ import json
 from decimal import Decimal
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Literal
 from urllib.request import urlopen
 
 import numpy as np
@@ -120,7 +119,7 @@ VAR_NAME_TO_ERA5 = {
 
 ABS_ERROR = "abs_error"
 REL_ERROR = "rel_error"
-VAR_NAME_TO_ERROR_BOUND: dict[str, Literal["abs_error", "rel_error"]] = {
+VAR_NAME_TO_ERROR_BOUND = {
     "rlut": ABS_ERROR,
     "agb": REL_ERROR,
     "pr": REL_ERROR,
@@ -138,7 +137,7 @@ VAR_NAME_TO_ERROR_BOUND: dict[str, Literal["abs_error", "rel_error"]] = {
 
 SINGLE_LEVEL = "single"
 PRESSURE_LEVEL = "pressure"
-VAR_NAME_TO_LEVEL_KIND: dict[str, Literal["single", "pressure"]] = {
+VAR_NAME_TO_LEVEL_KIND = {
     "rlut": SINGLE_LEVEL,
     "agb": SINGLE_LEVEL,
     "pr": SINGLE_LEVEL,
@@ -288,7 +287,7 @@ def get_error_bounds(
                 )
             ]
             assert len(requirements) == len(pressure_levels)
-        else:
+        elif level_kind == SINGLE_LEVEL:
             requirements = list(
                 recommendations.search(
                     markers={
@@ -300,6 +299,8 @@ def get_error_bounds(
                 )
             )
             assert len(requirements) == 1
+        else:
+            raise ValueError(f"unknown level kind {level_kind}")
 
         bounds: list[int | float] = []
         for requirement in requirements:

@@ -72,7 +72,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ipykernel~=6.29",
-    "mypy~=1.14",
+    "mypy~=2.4",
     "pandas-stubs~=2.2",
     "pre-commit~=4.0",
     "ruff~=0.9",
