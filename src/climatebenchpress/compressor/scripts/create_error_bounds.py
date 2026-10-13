@@ -5,6 +5,7 @@ import json
 from decimal import Decimal
 from io import TextIOWrapper
 from pathlib import Path
+from typing import Literal
 from urllib.request import urlopen
 
 import numpy as np
@@ -119,7 +120,7 @@ VAR_NAME_TO_ERA5 = {
 
 ABS_ERROR = "abs_error"
 REL_ERROR = "rel_error"
-VAR_NAME_TO_ERROR_BOUND = {
+VAR_NAME_TO_ERROR_BOUND: dict[str, Literal["abs_error", "rel_error"]] = {
     "rlut": ABS_ERROR,
     "agb": REL_ERROR,
     "pr": REL_ERROR,
@@ -133,6 +134,24 @@ VAR_NAME_TO_ERROR_BOUND = {
     "msl": ABS_ERROR,
     "no2": REL_ERROR,
     "q": REL_ERROR,
+}
+
+SINGLE_LEVEL = "single"
+PRESSURE_LEVEL = "pressure"
+VAR_NAME_TO_LEVEL_KIND: dict[str, Literal["single", "pressure"]] = {
+    "rlut": SINGLE_LEVEL,
+    "agb": SINGLE_LEVEL,
+    "pr": SINGLE_LEVEL,
+    "ta": PRESSURE_LEVEL,
+    "tos": SINGLE_LEVEL,
+    "10m_u_component_of_wind": SINGLE_LEVEL,
+    "10u": SINGLE_LEVEL,
+    "10m_v_component_of_wind": SINGLE_LEVEL,
+    "10v": SINGLE_LEVEL,
+    "mean_sea_level_pressure": SINGLE_LEVEL,
+    "msl": SINGLE_LEVEL,
+    "no2": PRESSURE_LEVEL,
+    "q": PRESSURE_LEVEL,
 }
 
 
@@ -183,23 +202,21 @@ def create_error_bounds(
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
                     get_error_bounds(
                         recommendations,
-                        VAR_NAME_TO_ERA5[str(v)],
-                        VAR_NAME_TO_ERROR_BOUND[str(v)],
+                        VAR_NAME_TO_ERA5[v],
+                        VAR_NAME_TO_LEVEL_KIND[v],
+                        VAR_NAME_TO_ERROR_BOUND[v],
                         percentiles=[0.0, 0.01, 0.05],
                     )
                 )
             elif v == "agb":
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
                     get_error_bounds(
-                        Recommendations(
-                            recommendations=compute_agb_recommendations(
-                                datasets, percentiles=[0.0, 0.01, 0.05]
-                            ),
-                            version=Version.parse("1.0.0"),
-                            metadata={},
+                        compute_agb_recommendations(
+                            datasets, percentiles=[0.0, 0.01, 0.05]
                         ),
                         v,
-                        VAR_NAME_TO_ERROR_BOUND[str(v)],
+                        VAR_NAME_TO_LEVEL_KIND[v],
+                        VAR_NAME_TO_ERROR_BOUND[v],
                         percentiles=[0.0, 0.01, 0.05],
                         round_bounds=False,
                     )
@@ -207,15 +224,10 @@ def create_error_bounds(
             elif v == "no2":
                 low_error_bounds[v], mid_error_bounds[v], high_error_bounds[v] = (
                     get_error_bounds(
-                        Recommendations(
-                            recommendations=compute_no2_recommendations(
-                                percentiles=[1.00, 0.99, 0.95]
-                            ),
-                            version=Version.parse("1.0.0"),
-                            metadata={},
-                        ),
+                        compute_no2_recommendations(percentiles=[1.00, 0.99, 0.95]),
                         v,
-                        VAR_NAME_TO_ERROR_BOUND[str(v)],
+                        VAR_NAME_TO_LEVEL_KIND[v],
+                        VAR_NAME_TO_ERROR_BOUND[v],
                         percentiles=[1.0, 0.99, 0.95],
                         round_bounds=False,
                     )
@@ -246,6 +258,7 @@ def create_error_bounds(
 def get_error_bounds(
     recommendations: Recommendations,
     era5_var: str,
+    level_kind: str,
     error_bound_type: str,
     percentiles: list[float] = [0.0, 0.01, 0.05],
     pressure_levels: list[float] = [50.0, 500.0, 850.0, 1000.0],
@@ -260,7 +273,7 @@ def get_error_bounds(
 
     requirements: list[Requirement]
     for percentile in percentiles:
-        try:
+        if level_kind == PRESSURE_LEVEL:
             requirements = [
                 req
                 for pressure in pressure_levels
@@ -275,7 +288,7 @@ def get_error_bounds(
                 )
             ]
             assert len(requirements) == len(pressure_levels)
-        except KeyError:
+        else:
             requirements = list(
                 recommendations.search(
                     markers={
@@ -330,16 +343,19 @@ def get_error_bounds(
 
 def compute_no2_recommendations(
     percentiles=[1.00, 0.99, 0.95],
-) -> list[Recommendation]:
+) -> Recommendations:
     # First we need to transform the bitwise real information into a cumulative
     # distribution function.
     # We need to be careful that np.cumsum(x)[-1] may be unequal np.sum(x).
     real_information_cumsum = np.cumsum(NO2_REAL_INFORMATION)
     real_information_dist = real_information_cumsum / real_information_cumsum[-1]
+
     base_filters = [AnyFilter(filters=[CfShortNameFilter(value="no2")])]
+
     recommendations = []
     for p in percentiles:
         filters = base_filters + [TagFilter(value=f"{p * 100}%")]
+
         # Find the first position where cumulative distribution is >= p.
         # Add one for 1-based indexing.
         keepbits = np.searchsorted(real_information_dist, p) + 1
@@ -350,6 +366,7 @@ def compute_no2_recommendations(
         # then is the maximum rounding error.
         # See: https://en.wikipedia.org/wiki/Machine_epsilon
         rel_error = 2 ** (-mantissa_keepbits - 1)
+
         recommendations.append(
             Recommendation(
                 filters=filters,
@@ -358,12 +375,15 @@ def compute_no2_recommendations(
                 ],
             )
         )
-    return recommendations
+
+    return Recommendations(
+        recommendations=recommendations, version=Version.parse("1.0.0"), metadata={}
+    )
 
 
 def compute_agb_recommendations(
     datasets: Path, percentiles=[0.0, 0.01, 0.05]
-) -> list[Recommendation]:
+) -> Recommendations:
     # Define rough bounding box coordinates for mainland France.
     # Format: [min_longitude, min_latitude, max_longitude, max_latitude].
     FRANCE_BBOX = [-5.5, 42.3, 9.6, 51.1]
@@ -379,8 +399,12 @@ def compute_agb_recommendations(
         lat=slice(FRANCE_BBOX[3], FRANCE_BBOX[1]),
     )
 
-    return compute_ensemble_spread_recommendations(
+    recommendations = compute_ensemble_spread_recommendations(
         mean=agb.agb, spread=agb.agb_sd, percentiles=percentiles
+    )
+
+    return Recommendations(
+        recommendations=recommendations, version=Version.parse("1.0.0"), metadata={}
     )
 
 
