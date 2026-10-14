@@ -87,6 +87,7 @@ def _dssim(
     assert kernel_size % 2 == 1, "kernel_size must be an odd number."
 
     # re-scale  to [0,1] - if not constant
+    # dSSIM assumes that there are no infinite values
     smin = min(np.nanmin(a1), np.nanmin(a2))
     smax = max(np.nanmax(a1), np.nanmax(a2))
     r = smax - smin

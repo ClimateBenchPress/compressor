@@ -23,6 +23,7 @@ class SafeguardedZeroDssim(Compressor):
                 dict(kind="eb", type="abs", eb=error_bound, equal_nan=True),
                 # guarantee that the per-latitude-longitude-slice minimum and
                 #  maximum are preserved, which simplifies the rescaling
+                # dSSIM assumes that there are no infinite values
                 dict(kind="sign", offset="x_min"),
                 dict(kind="sign", offset="x_max"),
                 dict(
