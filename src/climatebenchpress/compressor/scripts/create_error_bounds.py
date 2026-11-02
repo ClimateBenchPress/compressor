@@ -22,9 +22,9 @@ from compression_recommendations.requirements.error_bounds.max import (
 from semver.version import Version
 
 # Location of the error bounds derived from ERA5 ensemble uncertainty
-# from https://doi.org/10.5281/zenodo.23308182
+# from https://doi.org/10.5281/zenodo.23880980
 ERROR_BOUNDS = (
-    "https://zenodo.org/records/23308182/files/ensemble-spread.yaml?download=1"
+    "https://zenodo.org/records/23880980/files/uncertainty.yaml?download=1"
 )
 
 # Bitwise real information for no2 data computed from the CAMS dataset.

@@ -36,7 +36,7 @@ dependencies = [
     "cartopy~=0.24.1",
     "cf-xarray~=0.10",
     "cftime~=1.6.0",
-    "compression-recommendations==0.1.0b1",
+    "compression-recommendations==0.1.0b2",
     "dask>=2024.12.0,<2025.4",
     "matplotlib~=3.8",
     "netcdf4==1.7.3",
