@@ -23,9 +23,7 @@ from semver.version import Version
 
 # Location of the error bounds derived from ERA5 ensemble uncertainty
 # from https://doi.org/10.5281/zenodo.23880980
-ERROR_BOUNDS = (
-    "https://zenodo.org/records/23880980/files/uncertainty.yaml?download=1"
-)
+ERROR_BOUNDS = "https://zenodo.org/records/23880980/files/uncertainty.yaml?download=1"
 
 # Bitwise real information for no2 data computed from the CAMS dataset.
 # The numbers are taken from the supplementary material of:
